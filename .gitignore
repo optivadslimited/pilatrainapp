@@ -47,3 +47,6 @@ coverage/
 
 # Claude Code local settings
 .claude/
+
+# Local-only notes (the owner brief is kept out of this public repository)
+*.local.md
