@@ -73,6 +73,7 @@
       "/node_modules/",
       "/dist/",
       "/.expo/"
-    ]
+    ],
+    "resolver": "react-native-reanimated/jest/resolver"
   }
 }
