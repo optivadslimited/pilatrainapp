@@ -12,7 +12,8 @@ export type IconButtonProps = {
   color?: IconColor;
   iconSize?: number;
   disabled?: boolean;
-  accessibilityState?: { selected?: boolean; checked?: boolean };
+  /** For a toggle, e.g. captions: whether it is on. */
+  checked?: boolean;
   style?: StyleProp<ViewStyle>;
   testID?: string;
 };
@@ -25,7 +26,7 @@ export function IconButton({
   color = 'text',
   iconSize = size.icon,
   disabled = false,
-  accessibilityState,
+  checked,
   style,
   testID,
 }: IconButtonProps) {
@@ -35,7 +36,8 @@ export function IconButton({
       disabled={disabled}
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
-      accessibilityState={{ ...accessibilityState, disabled }}
+      aria-checked={checked}
+      aria-disabled={disabled}
       testID={testID}
       style={({ pressed }) => [styles.target, pressed && styles.pressed, style]}>
       <Icon name={icon} size={iconSize} color={color} />

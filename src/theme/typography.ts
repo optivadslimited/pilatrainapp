@@ -15,13 +15,7 @@ export const fonts = {
 } as const;
 
 export type TypeVariant =
-  | 'display'
-  | 'title'
-  | 'heading'
-  | 'body'
-  | 'callout'
-  | 'caption'
-  | 'button';
+  'display' | 'title' | 'heading' | 'body' | 'callout' | 'caption' | 'button';
 
 /** Size / line height in points, as specified. */
 export const typeScale: Record<TypeVariant, TextStyle> = {

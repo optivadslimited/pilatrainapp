@@ -91,7 +91,12 @@ export function PlayerControls({
       pointerEvents={visible ? 'auto' : 'none'}
       accessibilityElementsHidden={!visible}
       importantForAccessibility={visible ? 'auto' : 'no-hide-descendants'}
-      style={[StyleSheet.absoluteFill, styles.overlay, { backgroundColor: colors.scrimEnd }, fadeStyle]}>
+      style={[
+        StyleSheet.absoluteFill,
+        styles.overlay,
+        { backgroundColor: colors.scrimEnd },
+        fadeStyle,
+      ]}>
       <View style={styles.row}>
         <IconButton
           icon="close"
@@ -105,7 +110,7 @@ export function PlayerControls({
             icon={captionsOn ? 'captionsOn' : 'captionsOff'}
             color="onDark"
             accessibilityLabel={captionsOn ? t.player.captionsOn : t.player.captionsOff}
-            accessibilityState={{ checked: captionsOn }}
+            checked={captionsOn}
             onPress={touched(onToggleCaptions)}
             testID="player-captions"
           />
@@ -219,7 +224,9 @@ function Scrubber({
     },
   });
 
-  const fraction = useDerivedValue(() => (dragging.get() ? dragFraction.get() : playFraction.get()));
+  const fraction = useDerivedValue(() =>
+    dragging.get() ? dragFraction.get() : playFraction.get(),
+  );
   const fillStyle = useAnimatedStyle(() => ({ width: fraction.get() * width.get() }));
   const thumbStyle = useAnimatedStyle(() => ({
     transform: [{ translateX: fraction.get() * width.get() - THUMB / 2 }],

@@ -23,7 +23,7 @@ export function Checkbox({ label, checked, onChange, testID }: CheckboxProps) {
       }}
       accessibilityRole="checkbox"
       accessibilityLabel={label}
-      accessibilityState={{ checked }}
+      aria-checked={checked}
       testID={testID}
       style={({ pressed }) => [styles.row, pressed && styles.pressed]}>
       <SelectionMark selected={checked} shape="square" />

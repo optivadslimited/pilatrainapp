@@ -9,7 +9,7 @@ import Animated, {
   withRepeat,
   withTiming,
 } from 'react-native-reanimated';
-import Svg, { Circle, G } from 'react-native-svg';
+import Svg, { Circle } from 'react-native-svg';
 
 import { duration, easeInOut, ringTiming, useReduceMotion, useTheme } from '@/theme';
 
@@ -93,28 +93,27 @@ export function Ring({
       accessibilityLabel={accessibilityLabel}
       style={{ width: size, height: size }}>
       <Animated.View style={[StyleSheet.absoluteFill, breathStyle]}>
-        <Svg width={size} height={size}>
-          <G rotation={-90} origin={`${centre}, ${centre}`}>
-            <Circle
-              cx={centre}
-              cy={centre}
-              r={r}
-              stroke={colors.hairline}
-              strokeWidth={strokeWidth}
-              fill="none"
-            />
-            <AnimatedCircle
-              cx={centre}
-              cy={centre}
-              r={r}
-              stroke={colors.primary}
-              strokeWidth={strokeWidth}
-              strokeLinecap="round"
-              strokeDasharray={`${circumference} ${circumference}`}
-              animatedProps={arcProps}
-              fill="none"
-            />
-          </G>
+        {/* Turned a quarter so the arc starts at twelve o'clock. */}
+        <Svg width={size} height={size} style={styles.fromTop}>
+          <Circle
+            cx={centre}
+            cy={centre}
+            r={r}
+            stroke={colors.hairline}
+            strokeWidth={strokeWidth}
+            fill="none"
+          />
+          <AnimatedCircle
+            cx={centre}
+            cy={centre}
+            r={r}
+            stroke={colors.primary}
+            strokeWidth={strokeWidth}
+            strokeLinecap="round"
+            strokeDasharray={`${circumference} ${circumference}`}
+            animatedProps={arcProps}
+            fill="none"
+          />
         </Svg>
       </Animated.View>
       {children ? <View style={[StyleSheet.absoluteFill, styles.centre]}>{children}</View> : null}
@@ -124,4 +123,5 @@ export function Ring({
 
 const styles = StyleSheet.create({
   centre: { alignItems: 'center', justifyContent: 'center' },
+  fromTop: { transform: [{ rotate: '-90deg' }] },
 });

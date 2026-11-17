@@ -59,7 +59,8 @@ export function PlanCard({
       disabled={loading}
       accessibilityRole="radio"
       accessibilityLabel={label}
-      accessibilityState={{ selected, disabled: loading }}
+      aria-checked={selected}
+      aria-disabled={loading}
       testID={testID}
       style={[
         styles.card,

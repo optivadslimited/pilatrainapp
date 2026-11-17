@@ -43,7 +43,11 @@ export function DayPill(props: DayPillProps) {
   if ('state' in props) {
     const { state } = props;
     const filled = state === 'done';
-    const letterColor: TextColor = filled ? 'onPrimary' : state === 'rest' ? 'textSecondary' : 'text';
+    const letterColor: TextColor = filled
+      ? 'onPrimary'
+      : state === 'rest'
+        ? 'textSecondary'
+        : 'text';
 
     return (
       <View
@@ -83,7 +87,8 @@ export function DayPill(props: DayPillProps) {
       hitSlop={{ left: 2, right: 2 }}
       accessibilityRole="checkbox"
       accessibilityLabel={accessibilityLabel}
-      accessibilityState={{ checked: selected, disabled }}
+      aria-checked={selected}
+      aria-disabled={disabled}
       testID={testID}
       style={[
         styles.pill,
@@ -91,6 +96,7 @@ export function DayPill(props: DayPillProps) {
           backgroundColor: selected ? colors.selectedTint : colors.surface,
           borderColor: selected ? colors.primary : colors.surface,
         },
+        disabled && !selected && styles.unavailable,
       ]}>
       <Text variant="caption" weight="600" color={selected ? 'primary' : 'text'}>
         {letter}
@@ -120,4 +126,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   dot: { width: 6, height: 6, borderRadius: 3 },
+  // A day that cannot be added because the week is already full.
+  unavailable: { opacity: 0.45 },
 });

@@ -11,6 +11,7 @@ export { DayPill, type DayPillProps, type DayState } from './DayPill';
 export { EmptyState, type EmptyStateProps } from './EmptyState';
 export { Icon, type IconName, type IconProps } from './Icon';
 export { IconButton, type IconButtonProps } from './IconButton';
+export { ListRow, type ListRowProps } from './ListRow';
 export { OptionCard, type OptionCardProps } from './OptionCard';
 export { PhotoPlaceholder, type PhotoPlaceholderProps } from './PhotoPlaceholder';
 export { PlanCard, type PlanCardProps } from './PlanCard';

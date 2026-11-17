@@ -137,7 +137,12 @@ function CompactCard({
         accessibilityLabel={`${title}. ${meta}${locked ? `. ${t.classMeta.locked}` : ''}`}
         style={styles.compactBody}>
         <View style={styles.compactThumb}>
-          <Thumbnail imageUrl={imageUrl} photoLabel={photoLabel} borderRadius={radius.input} compact />
+          <Thumbnail
+            imageUrl={imageUrl}
+            photoLabel={photoLabel}
+            borderRadius={radius.input}
+            compact
+          />
         </View>
         <View style={styles.compactText}>
           <Text variant="body" weight="600">

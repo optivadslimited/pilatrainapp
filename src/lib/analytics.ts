@@ -104,7 +104,8 @@ export function quizAnswerForAnalytics(
   return '';
 }
 
-if (__DEV__) {
+// In development, events are printed so the funnel can be read in the console.
+if (__DEV__ && process.env.NODE_ENV !== 'test') {
   addAnalyticsSink((name, properties) => {
     console.log(`[analytics] ${name}`, properties ?? '');
   });

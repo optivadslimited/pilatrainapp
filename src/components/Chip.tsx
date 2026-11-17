@@ -44,7 +44,7 @@ export function Chip({ label, selected = false, onPress, testID }: ChipProps) {
       hitSlop={HIT_SLOP}
       accessibilityRole="button"
       accessibilityLabel={label}
-      accessibilityState={{ selected }}
+      aria-selected={selected}
       testID={testID}
       style={({ pressed }) => pressed && styles.pressed}>
       {body}

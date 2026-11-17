@@ -42,7 +42,8 @@ export function OptionCard({
       disabled={disabled}
       accessibilityRole={mode === 'single' ? 'radio' : 'checkbox'}
       accessibilityLabel={description ? `${label}. ${description}` : label}
-      accessibilityState={mode === 'single' ? { selected, disabled } : { checked: selected, disabled }}
+      aria-checked={selected}
+      aria-disabled={disabled}
       testID={testID}
       style={[
         styles.card,
