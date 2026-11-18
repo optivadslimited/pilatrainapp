@@ -46,8 +46,8 @@ export interface AuthProvider {
   verifyEmailCode(email: string, code: string, intent: AuthIntent): Promise<AuthResult>;
   /** She opened the emailed link on this phone. */
   verifyEmailLink(tokenHash: string, type: string): Promise<AuthResult>;
-  /** Ends the session. A new anonymous one begins. */
-  signOut(): Promise<void>;
-  /** Deletes her account and everything in it, on the server. */
-  deleteAccount(): Promise<boolean>;
+  /** Ends the session. A new anonymous one begins; its user ID is returned (`null` in the preview). */
+  signOut(): Promise<string | null>;
+  /** Deletes her account and everything in it, on the server. Then as for signing out. */
+  deleteAccount(): Promise<{ deleted: boolean; userId: string | null }>;
 }

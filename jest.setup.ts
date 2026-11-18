@@ -38,3 +38,26 @@ jest.mock(
 // Reanimated runs in its JavaScript mode under Jest (see `resolver` in package.json).
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 require('react-native-reanimated').setUpTests();
+
+// The outside services (crash reporting, analytics) are never contacted from a
+// test. Their SDKs are replaced with stand-ins that do nothing.
+jest.mock('@sentry/react-native', () => ({
+  init: jest.fn(),
+  setUser: jest.fn(),
+  wrap: (component: unknown) => component,
+}));
+
+jest.mock('posthog-react-native', () => ({
+  __esModule: true,
+  default: class {
+    capture() {}
+    identify() {}
+    reset() {}
+    getFeatureFlag() {
+      return undefined;
+    }
+    onFeatureFlags() {
+      return () => {};
+    }
+  },
+}));

@@ -8,6 +8,7 @@ import { useReminderStore } from '@/features/reminders/store';
 import { track } from '@/lib/analytics';
 import { setDevDayOffset } from '@/lib/clock';
 import { queryClient } from '@/lib/queryClient';
+import { identify } from '@/lib/services';
 import { zustandStorage } from '@/lib/storage';
 import { supabase } from '@/lib/supabase';
 
@@ -24,8 +25,8 @@ const unavailable: AuthProvider = {
   sendEmail: async () => ({ status: 'failed', reason: 'unavailable' }),
   verifyEmailCode: async () => ({ status: 'failed', reason: 'unavailable' }),
   verifyEmailLink: async () => ({ status: 'failed', reason: 'unavailable' }),
-  signOut: async () => {},
-  deleteAccount: async () => false,
+  signOut: async () => null,
+  deleteAccount: async () => ({ deleted: false, userId: null }),
 };
 
 /**
@@ -91,24 +92,29 @@ export async function completeAuth(
 
   // A different user: this phone now belongs to that account.
   clearDevice();
+  identify(result.userId);
   await switchMembershipUser(result.userId);
   return (await restoreProfile()) ? 'home' : 'welcome';
 }
 
 /** Sign out: the account stays on the server, this phone starts afresh. */
 export async function signOut(): Promise<void> {
-  await auth.signOut();
+  const userId = await auth.signOut();
   useAccountStore.getState().setAccount(null);
   clearDevice();
-  await switchMembershipUser(null);
+  identify(userId);
+  await switchMembershipUser(userId);
 }
 
 /** Delete her account and everything in it. `false` if the server could not be reached. */
 export async function deleteAccount(): Promise<boolean> {
-  if (!(await auth.deleteAccount())) return false;
+  const { deleted, userId } = await auth.deleteAccount();
+  if (!deleted) return false;
+  // Sent before the identity is reset, so it is counted against the account that went.
   track('account_deleted');
   useAccountStore.getState().setAccount(null);
   clearDevice();
-  await switchMembershipUser(null);
+  identify(userId);
+  await switchMembershipUser(userId);
   return true;
 }

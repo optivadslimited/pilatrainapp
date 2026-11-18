@@ -10,6 +10,7 @@ import { indexCatalogue } from '@/features/plan/cards';
 import { afterClassView } from '@/features/plan/progress';
 import { useCatalogue, useCurrentPlan, useHistory, useRateSession } from '@/features/plan/queries';
 import { track } from '@/lib/analytics';
+import { askToTrack } from '@/lib/attribution';
 import { classCompleted } from '@/lib/haptics';
 import { useToday } from '@/lib/useToday';
 import { t } from '@/strings';
@@ -47,7 +48,7 @@ export default function AfterClass() {
       ? afterClassView(plan, history?.plans ?? [], indexCatalogue(classes), sessionId, date)
       : null;
 
-  const done = () => {
+  const done = async () => {
     if (rating && sessionId) {
       track('feedback_submitted', { rating });
       rate.mutate(
@@ -60,6 +61,10 @@ export default function AfterClass() {
         },
       );
     }
+    // Apple's tracking prompt, once, after her first completed class and never
+    // before. It is only shown when attribution is switched on.
+    if ((view?.sessions ?? 0) >= 1) await askToTrack();
+
     // The free class is done. This is where membership is offered; closing the
     // paywall carries on to an account, reminders and home.
     if (!isMember) {

@@ -59,10 +59,11 @@ export const previewAuth: AuthProvider = {
 
   async signOut() {
     storage.remove(KEY);
+    return null;
   },
 
   async deleteAccount() {
     storage.remove(KEY);
-    return true;
+    return { deleted: true, userId: null };
   },
 };

@@ -30,7 +30,7 @@ import {
   resumeFrom,
   type SavedProgress,
 } from '@/features/player/playback';
-import { videoSourceFor } from '@/features/player/sources';
+import { usePlaybackSource, type VideoSourceInfo } from '@/features/player/sources';
 import { track } from '@/lib/analytics';
 import { formatClassMeta, formatClock } from '@/lib/format';
 import { useGoBack } from '@/lib/useGoBack';
@@ -115,6 +115,8 @@ function Playlist({
   source: string;
 }) {
   const router = useRouter();
+  const { colors } = useTheme();
+  const insets = useSafeAreaInsets();
   const complete = useCompleteSession();
   const goBack = useGoBack('/today');
   const [index, setIndex] = useState(0);
@@ -123,6 +125,9 @@ function Playlist({
 
   const cls = queue[index];
   const isLast = index === queue.length - 1;
+  // A member class plays from a signed address, fetched after the server has
+  // checked she may watch it.
+  const stream = usePlaybackSource(cls);
 
   const openAfterClass = () =>
     router.replace({
@@ -130,11 +135,49 @@ function Playlist({
       params: sessionId ? { sessionId, classId: cls.id } : { classId: cls.id },
     });
 
+  // The server says this class needs a membership she does not have.
+  if (stream.refused) {
+    return <Redirect href={{ pathname: '/paywall', params: { placement: 'locked_class' } }} />;
+  }
+
+  if (stream.failed) {
+    return (
+      <View style={[styles.screen, { backgroundColor: colors.background, paddingTop: insets.top }]}>
+        <StatusBar style="dark" />
+        <View style={styles.errorBody}>
+          <EmptyState
+            icon="offline"
+            title={t.states.videoErrorTitle}
+            body={t.states.videoErrorBody}
+            action={{ label: t.common.retry, onPress: stream.retry }}
+            testID="player-error"
+          />
+          <Button
+            label={t.common.close}
+            variant="text"
+            onPress={goBack}
+            testID="player-error-close"
+          />
+        </View>
+      </View>
+    );
+  }
+
+  if (!stream.media) {
+    return (
+      <View style={[styles.screen, styles.centred, { backgroundColor: colors.surfaceDark }]}>
+        <StatusBar style="light" />
+        <ActivityIndicator color={colors.onDark} accessibilityLabel={t.player.loading} />
+      </View>
+    );
+  }
+
   return (
     <ClassPlayback
       // A fresh player, tracker and state for each class, and for each retry.
       key={`${cls.id}-${index}-${attempt}`}
       cls={cls}
+      media={stream.media}
       next={queue[index + 1]}
       isLast={isLast}
       source={source}
@@ -148,13 +191,18 @@ function Playlist({
       onEnded={() => (isLast ? openAfterClass() : setIndex((current) => current + 1))}
       onFinish={openAfterClass}
       onLeave={goBack}
-      onRetry={() => setAttempt((current) => current + 1)}
+      onRetry={() => {
+        // The address may have gone stale: ask for a new one as well.
+        stream.retry();
+        setAttempt((current) => current + 1);
+      }}
     />
   );
 }
 
 type ClassPlaybackProps = {
   cls: ClassDetails;
+  media: VideoSourceInfo;
   /** The class that follows in this session, if there is one. */
   next?: ClassDetails;
   isLast: boolean;
@@ -172,6 +220,7 @@ type ClassPlaybackProps = {
 
 function ClassPlayback({
   cls,
+  media,
   next,
   isLast,
   source,
@@ -186,7 +235,6 @@ function ClassPlayback({
   const { width, height } = useWindowDimensions();
   const landscape = width > height;
 
-  const media = videoSourceFor(cls);
   const player = useVideoPlayer(media.uri, (created) => {
     created.timeUpdateEventInterval = 0.5;
     created.keepScreenOnWhilePlaying = true;

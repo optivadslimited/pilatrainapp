@@ -531,7 +531,7 @@ async function main() {
   await check(
     'membership is written by the service role only, and read by its owner only',
     async () => {
-      const write = `insert into public.subscriptions (user_id, product_id, status) values ($1, 'pilatrain_quarterly', 'trialing')`;
+      const write = `insert into public.subscriptions (user_id, product_id, status) values ($1, 'pilatrain_quarterly', 'trial')`;
       await refuses('authenticated', A, write, /permission denied/, [A]);
       await commitAs('service_role', null, write, [A]);
       equal(await as('authenticated', A, (tx) => count(tx, 'public.subscriptions')), 1, 'own');
@@ -548,6 +548,30 @@ async function main() {
       );
     },
   );
+
+  await check('a membership has one of four statuses, and sandbox is kept apart', async () => {
+    const set = (column: string, value: string) =>
+      `update public.subscriptions set ${column} = ${value} where user_id = '${A}'`;
+    for (const status of ['trial', 'active', 'grace', 'expired']) {
+      await as('service_role', null, (tx) => tx.query(set('status', `'${status}'`)));
+    }
+    await refuses('service_role', null, set('status', `'trialing'`), /check constraint/);
+    await refuses('service_role', null, set('environment', `'staging'`), /check constraint/);
+    const { rows } = await db.query<{ environment: string }>(
+      'select environment from public.subscriptions',
+    );
+    equal(rows[0].environment, 'production', 'default environment');
+  });
+
+  await check('the webhook’s event log is the service role’s alone', async () => {
+    const write = `insert into public.billing_events (id, user_id, type) values ('evt_1', $1, 'RENEWAL')`;
+    await refuses('authenticated', A, write, /permission denied/, [A]);
+    await refuses('anon', null, 'select * from public.billing_events', /permission denied/);
+    await commitAs('service_role', null, write, [A]);
+    await refuses('authenticated', A, 'select * from public.billing_events', /permission denied/);
+    // The same event twice is refused, which is how a re-sent webhook is spotted.
+    await refuses('service_role', null, write, /duplicate key/, [A]);
+  });
 
   // --- Constraints -----------------------------------------------------------
   await check('values outside the engine’s vocabulary are rejected', async () => {

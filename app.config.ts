@@ -22,6 +22,89 @@ const variants: Record<AppEnv, { nameSuffix: string; bundleSuffix: string }> = {
 
 const variant = variants[appEnv] ?? variants.development;
 
+/**
+ * Attribution (AppsFlyer) is built in only when its key is present at build
+ * time. A build without it starts no tracking, declares none in its privacy
+ * manifest and never shows the tracking permission prompt.
+ */
+const attribution = Boolean(
+  process.env.EXPO_PUBLIC_ATTRIBUTION_KEY && process.env.EXPO_PUBLIC_APP_STORE_ID,
+);
+
+/** Sentry's build step (source maps) runs only when its project is known. */
+const sentry = Boolean(process.env.SENTRY_ORG && process.env.SENTRY_PROJECT);
+
+type CollectedData = {
+  NSPrivacyCollectedDataType: string;
+  NSPrivacyCollectedDataTypeLinked: boolean;
+  NSPrivacyCollectedDataTypeTracking: boolean;
+  NSPrivacyCollectedDataTypePurposes: string[];
+};
+
+const FUNCTIONALITY = 'NSPrivacyCollectedDataTypePurposeAppFunctionality';
+const ANALYTICS = 'NSPrivacyCollectedDataTypePurposeAnalytics';
+const ADVERTISING = 'NSPrivacyCollectedDataTypePurposeDeveloperAdvertising';
+
+const collected = (
+  type: string,
+  purposes: string[],
+  tracking = false,
+  linked = true,
+): CollectedData => ({
+  NSPrivacyCollectedDataType: `NSPrivacyCollectedDataType${type}`,
+  NSPrivacyCollectedDataTypeLinked: linked,
+  NSPrivacyCollectedDataTypeTracking: tracking,
+  NSPrivacyCollectedDataTypePurposes: purposes,
+});
+
+/**
+ * The privacy manifest: what the app collects and why. It must say the same
+ * as the App Store privacy labels, which are written out in
+ * docs/privacy-labels.md. Change one, change the other.
+ *
+ * Health answers (pregnancy, injury, pain) are collected to build her plan
+ * and go to our own database only: never analytics, never an ad platform.
+ */
+const privacyManifest = {
+  NSPrivacyTracking: attribution,
+  // AppsFlyer's own manifest declares its tracking domain; the app adds none.
+  NSPrivacyTrackingDomains: [] as string[],
+  NSPrivacyCollectedDataTypes: [
+    collected('EmailAddress', [FUNCTIONALITY]),
+    collected('Name', [FUNCTIONALITY]),
+    collected('UserID', [FUNCTIONALITY, ANALYTICS]),
+    collected('Health', [FUNCTIONALITY]),
+    collected('Fitness', [FUNCTIONALITY, ANALYTICS]),
+    collected(
+      'PurchaseHistory',
+      attribution ? [FUNCTIONALITY, ANALYTICS, ADVERTISING] : [FUNCTIONALITY, ANALYTICS],
+      attribution,
+    ),
+    collected('ProductInteraction', [ANALYTICS]),
+    collected('CrashData', [FUNCTIONALITY]),
+    ...(attribution ? [collected('DeviceID', [ADVERTISING], true)] : []),
+  ],
+  // Required-reason APIs used by the app and React Native themselves.
+  NSPrivacyAccessedAPITypes: [
+    {
+      NSPrivacyAccessedAPIType: 'NSPrivacyAccessedAPICategoryUserDefaults',
+      NSPrivacyAccessedAPITypeReasons: ['CA92.1'],
+    },
+    {
+      NSPrivacyAccessedAPIType: 'NSPrivacyAccessedAPICategoryFileTimestamp',
+      NSPrivacyAccessedAPITypeReasons: ['C617.1', '0A2A.1', '3B52.1'],
+    },
+    {
+      NSPrivacyAccessedAPIType: 'NSPrivacyAccessedAPICategorySystemBootTime',
+      NSPrivacyAccessedAPITypeReasons: ['35F9.1'],
+    },
+    {
+      NSPrivacyAccessedAPIType: 'NSPrivacyAccessedAPICategoryDiskSpace',
+      NSPrivacyAccessedAPITypeReasons: ['E174.1', '85F4.1'],
+    },
+  ],
+};
+
 /** Paper. Kept in step with src/theme/colors.ts so the native splash matches the first frame. */
 const PAPER = '#F7F4EE';
 
@@ -45,6 +128,14 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     // Adds the Sign in with Apple entitlement.
     usesAppleSignIn: true,
     config: { usesNonExemptEncryption: false },
+    privacyManifests: privacyManifest,
+    // Where SKAdNetwork and AdAttributionKit send a copy of their postbacks.
+    infoPlist: attribution
+      ? {
+          NSAdvertisingAttributionReportEndpoint: 'https://appsflyer-skadnetwork.com/',
+          AttributionCopyEndpoint: 'https://appsflyer-skadnetwork.com/',
+        }
+      : {},
   },
   web: {
     // Web is only a development preview of the screens. The product is iPhone only.
@@ -67,6 +158,27 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     'expo-apple-authentication',
     // Picture-in-picture is off and classes do not play in the background.
     ['expo-video', { supportsBackgroundPlayback: false, supportsPictureInPicture: false }],
+    [
+      'expo-tracking-transparency',
+      {
+        // The wording of Apple's tracking prompt. It is always declared, because the
+        // library is always in the build and an upload without it is rejected. The
+        // prompt itself is only ever shown when attribution is switched on, and then
+        // only after her first completed class. It has to be true.
+        userTrackingPermission: `This lets ${brand.name} see which adverts bring people to the app. Your answers and anything about your health are never shared.`,
+      },
+    ],
+    ...(attribution
+      ? ([['react-native-appsflyer', {}]] as [string, Record<string, unknown>][])
+      : []),
+    ...(sentry
+      ? ([
+          [
+            '@sentry/react-native/expo',
+            { organization: process.env.SENTRY_ORG, project: process.env.SENTRY_PROJECT },
+          ],
+        ] as [string, Record<string, unknown>][])
+      : []),
   ],
   experiments: {
     typedRoutes: true,

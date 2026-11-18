@@ -15,6 +15,8 @@ import { startMembership } from '@/features/membership/membership';
 import { syncSessionReminders, syncTrialReminder, watchReminders } from '@/features/reminders/sync';
 import { track } from '@/lib/analytics';
 import { persistOptions, queryClient } from '@/lib/queryClient';
+import { identify, startServices } from '@/lib/services';
+import { withCrashReporting } from '@/lib/sentry';
 import { ensureSession } from '@/lib/supabase';
 import { watchConnection } from '@/lib/useOnline';
 import { fonts, useReduceMotion, useTheme } from '@/theme';
@@ -23,7 +25,10 @@ import { fonts, useReduceMotion, useTheme } from '@/theme';
 // the wordmark never appears in the wrong typeface. The launch screen hides it.
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
-export default function RootLayout() {
+// Crash reporting, analytics and attribution. Each does nothing without its key.
+startServices();
+
+function RootLayout() {
   const { colors } = useTheme();
   const reduceMotion = useReduceMotion();
 
@@ -46,7 +51,10 @@ export default function RootLayout() {
     // by the same ID as our database does.
     ensureSession()
       .catch(() => null)
-      .then((userId) => startMembership(userId))
+      .then((userId) => {
+        identify(userId);
+        return startMembership(userId);
+      })
       .then(() => Promise.all([loadAccount(), syncTrialReminder(), syncSessionReminders()]))
       .catch(() => {});
   }, []);
@@ -114,6 +122,8 @@ export default function RootLayout() {
     </GestureHandlerRootView>
   );
 }
+
+export default withCrashReporting(RootLayout);
 
 const styles = StyleSheet.create({
   root: { flex: 1 },

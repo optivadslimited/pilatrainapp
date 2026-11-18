@@ -139,16 +139,15 @@ export function createSupabaseAuth(client: SupabaseClient): AuthProvider {
 
     async signOut() {
       await client.auth.signOut();
-      await ensureSession().catch(() => {});
+      return ensureSession().catch(() => null);
     },
 
     async deleteAccount() {
       const { error } = await client.functions.invoke('delete-account', { method: 'POST' });
-      if (error) return false;
+      if (error) return { deleted: false, userId: await currentUserId() };
       // The user no longer exists on the server; drop the session here too.
       await client.auth.signOut({ scope: 'local' }).catch(() => {});
-      await ensureSession().catch(() => {});
-      return true;
+      return { deleted: true, userId: await ensureSession().catch(() => null) };
     },
   };
 }
