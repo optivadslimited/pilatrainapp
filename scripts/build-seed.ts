@@ -56,6 +56,8 @@ export type SeedClass = {
   captionsUrl: string | null;
   chapters: { title: string; startSec: number }[];
   easierOptions: { chapter: string; text: string }[];
+  /** The three "What you'll do" lines on class detail. */
+  highlights: string[];
   isFree: boolean;
   published: boolean;
 };
@@ -172,6 +174,9 @@ export function readClasses(csv: string = readFileSync(CSV, 'utf8')): SeedClass[
     const easier = [row.easier_warmup, row.easier_main, row.easier_cooldown];
     if (easier.some((text) => !text)) fail(slug, 'every chapter needs an easier option');
 
+    const highlights = [row.do_1, row.do_2, row.do_3];
+    if (highlights.some((text) => !text)) fail(slug, 'do_1, do_2 and do_3 are all needed');
+
     return {
       id: idFor(slug),
       slug,
@@ -191,6 +196,7 @@ export function readClasses(csv: string = readFileSync(CSV, 'utf8')): SeedClass[
         startSec: [0, mainStarts, cooldownStarts][i],
       })),
       easierOptions: CHAPTERS.map((chapter, i) => ({ chapter, text: easier[i] })),
+      highlights,
       isFree: bool(slug, 'is_free', row.is_free),
       published: bool(slug, 'published', row.published),
     };
@@ -221,6 +227,7 @@ export function toSql(classes: SeedClass[]): string {
           cls.chapters.map((chapter) => ({ title: chapter.title, start_sec: chapter.startSec })),
         ),
         jsonb(cls.easierOptions),
+        array(cls.highlights),
         text(cls.captionsUrl),
         cls.isFree,
         cls.published,
@@ -244,7 +251,7 @@ on conflict (id) do update
 insert into public.classes (
   id, slug, title, instructor_id, length_min, level, focus, intensity,
   equipment, unsuitable_for, mux_playback_id, thumbnail_url,
-  chapters, easier_options, captions_url, is_free, published
+  chapters, easier_options, highlights, captions_url, is_free, published
 )
 values
 ${rows}
@@ -261,6 +268,7 @@ on conflict (slug) do update set
   thumbnail_url = excluded.thumbnail_url,
   chapters = excluded.chapters,
   easier_options = excluded.easier_options,
+  highlights = excluded.highlights,
   captions_url = excluded.captions_url,
   is_free = excluded.is_free,
   published = excluded.published;

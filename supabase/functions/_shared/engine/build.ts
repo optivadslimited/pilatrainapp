@@ -1,4 +1,4 @@
-import { addDays, isISODate, isoWeekday } from './dates.ts';
+import { addDays, isISODate, isoWeekday, weekOf } from './dates.ts';
 import {
   DAYS_IN_PLAN,
   GOALS,
@@ -228,4 +228,95 @@ export function replan({
   });
 
   return { sessions: result, relaxed };
+}
+
+export type RebuildArgs = {
+  /** Her profile as it is now, with the new days and session length. */
+  profile: PlanProfile;
+  catalogue: readonly ClassInfo[];
+  planStart: ISODate;
+  block: number;
+  sessions: readonly ExistingSession[];
+  /** The first day a new session may fall on: today, or tomorrow if today's is done. */
+  from: ISODate;
+  before?: Edge | null;
+};
+
+/**
+ * "Adjust my plan": she has changed her days or her session length, so the
+ * rest of the plan is laid out again on the new days, from `from` to the end
+ * of the 28 days. Sessions that are done stay as they are and still count
+ * towards the mix and the repeats. Sessions still to do are replaced by the
+ * ones returned here, in date order.
+ */
+export function rebuildRemaining({
+  profile,
+  catalogue,
+  planStart,
+  block,
+  sessions,
+  from,
+  before = null,
+}: RebuildArgs): { sessions: PlannedSession[]; relaxed: Relaxation[] } {
+  validateProfile(profile);
+  if (!isISODate(from)) throw new PlanInputError('The start date must be YYYY-MM-DD.');
+
+  const eligible = eligibleClasses(catalogue, profile);
+  const byId = new Map(catalogue.map((cls) => [cls.id, cls]));
+  const planEnd = addDays(planStart, DAYS_IN_PLAN - 1);
+
+  type Day = { week: Week; date: ISODate; kept?: ClassInfo[] };
+  const done: Day[] = sessions
+    .filter((session) => session.status === 'done')
+    .map((session) => ({
+      week: session.week,
+      date: session.date,
+      kept: session.classIds
+        .map((id) => byId.get(id))
+        .filter((cls): cls is ClassInfo => cls !== undefined),
+    }));
+  const taken = new Set(done.map((day) => day.date));
+
+  // Rule 7 again, for what is left of the 28 days. Never two sessions on one day.
+  const fresh: Day[] = [];
+  for (let date = from > planStart ? from : planStart; date <= planEnd; date = addDays(date, 1)) {
+    if (!profile.weekdays.includes(isoWeekday(date)) || taken.has(date)) continue;
+    fresh.push({ week: Math.min(4, Math.max(1, weekOf(planStart, date))) as Week, date });
+  }
+  if (fresh.length === 0) return { sessions: [], relaxed: [] };
+
+  const live = [...done, ...fresh].sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
+  const closers =
+    profile.weekdays.length >= MOBILITY_CLOSE_FROM_DAYS ? lastOfEachWeek(live) : new Set<number>();
+
+  // Rule 3 still holds if she has not started: her first session is "Start here".
+  const startAt = block === 1 && done.length === 0 ? live.findIndex((day) => !day.kept) : -1;
+  const start = eligible.find((cls) => cls.slug === START_HERE_SLUG);
+
+  const fixed = (index: number): Focus | undefined => {
+    const day = live[index];
+    if (day.kept) return day.kept[0]?.focus;
+    if (index === startAt) return start?.focus ?? 'foundations';
+    if (closers.has(index)) return 'mobility';
+    return undefined;
+  };
+
+  const focuses = planFocuses(
+    live.map((day, index) => ({ week: day.week, fixed: fixed(index) })),
+    focusWeights(profile),
+  );
+
+  const slots: FillSlot[] = live.map((day, index) => {
+    const base = { week: day.week, date: day.date };
+    if (day.kept) return { ...base, kind: 'kept', classes: day.kept };
+    if (index === startAt) return { ...base, kind: 'start' };
+    return { ...base, kind: 'open', focus: focuses[index], locked: closers.has(index) };
+  });
+
+  const { bundles, relaxed } = fillSlots(slots, { profile, eligible, before });
+
+  return {
+    sessions: live.flatMap((day, index) => (day.kept ? [] : [toSession(day, bundles[index])])),
+    relaxed,
+  };
 }

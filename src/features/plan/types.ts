@@ -1,6 +1,6 @@
 import type { ClassInfo } from '@engine';
 
-export type { StoredPlan, StoredSession } from '@shared/plan-service';
+export type { FeedbackEffect, StoredPlan, StoredRating, StoredSession } from '@shared/plan-service';
 
 /** A class as the screens need it: what the engine knows, plus what she sees. */
 export type ClassDetails = ClassInfo & {
@@ -12,6 +12,8 @@ export type ClassDetails = ClassInfo & {
   captionsUrl: string | null;
   chapters: { title: string; startSec: number }[];
   easierOptions: { chapter: string; text: string }[];
+  /** The three "What you'll do" lines on class detail. */
+  highlights: string[];
   /** The one class anyone can take without a membership. */
   isFree: boolean;
 };

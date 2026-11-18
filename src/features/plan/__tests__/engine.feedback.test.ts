@@ -6,6 +6,7 @@ import {
   feedbackSignal,
   harder,
   isoWeekday,
+  rebuildRemaining,
   replan,
   START_HERE_SLUG,
   weekCap,
@@ -264,5 +265,81 @@ describe('rule 10: the next block', () => {
 
   it('follows every rule too', () => {
     expect(next.relaxed).toEqual([]);
+  });
+});
+
+describe('"Adjust my plan": laying out what is left', () => {
+  const plan = buildPlan({
+    profile: profile({ weekdays: [1, 3, 5] }),
+    catalogue: rich,
+    from: MONDAY,
+  });
+  /** Week 1 done; then she switches to four days. */
+  const existing = asExisting(plan, 3);
+  const newProfile = profile({ weekdays: [1, 2, 4, 6] });
+  const from = addDays(MONDAY, 7);
+  const rebuilt = rebuildRemaining({
+    profile: newProfile,
+    catalogue: rich,
+    planStart: plan.startDate,
+    block: 1,
+    sessions: existing,
+    from,
+  });
+
+  it('puts a session on each of her new days from today to the end of the 28 days', () => {
+    expect(rebuilt.sessions).toHaveLength(12); // three weeks of four days
+    for (const session of rebuilt.sessions) {
+      expect([1, 2, 4, 6]).toContain(isoWeekday(session.date));
+      expect(session.date >= from && session.date <= plan.endDate).toBe(true);
+    }
+    expect(rebuilt.sessions.map((session) => session.date)).toEqual(
+      rebuilt.sessions.map((session) => session.date).sort(),
+    );
+  });
+
+  it('numbers the weeks from the plan’s own start', () => {
+    expect(rebuilt.sessions.map((session) => session.week)).toEqual([
+      2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4,
+    ]);
+  });
+
+  it('still follows the rules: mobility closes each week, nothing more than twice', () => {
+    for (const week of [2, 3, 4]) {
+      const sessions = rebuilt.sessions.filter((session) => session.week === week);
+      expect(sessions[sessions.length - 1].focus).toBe('mobility');
+    }
+    const uses = new Map<string, number>();
+    for (const session of [...existing.slice(0, 3), ...rebuilt.sessions]) {
+      for (const id of session.classIds) uses.set(id, (uses.get(id) ?? 0) + 1);
+    }
+    for (const count of uses.values()) expect(count).toBeLessThanOrEqual(2);
+    expect(rebuilt.relaxed).toEqual([]);
+  });
+
+  it('never lands on a day that already holds a finished session', () => {
+    // She did Monday's session today and then asks for every day of the week.
+    const result = rebuildRemaining({
+      profile: profile({ weekdays: [1, 2, 3, 4, 5, 6, 7] }),
+      catalogue: rich,
+      planStart: plan.startDate,
+      block: 1,
+      sessions: asExisting(plan, 1),
+      from: MONDAY,
+    });
+    expect(result.sessions.map((session) => session.date)).not.toContain(MONDAY);
+    expect(result.sessions).toHaveLength(27);
+  });
+
+  it('returns nothing when the 28 days are already over', () => {
+    const result = rebuildRemaining({
+      profile: newProfile,
+      catalogue: rich,
+      planStart: plan.startDate,
+      block: 1,
+      sessions: existing,
+      from: addDays(plan.endDate, 1),
+    });
+    expect(result.sessions).toEqual([]);
   });
 });

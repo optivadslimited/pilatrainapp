@@ -43,6 +43,11 @@
         "text": "Sit on a cushion if the floor feels low."
       }
     ],
+    "highlights": [
+      "Find a neutral spine lying down",
+      "Practise the breathing used in every class",
+      "Try five movements you will meet again"
+    ],
     "isFree": true,
     "published": true
   },
@@ -90,6 +95,11 @@
         "text": "Rest your hands on your thighs."
       }
     ],
+    "highlights": [
+      "Open the chest and the front of the shoulders",
+      "Wake up the muscles between the shoulder blades",
+      "Lengthen through the back of the neck"
+    ],
     "isFree": false,
     "published": true
   },
@@ -136,6 +146,11 @@
         "chapter": "Cool-down",
         "text": "Stay lying down for the final breaths."
       }
+    ],
+    "highlights": [
+      "Slow stretches for hips and lower back",
+      "Gentle twists lying down",
+      "A few minutes of quiet breathing"
     ],
     "isFree": false,
     "published": true
@@ -186,6 +201,11 @@
         "text": "Hug your knees in gently."
       }
     ],
+    "highlights": [
+      "Warm up the deep abdominals",
+      "Leg lowers and toe taps",
+      "Finish with a supported stretch"
+    ],
     "isFree": false,
     "published": true
   },
@@ -232,6 +252,11 @@
         "chapter": "Cool-down",
         "text": "Finish seated."
       }
+    ],
+    "highlights": [
+      "Roll down and roll up through the spine",
+      "Mobilise hips and shoulders",
+      "Stand tall to finish"
     ],
     "isFree": false,
     "published": true
@@ -284,6 +309,11 @@
         "text": "Walk it out for longer."
       }
     ],
+    "highlights": [
+      "A brisk standing warm-up",
+      "Three short rounds at a faster pace",
+      "Walk it out to cool down"
+    ],
     "isFree": false,
     "published": true
   },
@@ -330,6 +360,11 @@
         "chapter": "Cool-down",
         "text": "Stay with the breathing for longer."
       }
+    ],
+    "highlights": [
+      "Learn lateral breathing",
+      "Find a neutral pelvis and ribs",
+      "Practise both in simple movements"
     ],
     "isFree": false,
     "published": true
@@ -378,6 +413,11 @@
         "text": "Rest between sides."
       }
     ],
+    "highlights": [
+      "Abdominal work lying on your back",
+      "Back-of-body work lying on your front",
+      "Seated posture to finish"
+    ],
     "isFree": false,
     "published": true
   },
@@ -424,6 +464,11 @@
         "chapter": "Cool-down",
         "text": "Hold the final stretch for a shorter count."
       }
+    ],
+    "highlights": [
+      "Hip circles and bridges",
+      "Cat and cow, then thread the needle",
+      "A long stretch for the lower back"
     ],
     "isFree": false,
     "published": true
@@ -473,6 +518,11 @@
         "chapter": "Cool-down",
         "text": "Skip the final balance."
       }
+    ],
+    "highlights": [
+      "A flowing standing sequence",
+      "Plank variations and side work",
+      "Balance to finish"
     ],
     "isFree": false,
     "published": true
@@ -524,6 +574,11 @@
         "text": "Rest your arms by your sides."
       }
     ],
+    "highlights": [
+      "Pulling work with the band",
+      "Rotation against resistance",
+      "Slow roll-downs to finish"
+    ],
     "isFree": false,
     "published": true
   },
@@ -572,6 +627,11 @@
         "text": "Finish lying down."
       }
     ],
+    "highlights": [
+      "Seated balance on the ball",
+      "Bridges with the ball between the knees",
+      "Standing balance to finish"
+    ],
     "isFree": false,
     "published": true
   },
@@ -619,6 +679,11 @@
         "text": "Stay with the breathing for longer."
       }
     ],
+    "highlights": [
+      "Every foundation movement, unhurried",
+      "Breathing and alignment throughout",
+      "A long cool-down"
+    ],
     "isFree": false,
     "published": true
   },
@@ -665,6 +730,11 @@
         "chapter": "Cool-down",
         "text": "Stay lying down for the final breaths."
       }
+    ],
+    "highlights": [
+      "Long holds for hips and hamstrings",
+      "Chest and shoulder openers",
+      "Rest and breathe to finish"
     ],
     "isFree": false,
     "published": true
@@ -718,6 +788,11 @@
         "text": "Skip the final balance."
       }
     ],
+    "highlights": [
+      "Standing strength to warm up",
+      "Longer holds in plank and side plank",
+      "Legs and glutes to finish"
+    ],
     "isFree": false,
     "published": true
   },
@@ -769,6 +844,11 @@
         "chapter": "Cool-down",
         "text": "Rest between sides."
       }
+    ],
+    "highlights": [
+      "Arm work with the weights, lying on your back",
+      "A weighted abdominal series",
+      "Stretch out to finish"
     ],
     "isFree": false,
     "published": true

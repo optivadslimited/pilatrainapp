@@ -230,3 +230,219 @@ describe('rule 10: when the 28 days are over', () => {
     expect(next!.sessions.every((session) => session.status === 'planned')).toBe(true);
   });
 });
+
+describe('rule 8: rating a session', () => {
+  /** Build a plan and finish its first `count` sessions, each on its own day. */
+  const withDone = async (count: number, overrides: Partial<QuizInput> = {}) => {
+    quiz = { ...answers, ...overrides };
+    let plan = await service.build(USER, MON);
+    const ids = plan.sessions.slice(0, count).map((session) => session.id);
+    for (const [index, id] of ids.entries()) {
+      plan = await service.complete(
+        USER,
+        id,
+        plan.sessions[index].date,
+        `${plan.sessions[index].date}T08:00:00.000Z`,
+      );
+    }
+    return { plan, ids };
+  };
+  const at = (n: number) => `2026-11-${String(2 + n).padStart(2, '0')}T09:00:00.000Z`;
+  const intensityOf = (id: string) => localCatalogue.find((cls) => cls.id === id)!.intensity;
+  const focusOf = (id: string) => localCatalogue.find((cls) => cls.id === id)!.focus;
+
+  it('saves the rating and changes nothing after a single "too hard"', async () => {
+    const { plan, ids } = await withDone(1);
+    const result = await service.rate(USER, ids[0], 'hard', MON, at(0));
+    expect(result.effect).toBeNull();
+    expect(result.plan.sessions).toEqual(plan.sessions);
+  });
+
+  it('changes nothing for "just right"', async () => {
+    const { ids } = await withDone(2);
+    await service.rate(USER, ids[0], 'right', MON, at(0));
+    expect((await service.rate(USER, ids[1], 'right', day(2), at(2))).effect).toBeNull();
+  });
+
+  it('two "too hard" in a row ease next week and add a foundations class', async () => {
+    // An improver, so there is intensity to take away.
+    const { plan, ids } = await withDone(2, { level: 2, goal: 'tone' });
+    await service.rate(USER, ids[0], 'hard', MON, at(0));
+    const { plan: eased, effect } = await service.rate(USER, ids[1], 'hard', day(2), at(2));
+
+    expect(effect).toBe('eased');
+    expect(eased.profile.intensityShift).toBe(-1);
+    expect(eased.adjustedAt).toBe(at(2));
+
+    // This week is exactly as it was.
+    const week = (p: typeof plan, n: number) => p.sessions.filter((session) => session.week === n);
+    expect(week(eased, 1).map((s) => s.classIds)).toEqual(week(plan, 1).map((s) => s.classIds));
+
+    // Next week has the same days, a foundations class, and nothing above the lower cap.
+    expect(week(eased, 2).map((s) => s.date)).toEqual(week(plan, 2).map((s) => s.date));
+    expect(week(eased, 2).some((s) => focusOf(s.classIds[0]) === 'foundations')).toBe(true);
+    for (const session of eased.sessions.filter((s) => s.week >= 2)) {
+      for (const id of session.classIds)
+        expect(intensityOf(id)).toBeLessThanOrEqual(session.week >= 3 ? 2 : 1);
+    }
+    expect(readLocalPlan()).toEqual(eased);
+  });
+
+  it('two "too easy" in a row step next week up', async () => {
+    const { ids } = await withDone(2);
+    await service.rate(USER, ids[0], 'easy', MON, at(0));
+    const { plan: harder, effect } = await service.rate(USER, ids[1], 'easy', day(2), at(2));
+    expect(effect).toBe('stepped_up');
+    expect(harder.profile.intensityShift).toBe(1);
+    expect(harder.profile.minutes).toBe(20);
+  });
+
+  it('lengthens sessions instead when she is already at the top', async () => {
+    // Gentle track: intensity is capped at 2, and a beginner's weeks already reach it.
+    const { ids } = await withDone(4, {
+      gentle: true,
+      workAround: ['pregnant_postpartum'],
+      minutes: 10,
+    });
+    await service.rate(USER, ids[0], 'easy', MON, at(0));
+    const first = await service.rate(USER, ids[1], 'easy', day(2), at(2));
+    expect(first.effect).toBe('stepped_up'); // week 1's cap rises from 1 to 2
+    await service.rate(USER, ids[2], 'easy', day(4), at(4));
+    const second = await service.rate(USER, ids[3], 'easy', day(7), at(7));
+    expect(second.effect).toBe('longer');
+    expect(second.plan.profile.minutes).toBe(20);
+    expect(second.plan.profile.intensityShift).toBe(1);
+  });
+
+  it('acts once on each pair: a third "too hard" needs a fourth', async () => {
+    const { ids } = await withDone(4, { level: 2 });
+    await service.rate(USER, ids[0], 'hard', MON, at(0));
+    expect((await service.rate(USER, ids[1], 'hard', day(2), at(2))).effect).toBe('eased');
+    expect((await service.rate(USER, ids[2], 'hard', day(4), at(4))).effect).toBeNull();
+    const fourth = await service.rate(USER, ids[3], 'hard', day(7), at(7));
+    expect(fourth.effect).toBe('eased');
+    expect(fourth.plan.profile.intensityShift).toBe(-2);
+  });
+
+  it('a mixed pair changes nothing', async () => {
+    const { ids } = await withDone(2);
+    await service.rate(USER, ids[0], 'hard', MON, at(0));
+    expect((await service.rate(USER, ids[1], 'easy', day(2), at(2))).effect).toBeNull();
+  });
+
+  it('rates a session once: a second rating is ignored', async () => {
+    const { ids } = await withDone(2);
+    await service.rate(USER, ids[0], 'hard', MON, at(0));
+    const again = await service.rate(USER, ids[0], 'hard', MON, at(1));
+    expect(again.effect).toBeNull();
+    // Still only one "too hard" on record, so the next one makes the pair.
+    expect((await service.rate(USER, ids[1], 'hard', day(2), at(2))).effect).toBe('eased');
+  });
+
+  it('only a finished session can be rated', async () => {
+    const plan = await service.build(USER, MON);
+    await expect(service.rate(USER, plan.sessions[0].id, 'right', MON, at(0))).rejects.toThrow(
+      PlanInputError,
+    );
+    await expect(service.rate(USER, 'nope', 'right', MON, at(0))).rejects.toThrow(PlanInputError);
+  });
+
+  it('in the last week the change is kept for the next block', async () => {
+    const { plan, ids } = await withDone(12, { level: 2 });
+    await service.rate(USER, ids[10], 'hard', day(23), at(21));
+    const result = await service.rate(USER, ids[11], 'hard', day(25), at(23));
+    expect(result.effect).toBe('eased');
+    expect(result.plan.profile.intensityShift).toBe(-1);
+    expect(result.plan.sessions.map((s) => s.id)).toEqual(plan.sessions.map((s) => s.id));
+    // The next block steps up from the eased level: back to where she started.
+    const next = await service.current(USER, day(28));
+    expect(next!.profile.intensityShift).toBe(0);
+  });
+});
+
+describe('"Adjust my plan"', () => {
+  it('lays the rest of the plan out on her new days and keeps what she has done', async () => {
+    const plan = await service.build(USER, MON);
+    const done = await service.complete(USER, plan.sessions[0].id, MON, '2026-11-02T08:00:00.000Z');
+
+    // On Tuesday she switches from Mon, Wed, Fri to Tue and Thu.
+    const adjusted = await service.adjust(USER, { weekdays: [4, 2], minutes: 20 }, day(1));
+
+    expect(adjusted.profile.weekdays).toEqual([2, 4]);
+    expect(adjusted.sessions[0]).toEqual(done.sessions[0]);
+    const open = adjusted.sessions.filter((session) => session.status === 'planned');
+    for (const session of open) expect([2, 4]).toContain(isoWeekday(session.date));
+    // Tuesday to the end of the 28 days: eight Tuesdays and Thursdays.
+    expect(open).toHaveLength(8);
+    expect(open[0].date).toBe(day(1));
+    expect(open.every((session) => session.date <= plan.endDate)).toBe(true);
+    expect(new Set(adjusted.sessions.map((session) => session.date)).size).toBe(
+      adjusted.sessions.length,
+    );
+    expect(readLocalPlan()).toEqual(adjusted);
+  });
+
+  it('changes her session length from here on', async () => {
+    const plan = await service.build(USER, MON);
+    const adjusted = await service.adjust(USER, { weekdays: [1, 3, 5], minutes: 10 }, MON);
+    expect(adjusted.profile.minutes).toBe(10);
+    expect(adjusted.sessions).toHaveLength(plan.sessions.length);
+    for (const session of adjusted.sessions) {
+      const minutes = session.classIds.reduce(
+        (sum, id) => sum + localCatalogue.find((cls) => cls.id === id)!.lengthMin,
+        0,
+      );
+      expect(minutes).toBe(10);
+    }
+  });
+
+  it('starts tomorrow if today’s session is already done', async () => {
+    const plan = await service.build(USER, MON);
+    await service.complete(USER, plan.sessions[0].id, MON, '2026-11-02T08:00:00.000Z');
+    const adjusted = await service.adjust(USER, { weekdays: [1, 2, 3, 4, 5], minutes: 20 }, MON);
+    const dates = adjusted.sessions.map((session) => session.date);
+    expect(dates.filter((date) => date === MON)).toHaveLength(1);
+    expect(dates[1]).toBe(day(1));
+  });
+
+  it('still opens with "Start here" if she has not begun', async () => {
+    await service.build(USER, MON);
+    const adjusted = await service.adjust(USER, { weekdays: [2, 4], minutes: 20 }, MON);
+    const first = localCatalogue.find((cls) => cls.id === adjusted.sessions[0].classIds[0]);
+    expect(first?.slug).toBe(START_HERE_SLUG);
+    expect(adjusted.sessions[0].date).toBe(day(1));
+  });
+
+  it('refuses days it cannot plan from, and leaves the plan alone', async () => {
+    const plan = await service.build(USER, MON);
+    await expect(service.adjust(USER, { weekdays: [], minutes: 20 }, MON)).rejects.toThrow(
+      PlanInputError,
+    );
+    expect(readLocalPlan()).toEqual(plan);
+  });
+});
+
+describe('history, for the Progress tab', () => {
+  it('keeps the plans she has finished and her ratings', async () => {
+    const store = createLocalPlanStore(() => quiz);
+    const first = await service.build(USER, MON);
+    await service.complete(USER, first.sessions[0].id, MON, '2026-11-02T08:00:00.000Z');
+    await service.rate(USER, first.sessions[0].id, 'right', MON, '2026-11-02T08:30:00.000Z');
+    await service.current(USER, day(28)); // rolls into block 2
+
+    const plans = await store.listPlans(USER);
+    expect(plans.map((plan) => [plan.block, plan.status])).toEqual([
+      [1, 'completed'],
+      [2, 'active'],
+    ]);
+    expect(plans[0].sessions[0].status).toBe('done');
+    expect(await store.listRatings(USER)).toEqual([
+      {
+        planId: first.id,
+        sessionId: first.sessions[0].id,
+        rating: 'right',
+        createdAt: '2026-11-02T08:30:00.000Z',
+      },
+    ]);
+  });
+});

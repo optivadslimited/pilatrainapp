@@ -391,6 +391,120 @@ async function main() {
     },
   );
 
+  await check('every class has its three "What you will do" lines', async () => {
+    const { rows } = await db.query<{ n: number }>(
+      'select count(*)::int as n from public.classes where cardinality(highlights) <> 3',
+    );
+    equal(rows[0].n, 0, 'classes without three highlights');
+  });
+
+  const firstSession = async () =>
+    (
+      await db.query<{ id: string }>(`select id from public.plan_sessions where plan_id = $1`, [
+        PLAN,
+      ])
+    ).rows[0].id;
+
+  await check(
+    'a user can remove a session still to do from her own plan, and only that',
+    async () => {
+      const mine = await firstSession();
+      const removed = await as('authenticated', A, async (tx) => {
+        const result = await tx.query(`delete from public.plan_sessions where id = $1`, [mine]);
+        return result.affectedRows;
+      });
+      equal(removed, 1, 'her own planned session');
+
+      // Someone else cannot.
+      const byOther = await as('authenticated', B, async (tx) => {
+        const result = await tx.query(`delete from public.plan_sessions where id = $1`, [mine]);
+        return result.affectedRows;
+      });
+      equal(byOther, 0, 'removed by another user');
+
+      // And a session that is done stays, whoever asks.
+      const done = await as('authenticated', A, async (tx) => {
+        await tx.query(`update public.plan_sessions set status = 'done' where id = $1`, [mine]);
+        const result = await tx.query(`delete from public.plan_sessions where id = $1`, [mine]);
+        return result.affectedRows;
+      });
+      equal(done, 0, 'a done session removed');
+    },
+  );
+
+  await check('replace_sessions swaps sessions and updates the plan, all or nothing', async () => {
+    const mine = await firstSession();
+    const fresh = [
+      { class_id: startHere, paired_class_id: null, scheduled_date: '2026-11-09', week: 2 },
+      { class_id: startHere, paired_class_id: startHere, scheduled_date: '2026-11-11', week: 2 },
+    ];
+    const call = `select public.replace_sessions($1, $2, $3, $4, $5)`;
+    const profile = { goal: 'posture', intensityShift: -1 };
+
+    const after = await as('authenticated', A, async (tx) => {
+      await tx.query(call, [PLAN, [mine], fresh, profile, '2026-11-06T08:00:00Z']);
+      const sessions = await tx.query<{ day: string }>(
+        `select scheduled_date::text as day from public.plan_sessions where plan_id = $1 order by 1`,
+        [PLAN],
+      );
+      const plan = await tx.query<{ shift: number; adjusted: boolean }>(
+        `select (profile ->> 'intensityShift')::int as shift, adjusted_at is not null as adjusted
+         from public.plans where id = $1`,
+        [PLAN],
+      );
+      return { dates: sessions.rows.map((row) => row.day), ...plan.rows[0] };
+    });
+    equal(
+      after,
+      { dates: ['2026-11-09', '2026-11-11'], shift: -1, adjusted: true },
+      'after replacing',
+    );
+
+    // Nulls leave the profile and the timestamp as they were.
+    const untouched = await as('authenticated', A, async (tx) => {
+      await tx.query(call, [PLAN, [], [], null, null]);
+      const plan = await tx.query<{ goal: string }>(
+        `select profile ->> 'goal' as goal from public.plans where id = $1`,
+        [PLAN],
+      );
+      return plan.rows[0].goal;
+    });
+    equal(untouched, 'posture', 'profile after a null update');
+
+    // A bad new session undoes the removal too.
+    const broken = [
+      { class_id: startHere, paired_class_id: null, scheduled_date: '2026-11-09', week: 9 },
+    ];
+    await refuses('authenticated', A, call, /check constraint/, [PLAN, [mine], broken, null, null]);
+    equal(
+      (
+        await db.query<{ n: number }>(
+          `select count(*)::int as n from public.plan_sessions where id = $1`,
+          [mine],
+        )
+      ).rows[0].n,
+      1,
+      'the session it tried to remove',
+    );
+  });
+
+  await check(
+    'replace_sessions never removes a done session, and never touches another user’s plan',
+    async () => {
+      const mine = await firstSession();
+      const call = `select public.replace_sessions($1, $2, '[]'::jsonb, null, null)`;
+      const kept = await as('authenticated', A, async (tx) => {
+        await tx.query(`update public.plan_sessions set status = 'done' where id = $1`, [mine]);
+        await tx.query(call, [PLAN, [mine]]);
+        return count(tx, 'public.plan_sessions');
+      });
+      equal(kept, 1, 'sessions after trying to remove a done one');
+
+      await refuses('authenticated', B, call, /No such plan/, [PLAN, [mine]]);
+      await refuses('anon', null, call, /permission denied/, [PLAN, [mine]]);
+    },
+  );
+
   await check(
     'a user cannot delete plans directly; account deletion goes through the function',
     async () => {

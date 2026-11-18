@@ -6,6 +6,8 @@
 //   { "action": "current" }                            her plan as it stands today (rules 9 and 10)
 //   { "action": "move", "sessionId": "…", "to": "YYYY-MM-DD" }
 //   { "action": "complete", "sessionId": "…" }
+//   { "action": "rate", "sessionId": "…", "rating": "easy" | "right" | "hard" }   also answers { "effect": … }
+//   { "action": "adjust", "weekdays": [1, 3, 5], "minutes": 20 }       re-plan the days ahead
 //
 // Every action answers { "plan": … }. "Today" is worked out here from the
 // timezone on her users row, never taken from the phone.
@@ -19,7 +21,12 @@
 // `supabase functions deploy plan`.
 import { createClient } from '@supabase/supabase-js';
 
-import { NoEligibleClassesError, PlanInputError, todayIn } from '../_shared/engine/index.ts';
+import {
+  NoEligibleClassesError,
+  PlanInputError,
+  RATINGS,
+  todayIn,
+} from '../_shared/engine/index.ts';
 import { createPlanService, PlanServiceError } from '../_shared/plan-service.ts';
 import { supabasePlanStore } from '../_shared/supabase-store.ts';
 
@@ -75,6 +82,19 @@ Deno.serve(async (request) => {
             String(body.sessionId),
             today,
             new Date().toISOString(),
+          ),
+        });
+      case 'rate': {
+        if (!RATINGS.includes(body.rating)) return json({ error: 'invalid_input' }, 400);
+        const now = new Date().toISOString();
+        return json(await service.rate(userId, String(body.sessionId), body.rating, today, now));
+      }
+      case 'adjust':
+        return json({
+          plan: await service.adjust(
+            userId,
+            { weekdays: body.weekdays, minutes: body.minutes },
+            today,
           ),
         });
       default:
