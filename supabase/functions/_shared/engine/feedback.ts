@@ -78,6 +78,13 @@ export type NextBlockArgs = {
   catalogue: readonly ClassInfo[];
   /** The last session of the previous block. */
   before?: Edge | null;
+  /**
+   * Day 1 of the new block. Defaults to the day after the previous one ended.
+   * Pass today if she has been away, so the new block does not start in the past.
+   */
+  from?: ISODate;
+  /** Pass false to keep the same step, for example if she did little of the last block. */
+  stepUp?: boolean;
 };
 
 /**
@@ -85,11 +92,17 @@ export type NextBlockArgs = {
  * keeps her days and goal, and is one step harder.
  * ASSUMPTION: "one step harder" means the same step as two "too easy" ratings.
  */
-export function buildNextBlock({ previous, catalogue, before = null }: NextBlockArgs): BuiltPlan {
+export function buildNextBlock({
+  previous,
+  catalogue,
+  before = null,
+  from = addDays(previous.endDate, 1),
+  stepUp = true,
+}: NextBlockArgs): BuiltPlan {
   return buildPlan({
-    profile: harder(previous.profile, catalogue).profile,
+    profile: stepUp ? harder(previous.profile, catalogue).profile : previous.profile,
     catalogue,
-    from: addDays(previous.endDate, 1),
+    from,
     block: previous.block + 1,
     before,
   });
