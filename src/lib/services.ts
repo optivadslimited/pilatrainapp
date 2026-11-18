@@ -15,7 +15,7 @@ import { identifyForCrashReports, startCrashReporting } from './sentry';
 export function startServices(): void {
   startCrashReporting();
   startAnalytics();
-  startAttribution((id) => purchases.setAttributionId(id)).catch(() => {});
+  startAttribution((id) => purchases.setAttributionId(id));
 }
 
 export function identify(userId: string | null): void {

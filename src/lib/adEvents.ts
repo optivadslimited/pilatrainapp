@@ -1,7 +1,7 @@
 import type { AnalyticsEventName } from './analytics';
 
 /**
- * What an ad platform is allowed to hear about. Two events, and nothing else:
+ * What an ad platform is allowed to hear about. Two things, and nothing else:
  * a trial started, and a subscription bought.
  *
  * Every other event, and every property of every event except the product
@@ -9,20 +9,22 @@ import type { AnalyticsEventName } from './analytics';
  * ad platform: not her goal, not her days, and never anything about
  * pregnancy, injury or pain.
  *
- * This is a plain function so that the rule is a test, not a habit.
+ * This is a plain function so that the rule is a test, not a habit. It knows
+ * nothing about any attribution provider; src/lib/attribution.ts turns what
+ * it lets through into that provider's own events.
  */
-export type AdEvent = { eventName: string; eventValues: { af_content_id: string } };
+export type AdEvent = { kind: 'trial' | 'purchase'; product: string };
 
-const AD_EVENTS: Partial<Record<AnalyticsEventName, string>> = {
-  trial_started: 'af_start_trial',
-  subscription_started: 'af_subscribe',
+const AD_EVENTS: Partial<Record<AnalyticsEventName, AdEvent['kind']>> = {
+  trial_started: 'trial',
+  subscription_started: 'purchase',
 };
 
 export function adEventFor(
   name: AnalyticsEventName,
   properties: Record<string, string | number | boolean> | undefined,
 ): AdEvent | null {
-  const eventName = AD_EVENTS[name];
-  if (!eventName) return null;
-  return { eventName, eventValues: { af_content_id: String(properties?.product ?? '') } };
+  const kind = AD_EVENTS[name];
+  if (!kind) return null;
+  return { kind, product: String(properties?.product ?? '') };
 }

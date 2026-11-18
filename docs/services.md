@@ -138,6 +138,6 @@ should open the app reliably from any mail app, set up a universal link on
    `SENTRY_AUTH_TOKEN` as EAS secrets. With the first two present,
    `app.config.ts` adds Sentry's build step, which uploads source maps.
 
-## 7. AppsFlyer
+## 7. Adjust
 
 See `docs/attribution.md`.

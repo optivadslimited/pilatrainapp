@@ -21,11 +21,11 @@ published privacy policy, before submitting.
 | **Diagnostics: Crash data**                                                                                      | App functionality                                        | Yes           | No                                   |
 
 The health answers go to our own database and nowhere else. They are not sent
-to PostHog, Sentry, RevenueCat or AppsFlyer.
+to PostHog, Sentry, RevenueCat or Adjust.
 
 ## If attribution is switched on
 
-When a build includes AppsFlyer (`EXPO_PUBLIC_ATTRIBUTION_KEY` is set), two
+When a build has Adjust switched on (`EXPO_PUBLIC_ADJUST_APP_TOKEN` is set), two
 answers change:
 
 | Data type                                                                            | Collected for                             | Linked to her | Used to track |
@@ -43,11 +43,11 @@ measurements, weight. The app has no body or weight tracking of any kind.
 
 ## Third parties that receive data
 
-| Who               | What they receive                                                                 | Why                |
-| ----------------- | --------------------------------------------------------------------------------- | ------------------ |
-| Supabase          | Everything above (it is our database)                                             | To run the app     |
-| RevenueCat        | Her user ID and purchase history                                                  | Subscriptions      |
-| Mux               | Nothing about her; it serves the video                                            | Video              |
-| PostHog           | Her user ID and the events in `docs/analytics.md`                                 | Analytics          |
-| Sentry            | Her user ID and crash reports                                                     | Fixing crashes     |
-| AppsFlyer (if on) | Her user ID, two purchase events, and the advertising identifier if she allows it | Advert attribution |
+| Who            | What they receive                                                                 | Why                |
+| -------------- | --------------------------------------------------------------------------------- | ------------------ |
+| Supabase       | Everything above (it is our database)                                             | To run the app     |
+| RevenueCat     | Her user ID and purchase history                                                  | Subscriptions      |
+| Mux            | Nothing about her; it serves the video                                            | Video              |
+| PostHog        | Her user ID and the events in `docs/analytics.md`                                 | Analytics          |
+| Sentry         | Her user ID and crash reports                                                     | Fixing crashes     |
+| Adjust (if on) | Her user ID, two purchase events, and the advertising identifier if she allows it | Advert attribution |

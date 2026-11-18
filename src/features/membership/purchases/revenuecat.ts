@@ -21,6 +21,17 @@ import type { PurchaseFailure, PurchasesProvider } from './types';
  */
 let packages: PurchasesPackage[] = [];
 
+/** Adjust starts before RevenueCat is configured, so its ID may arrive first and has to wait. */
+let configured = false;
+let attributionId: string | null = null;
+
+function shareAttributionId(): void {
+  if (!configured || !attributionId) return;
+  // What RevenueCat's Adjust integration asks for: the device identifiers and Adjust's own ID.
+  Purchases.collectDeviceIdentifiers().catch(() => {});
+  Purchases.setAdjustID(attributionId).catch(() => {});
+}
+
 const failureOf = (code: unknown): PurchaseFailure => {
   switch (code) {
     case PURCHASES_ERROR_CODE.NETWORK_ERROR:
@@ -47,6 +58,8 @@ export const revenueCatProvider: PurchasesProvider = {
     Purchases.setLogLevel(__DEV__ ? LOG_LEVEL.INFO : LOG_LEVEL.ERROR);
     // The RevenueCat user ID is her Supabase user ID from the first launch.
     Purchases.configure({ apiKey: env.revenueCatIosKey, appUserID: userId });
+    configured = true;
+    shareAttributionId();
   },
 
   async setUser(userId) {
@@ -127,6 +140,7 @@ export const revenueCatProvider: PurchasesProvider = {
   },
 
   setAttributionId(id) {
-    Purchases.setAppsflyerID(id).catch(() => {});
+    attributionId = id;
+    shareAttributionId();
   },
 };

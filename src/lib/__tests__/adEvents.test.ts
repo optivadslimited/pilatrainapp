@@ -44,15 +44,15 @@ const sent = names.flatMap((name) => {
 describe('what ad platforms receive', () => {
   it('is a trial start and a purchase, and nothing else', () => {
     expect(sent.map(([name]) => name)).toEqual(['trial_started', 'subscription_started']);
-    expect(sent.map(([, event]) => event.eventName)).toEqual(['af_start_trial', 'af_subscribe']);
+    expect(sent.map(([, event]) => event.kind)).toEqual(['trial', 'purchase']);
   });
 
   it('carries the product she chose and no other property', () => {
     for (const [, event] of sent) {
-      expect(Object.keys(event)).toEqual(['eventName', 'eventValues']);
-      expect(Object.keys(event.eventValues)).toEqual(['af_content_id']);
+      expect(Object.keys(event)).toEqual(['kind', 'product']);
     }
-    expect(sent[0][1].eventValues.af_content_id).toBe('pilatrain_quarterly');
+    expect(sent[0][1].product).toBe('pilatrain_quarterly');
+    expect(sent[1][1].product).toBe('pilatrain_monthly');
   });
 
   it('never receives anything from the quiz, the safety gate or her classes', () => {

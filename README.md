@@ -122,7 +122,7 @@ The marketing site is a separate repository (`optivadslimited/pilatrain`,
   subscription, restore, redeem a code, account, sign out, help by email, the
   legal pages, the version, and **Delete account and data**, in two steps.
 - **Analytics** to PostHog, **crashes** to Sentry, **attribution** to
-  AppsFlyer. Each does nothing until its key is supplied. Ad platforms hear a
+  Adjust. Each does nothing until its key is supplied. Ad platforms hear a
   trial start and a purchase, and nothing else.
 - **The server side.** Three more Edge Functions: the RevenueCat webhook keeps
   each member's row current; `playback-token` checks membership before
@@ -145,7 +145,7 @@ The marketing site is a separate repository (`optivadslimited/pilatrain`,
 ### How it has been verified, and how it has not
 
 `npm run check` passes: TypeScript (strict, with typed routes), ESLint,
-**467 Jest tests**, and **32 database checks**. A production iOS JavaScript
+**477 Jest tests**, and **32 database checks**. A production iOS JavaScript
 bundle builds with `npm run bundle:ios` (10 MB), and has been searched: it
 contains no preview store, no developer tools and no price.
 
@@ -202,13 +202,12 @@ own file. Everything they call is tested; the calls themselves are not.
 - **RevenueCat and StoreKit:** `src/features/membership/purchases/revenuecat.ts`,
   the webhook's event shapes, and the REST call in `_shared/billing`.
 - **Sign in with Apple, notifications and the tracking prompt:** all native.
-- **PostHog, Sentry, AppsFlyer and Mux signed playback.**
+- **PostHog, Sentry, Adjust and Mux signed playback.**
 - **The Maestro flows** in `.maestro`: written against the app's test IDs,
   never executed, because there is no Simulator here.
 
-These are the libraries newest to this build, and the AppsFlyer SDK in
-particular changed its API in version 7. Expect the first device build to
-turn up small things in each.
+These are the libraries newest to this build. Expect the first device build
+to turn up small things in each.
 
 ## Setup
 
@@ -446,7 +445,7 @@ the device. You → Developer shows which mode a build is in.
 
 [docs/services.md](docs/services.md) is the step-by-step for switching each
 service on: App Store Connect, RevenueCat, Supabase, Mux, PostHog, Sentry and
-AppsFlyer. None of those steps has been run.
+Adjust. None of those steps has been run.
 
 ## Membership
 
@@ -573,7 +572,7 @@ docs/
   architecture.md        A short walkthrough of how it fits together
   services.md            Switching each outside service on, step by step
   analytics.md           Events, the two funnels, the flag
-  attribution.md         AppsFlyer, the tracking prompt, conversion values
+  attribution.md         Adjust, the tracking prompt, conversion values
   app-review.md          The App Review checklist and the demo account
   privacy-labels.md      What to answer under App Privacy
 ```
@@ -599,7 +598,7 @@ Step by step in [docs/services.md](docs/services.md).
 - [ ] **Mux:** a signing key, and each member class set to signed playback.
 - [ ] **PostHog:** project key and host, the `paywall_variant` flag and the two funnels.
 - [ ] **Sentry:** the DSN, and the organisation, project and auth token for source maps.
-- [ ] **Attribution:** AppsFlyer confirmed (or Adjust), with its key and the App Store app ID.
+- [ ] **Adjust:** the app token, and the tokens of two events created in its dashboard ("Trial started" and "Subscription started").
 - [ ] A sample video of your own, if you would rather not see a test pattern (`EXPO_PUBLIC_SAMPLE_VIDEO_URL`).
 
 **Decisions**
@@ -737,8 +736,8 @@ Where the brief left a detail open, the calmer, simpler option was chosen.
 
 **Milestone 4: membership**
 
-- **AppsFlyer**, where the brief says AppsFlyer or Adjust. It is confined to
-  one file.
+- **Adjust for attribution.** The brief offered AppsFlyer or Adjust; the owner
+  chose Adjust. It is confined to one file.
 - **The free class is her first session**, whichever class that is and
   whether it is one class or two, until she has finished it. The class marked
   free in the sheet ("Start here") is free to everyone as well.
@@ -763,7 +762,7 @@ Where the brief left a detail open, the calmer, simpler option was chosen.
   purchase. It is cancelled if she cancels.
 - **Session reminders have no sound** and say only what today's class is and
   how long it takes.
-- **The tracking prompt is tied to attribution.** With no attribution key it
+- **The tracking prompt is tied to attribution.** With no Adjust app token it
   is never shown, because there would be nothing to ask permission for.
 - **"Delete account and data" is offered to everyone**, with or without an
   account: an anonymous user's answers are on our server too.

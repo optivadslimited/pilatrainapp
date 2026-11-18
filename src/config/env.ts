@@ -44,10 +44,11 @@ export const env = {
   // TODO(owner): Sentry DSN.
   sentryDsn: read(process.env.EXPO_PUBLIC_SENTRY_DSN),
 
-  // TODO(owner): choose AppsFlyer or Adjust, then supply its key and the App Store app ID.
-  attributionProvider: read(process.env.EXPO_PUBLIC_ATTRIBUTION_PROVIDER),
-  attributionKey: read(process.env.EXPO_PUBLIC_ATTRIBUTION_KEY),
-  appStoreId: read(process.env.EXPO_PUBLIC_APP_STORE_ID),
+  // Attribution: Adjust. TODO(owner): the app token, and the token of each of
+  // the two events created in the Adjust dashboard (docs/attribution.md).
+  adjustAppToken: read(process.env.EXPO_PUBLIC_ADJUST_APP_TOKEN),
+  adjustTrialEventToken: read(process.env.EXPO_PUBLIC_ADJUST_TRIAL_EVENT_TOKEN),
+  adjustPurchaseEventToken: read(process.env.EXPO_PUBLIC_ADJUST_PURCHASE_EVENT_TOKEN),
 } as const;
 
 export type Env = typeof env;
