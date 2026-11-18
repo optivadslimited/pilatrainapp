@@ -3,6 +3,7 @@
  * if a screen needs something these components cannot do, extend the
  * component, do not work around it.
  */
+export { BarChart, type BarChartProps } from './BarChart';
 export { Button, type ButtonProps, type ButtonVariant } from './Button';
 export { Checkbox, type CheckboxProps } from './Checkbox';
 export { Chip, type ChipProps } from './Chip';
@@ -12,6 +13,7 @@ export { EmptyState, type EmptyStateProps } from './EmptyState';
 export { Icon, type IconName, type IconProps } from './Icon';
 export { IconButton, type IconButtonProps } from './IconButton';
 export { ListRow, type ListRowProps } from './ListRow';
+export { MonthGrid, type MonthGridProps } from './MonthGrid';
 export { OptionCard, type OptionCardProps } from './OptionCard';
 export { PhotoPlaceholder, type PhotoPlaceholderProps } from './PhotoPlaceholder';
 export { PlanCard, type PlanCardProps } from './PlanCard';
