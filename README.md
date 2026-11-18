@@ -18,8 +18,8 @@ The marketing site is a separate repository (`optivadslimited/pilatrain`,
 | --------- | ---------- | ----------------------------------------------------------------------------------- | -------- |
 | 1         | Sun 29 Nov | App shell, design system as tokens and components, onboarding quiz with safety gate | **Done** |
 | 2         | Sun 6 Dec  | Plan engine with tests, plan preview, Today screen                                  | **Done** |
-| 3         | Sun 13 Dec | Player, after-class feedback, Plan and Progress tabs                                | Next     |
-| 4         | Sun 20 Dec | Paywall and subscriptions, You tab, analytics, attribution, full test pass          |          |
+| 3         | Sun 13 Dec | Player, after-class feedback, Plan and Progress tabs                                | **Done** |
+| 4         | Sun 20 Dec | Paywall and subscriptions, You tab, analytics, attribution, full test pass          | Next     |
 | 5         | Mon 21 Dec | TestFlight build to 30 to 50 testers                                                |          |
 | 6         | Wed 30 Dec | Submitted to App Review                                                             |          |
 
@@ -50,53 +50,91 @@ The marketing site is a separate repository (`optivadslimited/pilatrain`,
   weeks 2 to 4 as softened rows, and the two actions.
 - **Today.** The day and week, a headline that changes with her day, the large
   class card, the seven-day strip, the weekly ring, one quiet line drawn from
-  her own numbers, and "Coming up" with Move. Pull to refresh, a skeleton while
-  loading, an error state with retry.
+  her own numbers, and "Coming up" with Move.
 - **Missed days.** A session not done by the end of its day moves to the next
   free day of its week, or is dropped if there is none. Today then says
   "Welcome back. Your plan has moved." Nothing anywhere says a day was missed.
-- **Move.** A sheet of the days a session can go to, by the engine's own rules.
 - **The next block** is built automatically when the 28 days end.
 - **Database.** The nine tables with row-level security, and the seed of
   sixteen placeholder classes.
 - **Local mode.** With no backend keys the whole plan runs on the phone, using
   the same code the server will run.
 
+**Classes (milestone 3)**
+
+- **Class detail.** A sheet from any class card: the photo, the instructor and
+  her credential, length, level, focus, equipment, three "What you'll do"
+  lines, the easier-option note, and Start.
+- **Player.** Video on top with the chapter list below; full screen in
+  landscape. Play and pause, ten seconds back and forward, a scrubber with
+  chapter marks, captions (on by default), AirPlay, close. An "Easier option"
+  card for the chapter that is playing. Controls fade after three seconds.
+  Closing after more than thirty seconds asks first. Her place is saved every
+  five seconds and resumed. A class counts as completed at 90%.
+- **After class.** "Nicely done.", the weekly ring filling, minutes and
+  sessions, "How did that feel?", what is next, and Done, with the one success
+  haptic.
+- **Feedback changes the plan** (rule 8). Two "too hard" in a row ease next week
+  and add a foundations class; two "too easy" step it up, or lengthen sessions
+  at the top. She is told once, quietly.
+- **Plan tab.** Four weeks with their themes, every session with its state,
+  Move on each, "Adjust my plan" and "Browse all classes".
+- **Adjust my plan.** The days, time and length questions on one screen; the
+  rest of her plan is laid out again and what she has done is kept.
+- **Library.** All sixteen classes, filter chips for length and focus, locked
+  beyond the free class for a non-member.
+- **Progress tab.** Three stat tiles, a consistency ring, a four-week bar
+  chart, a month view with a dot on each day she trained, and one line on how
+  the classes have felt.
+
 ### What is stubbed
 
-| Stub                                                                                                                                              | Replaced in          |
-| ------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------- |
-| **Start** shows a short message. There is no player yet.                                                                                          | Milestone 3          |
-| "Try the first class free" goes to Today with the same message.                                                                                   | Milestone 3          |
-| "Start my free week" goes straight to Today. There is no paywall yet.                                                                             | Milestone 4          |
-| Rule 8 (her feedback changes the plan) is built and tested in the engine but nothing calls it, because the after-class screen does not exist yet. | Milestone 3          |
-| "Adjust my plan", the Plan tab and the Progress tab.                                                                                              | Milestone 3          |
-| The Supabase path is written but has never been run (see below). The app runs in local mode.                                                      | When keys arrive     |
-| The sixteen classes, their tags, chapter times and easier options are placeholders. There is no video, no captions and no thumbnails.             | When content arrives |
-| "I already have an account" shows a short message instead of sign-in.                                                                             | Milestone 4          |
-| Analytics events are typed and fired, but only printed to the console.                                                                            | Milestone 4          |
-| EAS Update is not configured (it needs the Expo project ID).                                                                                      | Milestone 5          |
+| Stub                                                                                                                                                                           | Replaced in          |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------- |
+| **Every class plays one sample video.** There are no real classes, captions files or thumbnails yet. Chapter times are scaled to fit the sample.                               | When content arrives |
+| **Everyone is treated as a member.** The locked states exist and can be previewed (You → Developer → "Preview as a non-member"); tapping a locked class shows a short message. | Milestone 4          |
+| "Start my free week" goes straight to Today. There is no paywall yet, and the free class does not lead to one.                                                                 | Milestone 4          |
+| Member video is not yet served with signed Mux tokens.                                                                                                                         | Milestone 4          |
+| A class taken from the library on its own is not counted in Progress. Only sessions of her plan are.                                                                           | To decide            |
+| The Supabase path is written but has never been run (see below). The app runs in local mode.                                                                                   | When keys arrive     |
+| "I already have an account" shows a short message instead of sign-in.                                                                                                          | Milestone 4          |
+| Analytics events are typed and fired, but only printed to the console.                                                                                                         | Milestone 4          |
+| The You tab has the legal links and version only: no plan settings, membership, delete account or sign out.                                                                    | Milestone 4          |
+| Offline is handled as "the request failed, try again". There is no connection listener yet.                                                                                    | Milestone 4          |
+| EAS Update is not configured (it needs the Expo project ID).                                                                                                                   | Milestone 5          |
 
 ### How it has been verified, and how it has not
 
 `npm run check` passes: TypeScript (strict, with typed routes), ESLint,
-**288 Jest tests**, and **26 database checks**. A production iOS JavaScript
-bundle builds with `npm run bundle:ios` (5.2 MB).
+**354 Jest tests**, and **30 database checks**. A production iOS JavaScript
+bundle builds with `npm run bundle:ios` (5.3 MB).
 
 - **The plan engine** has a test for every rule, run against a large
   catalogue where every rule can hold at once, and against the sixteen seed
   classes for every combination of answers (1,920 plans).
-- **The database** migration and seed are run in a real Postgres (PGlite, in
+- **The player's rules** (completion at 90%, the 25/50/75 milestones, saving
+  every five seconds, resuming, the close confirmation, chapters) are plain
+  code with their own tests.
+- **The database** migrations and seed are run in a real Postgres (PGlite, in
   process, no Docker). The checks include that no other user can read her
   health answers or her plan, and that they fail when security is switched off.
 - **The screens** have been walked through in the web preview at 375 × 667:
-  quiz, plan build, preview, Today, moving a session, and each Today state
-  (session due, done, rest day, plan moved) using the developer tools.
+  the quiz, plan build and preview; Today in each state; a full session played
+  through both of its classes to the after-class screen, with every analytics
+  event checked; rating; the Plan tab; moving a session; Adjust my plan; the
+  library and its filters; class detail; the non-member lock; and Progress.
 
 **Not yet run on an iPhone or the iOS Simulator.** The machine this was built
 on has no Xcode. Treat as untested on a device: haptics, native transitions
-and sheets, SF Symbols, the notification prompt and reminder, pull to refresh,
-Dynamic Type at the largest size, VoiceOver, and frame rate.
+and sheets, SF Symbols, notifications, pull to refresh, Dynamic Type at the
+largest size, VoiceOver, and frame rate.
+
+**The player most of all.** `expo-video` is native. In the web preview it
+plays a five-second MP4, which was enough to prove the flow but nothing else.
+Never yet seen working: adaptive (HLS) playback, captions, AirPlay, the
+controls fading after three seconds, turning to
+landscape, the screen staying awake, and the "Leave this class?" card, which
+needs more than thirty seconds of playback.
 
 **Not yet run against Supabase.** There is no project yet. Three files have
 only been type-checked or read, never executed:
@@ -157,7 +195,7 @@ That runs the first four below in turn.
 | -------------------- | ---------------------------------------------------------------------- |
 | `npm run typecheck`  | TypeScript, strict                                                     |
 | `npm run lint`       | ESLint (Expo config)                                                   |
-| `npm test`           | Jest: engine, plan service, screens, copy rules                        |
+| `npm test`           | Jest: engine, plan service, player rules, screens, copy rules          |
 | `npm run db:check`   | Runs the migration and seed in Postgres and checks row-level security  |
 | `npm run seed:build` | Rebuilds `seed.sql` and the app's local catalogue from the class sheet |
 | `npm run seed:check` | Fails if the class sheet and the generated files have drifted          |
@@ -215,8 +253,9 @@ Built before any screen, and the only place styling decisions are made.
   switched off.
 - **Components** in [src/components](src/components): Button, Chip, OptionCard,
   QuizProgressBar, Ring, ClassCard, DayPill, StatTile, Sheet, Toast, PlanCard,
-  PlayerControls, EmptyState, Skeleton, plus the base pieces they share (Text,
-  Icon, Screen, TextField, Checkbox, ListRow, PhotoPlaceholder, Wordmark).
+  PlayerControls, EmptyState, Skeleton, BarChart, MonthGrid, plus the base
+  pieces they share (Text, Icon, Screen, TextField, Checkbox, ListRow,
+  PhotoPlaceholder, Wordmark).
 - **Gallery** at `/dev/gallery`: every component on one screen for design
   review. Development builds only.
 - **Strings** in [src/strings/en.ts](src/strings/en.ts): every word the user
@@ -330,6 +369,30 @@ When the projects exist (one each for development, staging and production):
 These steps have not been run. Expect the first run to turn up small things
 in the three unexecuted files listed above.
 
+## Video
+
+Classes play through `expo-video`. A class with a Mux playback ID plays its
+own adaptive stream (`https://stream.mux.com/<id>.m3u8`).
+
+Until the real classes exist, **every class plays one sample video**. It is
+set in the environment:
+
+- `EXPO_PUBLIC_SAMPLE_VIDEO_URL`: any HLS address. Left empty, the app uses
+  Apple's public test stream, chosen because it carries captions, so the
+  captions toggle can be seen working on a device. It is a test pattern, not a
+  class.
+- The web preview cannot play HLS, so it plays a five-second CC0 clip from
+  MDN instead.
+
+Because the sample is not the length of the class it stands in for, the
+class's chapter times are scaled to fit it. A class with its own video keeps
+its own times.
+
+When the classes are on Mux: put each playback ID in the class sheet
+(`mux_playback_id`), run `npm run seed:build`, and the sample is no longer
+used for that class. Captions come from the stream's own subtitle tracks, so
+add them to the Mux asset; `captions_url` in the sheet is kept for reference.
+
 ## Project layout
 
 ```
@@ -345,14 +408,22 @@ src/
     building.tsx         Building your plan (the real plan call)
     plan-preview.tsx     Her 28 days at a glance
     (tabs)/              Today · Plan · Progress · You
+    class/[id].tsx       Class detail (a sheet)
+    player.tsx           The player
+    after-class.tsx      "Nicely done." and "How did that feel?"
+    library.tsx          All classes, with filters
+    adjust.tsx           Adjust my plan
     move/[sessionId].tsx The sheet for moving a session
     dev/gallery.tsx      Component gallery (development only)
   components/            The design system
   config/                brand.ts (the rename file), env.ts
   features/
     onboarding/          Quiz definition, day spread, safety gate, flow, store
-    plan/                Repository (local or remote), queries, and what
-                         Today and the preview show (today.ts, preview.ts)
+    plan/                Repository (local or remote), queries, and what each
+                         screen shows (today.ts, preview.ts, planTab.ts,
+                         progress.ts)
+    player/              The player's rules (playback.ts), video sources
+    membership/          Who may play what (a stub until milestone 4)
   lib/                   storage, supabase, clock, haptics, analytics, formatting
   strings/               en.ts
   theme/                 Tokens
@@ -390,6 +461,7 @@ Every one of these is marked `TODO(owner)` in the code.
 - [ ] Attribution tool chosen (AppsFlyer or Adjust), with its key and the App Store app ID.
 - [ ] Mux keys (server side, for the Edge Functions; milestone 3), and one sample video to stand in for all sixteen classes.
 - [ ] Anonymous sign-ins switched on in each Supabase project.
+- [ ] A sample video of your own, if you would rather not see a test pattern (`EXPO_PUBLIC_SAMPLE_VIDEO_URL`).
 
 **Content** (`src/config/brand.ts` and elsewhere)
 
@@ -475,3 +547,41 @@ Where the brief left a detail open, the calmer, simpler option was chosen.
 - **The class sheet uses plain columns** (pipe-separated lists, two chapter
   times, three easier-option cells) and a script turns it into SQL, so it can
   be filled in a spreadsheet.
+
+**Milestone 3: classes**
+
+- **A session of two classes plays one after the other**, and is done when the
+  second reaches 90%. Each class sends its own started, progress and completed
+  events.
+- **"90% watched" is the furthest point reached**, so scrubbing back does not
+  un-complete a class. Time skipped is not counted towards the thirty seconds
+  that make closing ask first.
+- **The session is marked done at 90%**, not at the very end, so she can leave
+  during the cool-down and keep the credit. The after-class screen appears
+  when the video ends, or when she closes after that point.
+- **"Leave this class?" is a card in the player**, not a system alert, so it
+  looks like the app and can be tested.
+- **Her rating is saved when she presses Done**, so she can change her mind
+  until then, and it is optional. Once saved it is not edited.
+- **When feedback changes the plan she is told once**, in a short message on
+  Today ("Noted. Next week eases off a little."). The brief does not say she
+  should be told; saying nothing seemed worse.
+- **After class shows all-time minutes and sessions**, the same two numbers as
+  the first two Progress tiles, so they always agree.
+- **Adjust my plan is one screen**, not the quiz's four, and it rebuilds from
+  today to the end of the 28 days. Changing "best time of day" only changes
+  the reminder default, which arrives in milestone 4.
+- **Consistency counts what has had its day**: sessions done, against sessions
+  done plus sessions dropped when their week ran out, over the last 28 days.
+  Sessions still ahead of her are not counted either way.
+- **The bar chart shows this plan's four weeks**, matching "Week 2 of 4"
+  elsewhere, not a rolling four weeks.
+- **The month view shows the current month only.**
+- **"Weeks active" counts calendar weeks**, Monday to Sunday, with at least one
+  session.
+- **Starting a later session early is allowed** from class detail, and is
+  recorded on the day she did it.
+- **The class sheet gained three columns**, `do_1` to `do_3`, for "What you'll
+  do". The data model's `captions_url` is kept but unused: captions come from
+  the stream.
+- **Portrait is held per screen**, not app-wide, so that the player can turn.

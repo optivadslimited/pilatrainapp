@@ -3,6 +3,7 @@ import { useState, type ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import {
+  BarChart,
   Button,
   Checkbox,
   Chip,
@@ -11,6 +12,7 @@ import {
   EmptyState,
   IconButton,
   ListRow,
+  MonthGrid,
   OptionCard,
   PhotoPlaceholder,
   PlanCard,
@@ -224,6 +226,35 @@ export default function Gallery() {
           <StatTile value="240" label="Minutes moved" />
           <StatTile value="4" label="Weeks active" />
         </View>
+      </Section>
+
+      <Section title="BarChart">
+        <BarChart
+          target={3}
+          targetLabel="Your plan: 3 a week"
+          bars={[
+            { label: 'W1', value: 3, spoken: 'Week 1: 3 of 3' },
+            { label: 'W2', value: 2, spoken: 'Week 2: 2 of 3', isCurrent: true },
+            { label: 'W3', value: 0, spoken: 'Week 3: 0 of 3' },
+            { label: 'W4', value: 0, spoken: 'Week 4: 0 of 3' },
+          ]}
+        />
+      </Section>
+
+      <Section title="MonthGrid">
+        <MonthGrid
+          accessibilityLabel="Sample month"
+          days={[
+            null,
+            null,
+            ...Array.from({ length: 30 }, (_, i) => ({
+              date: String(i + 1),
+              day: i + 1,
+              trained: [2, 4, 6, 9, 11, 13].includes(i + 1),
+              isToday: i + 1 === 13,
+            })),
+          ]}
+        />
       </Section>
 
       <Section title="ClassCard, large">

@@ -1,7 +1,7 @@
 # Architecture walkthrough
 
 A short tour of how the app fits together. It grows with each milestone; this
-version covers milestones 1 and 2.
+version covers milestones 1 to 3.
 
 ## The shape of it
 
@@ -105,6 +105,36 @@ are held by the database itself and not left to code: a unique index means a
 plan can never have two sessions on one day, and `save_plan` replaces a plan
 and its sessions in one transaction.
 
+## The player
+
+```
+  src/app/player.tsx            connects the rules to the video; decides nothing
+        │                                   │
+        ▼                                   ▼
+  features/player/playback.ts        expo-video (native)
+  the rules, no video in them        the picture and the sound
+```
+
+`playback.ts` holds everything that can be got wrong quietly: a class counts
+as completed at 90%; the 25, 50 and 75 milestones are sent once each; her
+place is saved every five seconds; a class resumes where she left off unless
+she had barely started or already finished; closing asks first after more
+than thirty seconds of actual playing. `ProgressTracker` is fed the playback
+position a few times a second and reports what has just happened. It has no
+video in it, so all of that is tested.
+
+The screen is deliberately thin. It gives each class of a session its own
+player, tracker and state (the component is keyed by class), so a session of
+two classes is simply two of them in a row. The session is marked done when
+its last class reaches 90%.
+
+The video player is a native object driven by setting its properties, which
+React's rules for hook values do not allow. `features/player/control.ts` is
+the one place that happens.
+
+Which video plays is decided in `features/player/sources.ts`: the class's own
+Mux stream if it has one, otherwise the one sample video.
+
 ## State
 
 | Kind                         | Tool                              | Where                                            |
@@ -130,6 +160,11 @@ Expo Router, on the native stack, so pushes are the system's own transitions.
 /building             building your plan (the real plan call)
 /plan-preview         her 28 days at a glance
 /today /plan /progress /you     the four tabs
+/class/[id]           a sheet: class detail
+/player               the player (the only screen that may turn to landscape)
+/after-class          "Nicely done." and "How did that feel?"
+/library              all classes, with filters
+/adjust               adjust my plan
 /move/[sessionId]     a sheet: the days a session can move to
 /dev/gallery          development only
 ```
