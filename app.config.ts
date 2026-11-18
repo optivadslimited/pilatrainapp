@@ -31,8 +31,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   slug: brand.slug,
   scheme: brand.scheme,
   version: '1.0.0',
-  // Portrait everywhere. The player unlocks landscape for itself (milestone 3).
-  orientation: 'portrait',
+  // All orientations are allowed here so that the player can turn to landscape.
+  // Every other screen is held in portrait by the root layout (src/app/_layout.tsx).
+  orientation: 'default',
   // Light appearance at launch. The tokens in src/theme are ready for dark.
   userInterfaceStyle: 'light',
   backgroundColor: PAPER,
@@ -61,6 +62,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     ],
     ['expo-build-properties', { ios: { deploymentTarget: '17.0' } }],
     'expo-notifications',
+    // Picture-in-picture is off and classes do not play in the background.
+    ['expo-video', { supportsBackgroundPlayback: false, supportsPictureInPicture: false }],
   ],
   experiments: {
     typedRoutes: true,

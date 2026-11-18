@@ -50,6 +50,8 @@ export default function RootLayout() {
             contentStyle: { backgroundColor: colors.background },
             // Native push transitions. Under Reduce Motion they become cross-fades.
             animation: reduceMotion ? 'fade' : 'default',
+            // Portrait everywhere. Only the player turns to landscape.
+            orientation: 'portrait_up',
           }}>
           <Stack.Screen name="index" options={{ animation: 'none' }} />
           <Stack.Screen name="welcome" options={{ animation: 'fade' }} />
@@ -62,6 +64,19 @@ export default function RootLayout() {
           />
           <Stack.Screen name="(tabs)" options={{ animation: 'fade', gestureEnabled: false }} />
           <Stack.Screen name="move/[sessionId]" options={sheetOptions([0.6, 1])} />
+          <Stack.Screen name="class/[id]" options={sheetOptions([0.85, 1])} />
+          <Stack.Screen
+            name="player"
+            options={{
+              presentation: 'fullScreenModal',
+              animation: 'fade',
+              gestureEnabled: false,
+              orientation: 'all',
+            }}
+          />
+          <Stack.Screen name="after-class" options={{ animation: 'fade', gestureEnabled: false }} />
+          <Stack.Screen name="library" />
+          <Stack.Screen name="adjust" />
           <Stack.Screen name="dev/gallery" />
         </Stack>
         <ToastHost />

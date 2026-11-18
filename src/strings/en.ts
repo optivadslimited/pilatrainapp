@@ -57,6 +57,14 @@ export const en = {
   /** A date written out: "Thursday 19 November". */
   date: (weekday: string, day: number, month: string) => `${weekday} ${day} ${month}`,
 
+  focus: {
+    foundations: 'Foundations',
+    core: 'Core',
+    full_body: 'Full body',
+    mobility: 'Mobility',
+    express: 'Express',
+  } as Record<string, string>,
+
   themes: {
     foundations: 'Foundations',
     build: 'Build',
@@ -295,8 +303,6 @@ export const en = {
     },
     errorTitle: 'Your plan didn’t load.',
     errorBody: 'Check your connection and try again.',
-    // TODO(milestone 3): remove once the player exists.
-    playerSoon: 'The player arrives in the next build.',
   },
 
   move: {
@@ -311,14 +317,101 @@ export const en = {
 
   plan: {
     title: 'Plan',
-    emptyTitle: 'Four weeks, one session at a time.',
-    emptyBody: 'Your 28-day plan and the class library will appear here.',
+    weekRange: (from: string, to: string) => `${from} to ${to}`,
+    today: 'Today',
+    adjust: 'Adjust my plan',
+    browse: 'Browse all classes',
+    weekDone: 'All done this week.',
+    weekEmpty: 'Nothing planned this week.',
+    errorTitle: 'Your plan didn’t load.',
+    errorBody: 'Check your connection and try again.',
+  },
+
+  library: {
+    title: 'All classes',
+    length: 'Length',
+    focus: 'Focus',
+    lengthChip: (minutes: number) => `${minutes} min`,
+    count: (count: number) => (count === 1 ? '1 class' : `${count} classes`),
+    free: 'Free class',
+    emptyTitle: 'Nothing matches those filters.',
+    emptyBody: 'Try a different length or focus.',
+    clear: 'Clear filters',
+  },
+
+  adjust: {
+    title: 'Adjust my plan',
+    body: 'Change your days or your session length. What you’ve done stays as it is, and the rest of your plan is laid out again.',
+    daysPerWeek: 'Days per week',
+    daysChip: (days: number) => `${days} days`,
+    whichDays: 'Which days',
+    status: (chosen: number, count: number) => `${chosen} of ${count} chosen`,
+    time: 'Best time of day',
+    length: 'Time per session',
+    save: 'Update my plan',
+    saved: 'Your plan is updated.',
+    failed: 'That didn’t save. Try again.',
+  },
+
+  classDetail: {
+    heroLabel: (title: string) => `Class photo, hero, 3:4. ${title}.`,
+    instructor: (name: string, credential: string) => `With ${name}, ${credential}`,
+    whatYouWillDo: 'What you’ll do',
+    easierNote: 'An easier option is there for every part of the class.',
+    start: 'Start',
+    resume: 'Pick up where you left off',
+    // TODO(milestone 4): replaced by the paywall.
+    membershipSoon: 'Membership arrives in a later build.',
+  },
+
+  afterClass: {
+    headline: 'Nicely done.',
+    minutes: 'Minutes moved',
+    sessions: 'Sessions completed',
+    question: 'How did that feel?',
+    ratings: {
+      easy: 'Too easy',
+      right: 'Just right',
+      hard: 'Too hard',
+    },
+    next: (weekday: string, title: string) => `Next: ${weekday} · ${title}`,
+    done: 'Done',
+    // Shown once, on Today, when her feedback has changed the weeks ahead.
+    effect: {
+      eased: 'Noted. Next week eases off a little.',
+      stepped_up: 'Noted. Next week steps up a little.',
+      longer: 'Noted. Your sessions get a little longer from next week.',
+    },
   },
 
   progress: {
     title: 'Progress',
+    sessions: 'Sessions completed',
+    minutes: 'Minutes moved',
+    weeks: 'Weeks active',
+    consistency: 'Consistency',
+    consistencyBody: (done: number, planned: number) =>
+      `${done} of ${planned} planned sessions in the last four weeks.`,
+    consistencyEmpty: 'Your first sessions will fill this in.',
+    chartTitle: 'Sessions each week',
+    chartTarget: (target: number) => `Your plan: ${target} a week`,
+    chartWeek: (week: number) => `W${week}`,
+    chartSpoken: (week: number, done: number, target: number) =>
+      `Week ${week}: ${done} of ${target}`,
+    monthTitle: (month: string, year: number) => `${month} ${year}`,
+    daysTrained: (count: number) =>
+      count === 1 ? '1 day with a session this month.' : `${count} days with a session this month.`,
+    trained: 'session done',
+    feel: {
+      easy: 'Classes have mostly felt on the easy side.',
+      right: 'Classes have mostly felt just right.',
+      hard: 'Classes have mostly felt on the hard side.',
+      mixed: 'Classes have felt like a mix so far.',
+    },
     emptyTitle: 'Nothing to count yet.',
     emptyBody: 'Sessions, minutes and weeks will appear here after your first class.',
+    errorTitle: 'Your progress didn’t load.',
+    errorBody: 'Check your connection and try again.',
   },
 
   you: {
@@ -337,6 +430,8 @@ export const en = {
     skipDay: 'Skip to tomorrow',
     resetDate: 'Back to the real date',
     daysAhead: (days: number) => (days === 1 ? '1 day ahead' : `${days} days ahead`),
+    previewNonMember: 'Preview as a non-member',
+    previewMember: 'Preview as a member',
     localMode: 'Local mode: no backend keys',
     remoteMode: 'Connected to Supabase',
   },
@@ -353,6 +448,21 @@ export const en = {
     scrubber: 'Playback position',
     position: (elapsed: string, total: string) => `${elapsed} of ${total}`,
     easierOption: 'Easier option',
+    easierTitle: (chapter: string) => `Easier option · ${chapter}`,
+    gotIt: 'Got it',
+    chapters: 'In this class',
+    chapterSpoken: (title: string, time: string) => `${title}, starts at ${time}`,
+    playingNow: 'Playing now',
+    upNext: (title: string) => `Then ${title}`,
+    loading: 'Loading your class',
+    showControls: 'Show the controls',
+    hideControls: 'Hide the controls',
+    leaveTitle: 'Leave this class?',
+    leaveBody: 'Your place is saved. Pick it up again whenever you like.',
+    keepGoing: 'Keep going',
+    leave: 'Leave',
+    // TODO(owner): remove once the real classes are on Mux.
+    sampleNote: 'Sample video. The real class will play here.',
   },
 
   planCard: {

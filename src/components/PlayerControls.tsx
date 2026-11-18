@@ -42,6 +42,8 @@ export type PlayerControlsProps = {
   airPlay?: ReactNode;
   /** Any touch on the controls. The player uses it to restart the fade timer. */
   onInteraction?: () => void;
+  /** A tap on the empty part of the overlay, to put the controls away. */
+  onDismiss?: () => void;
 };
 
 const SKIP_SECONDS = 10;
@@ -71,6 +73,7 @@ export function PlayerControls({
   onClose,
   airPlay,
   onInteraction,
+  onDismiss,
 }: PlayerControlsProps) {
   const { colors } = useTheme();
   const opacity = useSharedValue(visible ? 1 : 0);
@@ -97,6 +100,14 @@ export function PlayerControls({
         { backgroundColor: colors.scrimEnd },
         fadeStyle,
       ]}>
+      {onDismiss ? (
+        <Pressable
+          onPress={onDismiss}
+          accessibilityRole="button"
+          accessibilityLabel={t.player.hideControls}
+          style={StyleSheet.absoluteFill}
+        />
+      ) : null}
       <View style={styles.row}>
         <IconButton
           icon="close"

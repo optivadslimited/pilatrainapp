@@ -1,5 +1,5 @@
 import { moveTargets } from '@engine';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
 import { View } from 'react-native';
 
 import { EmptyState, OptionCard, Sheet, Text, toast } from '@/components';
@@ -7,6 +7,7 @@ import { indexCatalogue, scheduled, sessionCard } from '@/features/plan/cards';
 import { useCatalogue, useCurrentPlan, useMoveSession } from '@/features/plan/queries';
 import { track } from '@/lib/analytics';
 import { formatDay, weekdayName } from '@/lib/format';
+import { useGoBack } from '@/lib/useGoBack';
 import { useToday } from '@/lib/useToday';
 import { t } from '@/strings';
 import { space } from '@/theme';
@@ -18,7 +19,7 @@ import { space } from '@/theme';
  * sheet.
  */
 export default function MoveSession() {
-  const router = useRouter();
+  const goBack = useGoBack('/today');
   const { sessionId } = useLocalSearchParams<{ sessionId: string }>();
   const date = useToday();
   const plan = useCurrentPlan().data;
@@ -41,7 +42,7 @@ export default function MoveSession() {
         onSuccess: () => {
           track('session_moved');
           toast.show(t.move.moved(weekdayName(to)));
-          router.back();
+          goBack();
         },
         onError: () => toast.show(t.move.failed),
       },
@@ -49,7 +50,7 @@ export default function MoveSession() {
   };
 
   return (
-    <Sheet title={t.move.title} onClose={() => router.back()} testID="move-sheet">
+    <Sheet title={t.move.title} onClose={goBack} testID="move-sheet">
       {card && targets.length > 0 ? (
         <>
           <Text variant="body" color="textSecondary">

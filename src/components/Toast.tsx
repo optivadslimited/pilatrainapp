@@ -30,6 +30,9 @@ const useToastStore = create<ToastState>((set) => ({
   hide: () => set({ toast: null }),
 }));
 
+/** High enough to sit above a tab bar or a screen's fixed button, never on top of it. */
+const CLEARANCE = 96;
+
 /** Show a short message at the foot of the screen. It leaves by itself. */
 export const toast = {
   show: (message: string) => useToastStore.getState().show(message),
@@ -66,7 +69,7 @@ export function ToastHost() {
   return (
     <View
       pointerEvents="box-none"
-      style={[styles.host, { paddingBottom: insets.bottom + space.xl }]}>
+      style={[styles.host, { paddingBottom: insets.bottom + CLEARANCE }]}>
       <Animated.View
         key={current.id}
         entering={entering}

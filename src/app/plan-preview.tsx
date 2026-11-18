@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 
-import { Button, Chip, ClassCard, Screen, Skeleton, Text, toast } from '@/components';
+import { Button, Chip, ClassCard, Screen, Skeleton, Text } from '@/components';
 import { useOnboardingStore } from '@/features/onboarding/store';
 import { indexCatalogue } from '@/features/plan/cards';
 import { planPreview } from '@/features/plan/preview';
@@ -52,10 +52,14 @@ export default function PlanPreview() {
           <Button
             label={t.preview.secondary}
             variant="text"
-            // TODO(milestone 3): open the player on her first session.
+            // The first class is free: it plays without a membership.
             onPress={() => {
-              toast.show(t.today.playerSoon);
-              router.replace('/today');
+              const first = preview?.weekOne.sessions[0];
+              if (!first) return;
+              router.replace({
+                pathname: '/player',
+                params: { sessionId: first.session.id, source: 'preview' },
+              });
             }}
             disabled={!preview}
             testID="preview-first-class"

@@ -7,6 +7,7 @@ import { StyleSheet, View } from 'react-native';
 
 import { ListRow, Screen, Text } from '@/components';
 import { brand } from '@/config/brand';
+import { useMembershipStore } from '@/features/membership/membership';
 import { useOnboardingStore } from '@/features/onboarding/store';
 import { clearLocalPlan } from '@/features/plan/localStore';
 import { planKeys, useCompleteSession, useCurrentPlan } from '@/features/plan/queries';
@@ -74,6 +75,8 @@ function DeveloperTools() {
   const plan = useCurrentPlan().data;
   const complete = useCompleteSession();
   const [offset, setOffset] = useState(devDayOffset);
+  const previewNonMember = useMembershipStore((state) => state.previewNonMember);
+  const setPreviewNonMember = useMembershipStore((state) => state.setPreviewNonMember);
 
   const moveDate = (days: number) => {
     setDevDayOffset(days);
@@ -101,6 +104,11 @@ function DeveloperTools() {
       />
       <ListRow label={t.you.skipDay} onPress={() => moveDate(offset + 1)} testID="dev-skip-day" />
       <ListRow label={t.you.resetDate} onPress={() => moveDate(0)} testID="dev-reset-date" />
+      <ListRow
+        label={previewNonMember ? t.you.previewMember : t.you.previewNonMember}
+        onPress={() => setPreviewNonMember(!previewNonMember)}
+        testID="dev-membership"
+      />
       <ListRow
         label={t.you.gallery}
         onPress={() => router.push('/dev/gallery')}

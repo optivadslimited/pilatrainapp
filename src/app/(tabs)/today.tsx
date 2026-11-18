@@ -3,8 +3,8 @@ import { useState } from 'react';
 import { RefreshControl, StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 
-import { ClassCard, DayPill, EmptyState, Ring, Screen, Skeleton, Text, toast } from '@/components';
-import { indexCatalogue } from '@/features/plan/cards';
+import { ClassCard, DayPill, EmptyState, Ring, Screen, Skeleton, Text } from '@/components';
+import { indexCatalogue, type SessionCard } from '@/features/plan/cards';
 import { useCatalogue, useCurrentPlan } from '@/features/plan/queries';
 import { todayView, type TodayView } from '@/features/plan/today';
 import { useToday } from '@/lib/useToday';
@@ -18,7 +18,6 @@ import { aspect, enterStaggered, radius, space, useReduceMotion, useTheme } from
  * the day and week, a headline that changes with her day, the one session,
  * the week at a glance, and what is coming up.
  *
- * TODO(milestone 3): Start opens the player; tapping a card opens class detail.
  * TODO(milestone 4): the locked state for a lapsed membership, and the
  * billing and trial-ending banners.
  */
@@ -74,6 +73,12 @@ function TodayContent({ view }: { view: TodayView }) {
   const reduceMotion = useReduceMotion();
   const { feature } = view;
 
+  const openDetail = (card: SessionCard) =>
+    router.push({
+      pathname: '/class/[id]',
+      params: { id: card.classes[0].id, sessionId: card.session.id, source: 'today' },
+    });
+
   return (
     <>
       <View style={styles.heading}>
@@ -96,10 +101,14 @@ function TodayContent({ view }: { view: TodayView }) {
           photoLabel={feature.card.photoLabel}
           done={feature.kind === 'done'}
           startLabel={feature.startLabel}
+          onPress={() => openDetail(feature.card)}
           onStart={
             feature.canStart
-              ? // TODO(milestone 3): open the player on this session.
-                () => toast.show(t.today.playerSoon)
+              ? () =>
+                  router.push({
+                    pathname: '/player',
+                    params: { sessionId: feature.card.session.id, source: 'today' },
+                  })
               : undefined
           }
           testID="today-session"
@@ -159,6 +168,7 @@ function TodayContent({ view }: { view: TodayView }) {
                 note={card.note}
                 imageUrl={card.imageUrl}
                 photoLabel={card.photoLabel}
+                onPress={() => openDetail(card)}
                 action={{
                   label: t.classMeta.move,
                   accessibilityLabel: t.today.moveHint,

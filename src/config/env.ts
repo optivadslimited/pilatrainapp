@@ -26,6 +26,17 @@ export const env = {
   // TODO(owner): RevenueCat public iOS SDK key.
   revenueCatIosKey: read(process.env.EXPO_PUBLIC_REVENUECAT_IOS_KEY),
 
+  // TODO(owner): one sample video to stand in for all sixteen classes until the
+  // real ones are on Mux. The default is Apple's public test stream, chosen
+  // because it carries captions. Any HLS address works.
+  sampleVideoUrl:
+    read(process.env.EXPO_PUBLIC_SAMPLE_VIDEO_URL) ||
+    'https://devstreaming-cdn.apple.com/videos/streaming/examples/img_bipbop_adv_example_fmp4/master.m3u8',
+  // The web preview cannot play HLS, so it gets a short MP4 (a five-second CC0 clip).
+  sampleVideoWebUrl:
+    read(process.env.EXPO_PUBLIC_SAMPLE_VIDEO_WEB_URL) ||
+    'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4',
+
   // TODO(owner): PostHog project key and host (EU or US cloud).
   posthogKey: read(process.env.EXPO_PUBLIC_POSTHOG_KEY),
   posthogHost: read(process.env.EXPO_PUBLIC_POSTHOG_HOST),
