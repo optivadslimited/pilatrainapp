@@ -125,9 +125,17 @@ describe('Today', () => {
 
     // Monday reads as an ordinary rest day. Nothing on the screen marks it as missed.
     expect(view.weekStrip[0]).toMatchObject({ state: 'rest', label: 'Monday, rest day' });
-    const everything = JSON.stringify(view).toLowerCase();
-    for (const word of ['miss', 'skip', 'late', 'behind', 'fail'])
-      expect(everything).not.toContain(word);
+    // Every word the screen itself writes (class titles and content aside).
+    const written = [
+      view.dateLine,
+      view.headline,
+      view.encouragement,
+      view.nextLine ?? '',
+      view.feature?.eyebrow ?? '',
+      view.ring.spoken,
+      ...view.weekStrip.map((item) => item.label),
+    ].join(' ');
+    expect(written).not.toMatch(/\b(miss(ed)?|skip(ped)?|late|behind|fail(ed)?|overdue)\b/i);
   });
 
   it('the moved headline is only for the day it happened', async () => {
