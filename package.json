@@ -58,7 +58,9 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "check": "npm run typecheck && npm run lint && npm test",
-    "bundle:ios": "expo export --platform ios --output-dir dist"
+    "bundle:ios": "expo export --platform ios --output-dir dist",
+    "seed:build": "tsx scripts/build-seed.ts",
+    "seed:check": "tsx scripts/build-seed.ts --check"
   },
   "private": true,
   "jest": {
@@ -67,12 +69,16 @@
       "<rootDir>/jest.setup.ts"
     ],
     "moduleNameMapper": {
-      "^@/(.*)$": "<rootDir>/src/$1"
+      "^@/(.*)$": "<rootDir>/src/$1",
+      "^@engine$": "<rootDir>/supabase/functions/_shared/engine/index.ts",
+      "^@engine/(.*)$": "<rootDir>/supabase/functions/_shared/engine/$1",
+      "^@shared/(.*)$": "<rootDir>/supabase/functions/_shared/$1"
     },
     "testPathIgnorePatterns": [
       "/node_modules/",
       "/dist/",
-      "/.expo/"
+      "/.expo/",
+      "/__tests__/fixtures\\.ts$"
     ],
     "resolver": "react-native-reanimated/jest/resolver"
   }

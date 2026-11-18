@@ -8,17 +8,32 @@
       ],
       "@/assets/*": [
         "./assets/*"
+      ],
+      "@engine": [
+        "./supabase/functions/_shared/engine/index.ts"
+      ],
+      "@engine/*": [
+        "./supabase/functions/_shared/engine/*"
+      ],
+      "@shared/*": [
+        "./supabase/functions/_shared/*"
       ]
     },
     "types": [
       "jest",
       "node"
-    ]
+    ],
+    "allowImportingTsExtensions": true
   },
   "include": [
     "**/*.ts",
     "**/*.tsx",
     ".expo/types/**/*.ts",
     "expo-env.d.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "supabase/functions/*/index.ts"
   ]
 }

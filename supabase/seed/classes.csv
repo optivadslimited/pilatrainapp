@@ -1,0 +1,17 @@
+slug,title,length_min,level,focus,intensity,equipment,unsuitable_for,main_starts_sec,cooldown_starts_sec,easier_warmup,easier_main,easier_cooldown,mux_playback_id,thumbnail_url,captions_url,is_free,published
+start-here,Start here,10,1,foundations,1,mat,,120,510,Keep each movement small and slow.,Bend your knees and keep your head on the mat.,Sit on a cushion if the floor feels low.,,,,true,true
+posture-reset,Posture reset,10,1,mobility,1,mat,,90,510,Stay seated on a chair if you prefer.,Move only as far as feels easy.,Rest your hands on your thighs.,,,,false,true
+evening-unwind,Evening unwind,10,1,mobility,1,mat,,90,510,Keep a pillow under your head.,Hold each stretch for a shorter count.,Stay lying down for the final breaths.,,,,false,true
+ten-minute-core,Ten-minute core,10,1,core,2,mat,pregnant_postpartum,90,510,Keep both feet on the mat.,Lower one leg at a time and keep your head down.,Hug your knees in gently.,,,,false,true
+morning-wake-up,Morning wake-up,10,1,express,1,mat,,60,520,Start seated instead of standing.,Take the smaller range each time.,Finish seated.,,,,false,true
+quick-energiser,Quick energiser,10,2,express,3,mat,knees|pregnant_postpartum|recent_injury_surgery,60,520,March on the spot instead of the faster steps.,Slow the pace and skip the jumps.,Walk it out for longer.,,,,false,true
+breath-and-alignment,Breath and alignment,20,1,foundations,1,mat,,180,1050,Sit against a wall for support.,Keep your knees bent throughout.,Stay with the breathing for longer.,,,,false,true
+core-and-posture,Core and posture,20,1,core,2,mat,,180,1050,Keep both feet on the mat.,Keep your head down and lift one leg at a time.,Rest between sides.,,,,false,true
+hips-and-spine,Hips and spine,20,1,mobility,1,mat,,150,1050,Place a cushion under your hips.,Move within a smaller circle.,Hold the final stretch for a shorter count.,,,,false,true
+full-body-flow,Full-body flow,20,1,full_body,2,mat,wrists,180,1050,Take the warm-up kneeling.,Lower to your forearms or knees.,Skip the final balance.,,,,false,true
+core-with-the-band,Core with the band,20,2,core,2,mat|band,neck_shoulders,180,1050,Use the band doubled over for less pull.,Work without the band.,Rest your arms by your sides.,,,,false,true
+balance-with-the-small-ball,Balance with the small ball,20,2,full_body,2,mat|ball,,180,1050,Keep one hand on a wall.,Let a little air out of the ball.,Finish lying down.,,,,false,true
+foundations-in-full,Foundations in full,30,1,foundations,1,mat,,240,1590,Sit against a wall for support.,Keep your knees bent throughout.,Stay with the breathing for longer.,,,,false,true
+slow-stretch-and-release,Slow stretch and release,30,1,mobility,1,mat,,210,1590,Keep a pillow under your head.,Hold each stretch for a shorter count.,Stay lying down for the final breaths.,,,,false,true
+full-body-strength,Full-body strength,30,2,full_body,3,mat,wrists|lower_back|pregnant_postpartum|recent_injury_surgery,240,1590,Take the warm-up kneeling.,Lower to your knees and slow the pace.,Skip the final balance.,,,,false,true
+core-strength-with-light-weights,Core strength with light weights,30,2,core,3,mat|weights,lower_back|pregnant_postpartum|recent_injury_surgery,240,1590,Warm up without the weights.,Use one weight or none.,Rest between sides.,,,,false,true
