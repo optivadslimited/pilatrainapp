@@ -1,0 +1,29 @@
+# The paywall, then Apple's purchase sheet in the sandbox.
+appId: ${APP_ID}
+---
+- assertVisible:
+    id: paywall
+# The honest-paywall rules, as far as a flow can see them.
+- assertVisible:
+    id: paywall-close
+- assertVisible:
+    id: paywall-terms
+- assertVisible: 'Restore purchases'
+- assertVisible:
+    id: paywall-plan-quarterly
+
+- tapOn:
+    id: paywall-cta
+
+# SANDBOX: Apple's own sheet. With a StoreKit configuration file the button
+# reads "Subscribe"; in the App Store sandbox it may ask for a password first.
+- extendedWaitUntil:
+    visible: 'Subscribe'
+    timeout: 15000
+- tapOn: 'Subscribe'
+# SANDBOX: the confirmation that follows, where there is one.
+- runFlow:
+    when:
+      visible: 'OK'
+    commands:
+      - tapOn: 'OK'

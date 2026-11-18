@@ -14,7 +14,7 @@ import { deviceTimezone, today } from '@/lib/clock';
 import { storage } from '@/lib/storage';
 import { ensureSession, supabase } from '@/lib/supabase';
 
-import { createLocalPlanStore, localCatalogue } from './localStore';
+import { createLocalPlanStore, localCatalogue, PROGRESS_KEY } from './localStore';
 import type { ClassDetails } from './types';
 
 /** How far she has got through a class, so the player can pick up where she left off. */
@@ -54,7 +54,6 @@ export interface PlanRepository {
 }
 
 const LOCAL_USER = 'local';
-const PROGRESS_KEY = 'class.progress';
 
 function createLocalRepository(): PlanRepository {
   const store = createLocalPlanStore(() => quizInputFrom(useOnboardingStore.getState()));

@@ -55,8 +55,12 @@ export function readLocalPlan(): StoredPlan | null {
 }
 
 /** Forget every plan and rating on this phone. Used when onboarding is restarted. */
+/** Where she left off in each class, in local mode. */
+export const PROGRESS_KEY = 'class.progress';
+
+/** Everything of hers that the plan keeps on this phone: plans, ratings and her place in each class. */
 export function clearLocalPlan(): void {
-  for (const key of [PLAN_KEY, HISTORY_KEY, RATINGS_KEY]) storage.remove(key);
+  for (const key of [PLAN_KEY, HISTORY_KEY, RATINGS_KEY, PROGRESS_KEY]) storage.remove(key);
 }
 
 const nextNumber = (): number => {

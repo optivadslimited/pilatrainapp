@@ -1,0 +1,58 @@
+# Welcome → the nine quiz steps → health disclaimer → plan preview.
+# Answers: posture, new to Pilates, 20 minutes, 3 days (the suggested days),
+# morning, just a mat, nothing to work around, no name.
+appId: ${APP_ID}
+---
+- assertVisible:
+    id: welcome
+- tapOn:
+    id: welcome-build-plan
+
+# Single-choice steps move on by themselves a moment after the tap.
+- tapOn:
+    id: option-posture
+- tapOn:
+    id: option-new
+- tapOn:
+    id: option-20
+- tapOn:
+    id: option-3
+
+# Which days: three are already suggested.
+- assertVisible:
+    id: quiz-weekdays
+- tapOn:
+    id: quiz-continue
+
+- tapOn:
+    id: option-morning
+
+# Equipment starts on "Just a mat".
+- assertVisible:
+    id: quiz-equipment
+- tapOn:
+    id: quiz-continue
+
+# Anything to work around: None. (No safety gate.)
+- tapOn:
+    id: option-none
+- tapOn:
+    id: quiz-continue
+
+# First name is optional.
+- assertVisible:
+    id: quiz-first_name
+- tapOn:
+    id: quiz-continue
+
+- assertVisible:
+    id: disclaimer
+- tapOn:
+    id: disclaimer-checkbox
+- tapOn:
+    id: disclaimer-build-plan
+
+- extendedWaitUntil:
+    visible:
+      id: plan-preview
+    timeout: 20000

@@ -3,6 +3,7 @@ import { useState, type ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import {
+  Banner,
   BarChart,
   Button,
   Checkbox,
@@ -379,11 +380,33 @@ export default function Gallery() {
         />
       </Section>
 
+      <Section title="Banner">
+        <Banner
+          icon="info"
+          title={t.today.banner.trialTitle('Friday 20 November')}
+          body={t.today.banner.trialBodyNoPrice}
+          action={{ label: t.today.banner.trialAction, onPress: () => {} }}
+        />
+        <Banner
+          icon="alert"
+          tone="alert"
+          title={t.today.banner.billingTitle}
+          body={t.today.banner.billingBody}
+          action={{ label: t.today.banner.billingAction, onPress: () => {} }}
+        />
+        <Banner icon="offline" title={t.states.offlineTitle} body={t.states.offlineBody} />
+      </Section>
+
       <Section title="Toast">
         <Button
           label="Show a toast"
           variant="secondary"
           onPress={() => toast.show('Your plan has moved.')}
+        />
+        <Button
+          label="Show a toast at the top"
+          variant="secondary"
+          onPress={() => toast.showAtTop('Your account is saved.')}
         />
       </Section>
     </Screen>

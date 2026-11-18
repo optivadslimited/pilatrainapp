@@ -1,0 +1,78 @@
+# The six App Store screenshots. Run once per simulator size (6.9 and 6.5 inch);
+# see .maestro/README.md. NOT YET RUN.
+#
+#   1  Welcome                the promise
+#   2  Plan preview           her 28 days
+#   3  Today                  the one session
+#   4  Class detail           what a class is
+#   5  Player                 the class itself
+#   6  Progress               what she has done
+#
+# The paywall is deliberately not one of them.
+appId: ${APP_ID}
+---
+- launchApp:
+    clearState: true
+    clearKeychain: true
+
+- assertVisible:
+    id: welcome
+- takeScreenshot: ${SIZE}-1-welcome
+
+- runFlow: subflows/onboarding.yaml
+- takeScreenshot: ${SIZE}-2-plan
+
+- tapOn:
+    id: preview-start
+- runFlow: subflows/subscribe.yaml
+- extendedWaitUntil:
+    visible:
+      id: create-account
+    timeout: 20000
+- tapOn:
+    id: account-not-now
+- tapOn:
+    id: reminders-not-now
+
+- extendedWaitUntil:
+    visible:
+      id: today
+    timeout: 10000
+- takeScreenshot: ${SIZE}-3-today
+
+- tapOn:
+    id: today-session
+- extendedWaitUntil:
+    visible:
+      id: class-detail
+    timeout: 10000
+- takeScreenshot: ${SIZE}-4-class
+
+- tapOn:
+    id: class-start
+- extendedWaitUntil:
+    visible:
+      id: player
+    timeout: 20000
+# Let the controls fade so the screenshot shows the class, not the buttons.
+- waitForAnimationToEnd:
+    timeout: 6000
+- takeScreenshot: ${SIZE}-5-player
+
+# Finish the class so Progress has something to show.
+- tapOn:
+    id: player-surface
+- swipe:
+    from:
+      id: player-scrubber
+    direction: RIGHT
+    duration: 800
+- extendedWaitUntil:
+    visible:
+      id: after-class
+    timeout: 180000
+- tapOn:
+    id: after-class-done
+
+- tapOn: 'Progress'
+- takeScreenshot: ${SIZE}-6-progress

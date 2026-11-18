@@ -79,5 +79,6 @@ const styles = StyleSheet.create({
   // Sits on the first line of the title.
   icon: { marginTop: 2 },
   text: { flex: 1, gap: space.xxs },
-  action: { alignSelf: 'flex-start' },
+  // Lines its label up with the text above it, past the icon.
+  action: { alignSelf: 'flex-start', marginLeft: space.md },
 });

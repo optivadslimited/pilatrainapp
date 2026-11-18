@@ -206,6 +206,47 @@ yes-or-no flag and the name question to "did she give one". `track()` is
 typed against the fixed event list, so an event that is not in the spec does
 not compile.
 
+Ad platforms are held the same way. `adEventFor` in `src/lib/adEvents.ts`
+is the only door to the attribution provider, and it lets two events through:
+a trial started and a subscription bought, each carrying the product and
+nothing else. A test types every event the app can send against that rule.
+
+Her identity outside our database is one random user ID, shared by Supabase,
+RevenueCat, PostHog, Sentry and the attribution provider so that their
+records join up. Her name and email stay in our database.
+
+## Membership: one interface, two stores
+
+The paywall never talks to RevenueCat. It talks to `PurchasesProvider`
+(`src/features/membership/purchases/types.ts`): products, trial eligibility,
+purchase, restore, the entitlement and a way to hear it change.
+
+    paywall, You tab, Today
+            │
+            ▼
+    PurchasesProvider ──► revenuecat.ts   StoreKit, on a phone with a key
+                     └──► preview.ts      development only: the web preview,
+                                          or a build with no key
+
+Both are loaded on demand, behind `Platform.OS` and `__DEV__`, so the
+preview store is not in a release bundle and the native library is never
+touched on the web. The same pattern serves accounts (`supabaseAuth.ts` and
+`previewAuth.ts`) and the plan (remote and local).
+
+What the paywall **says** is separate from where the products come from.
+`pricing.ts` takes whatever products the store returned and produces the
+cards, the button, the terms and the timeline. That is where the honest
+paywall is enforced, and it is all plain functions.
+
+Her membership is reduced to six fields (`entitlement.ts`) and every state
+the app shows follows from them. Nothing else decides whether she is a member.
+
+**Who may watch** is decided by one function, `_shared/billing/access.ts`.
+The app calls it to draw a lock. The `playback-token` function calls the
+same code before it signs a video address, and that call is the one that
+counts: the app cannot play a member class without a token only the server
+can make.
+
 ## Configuration
 
 `src/config/brand.ts` is the rename file. `app.config.ts` imports it, so the
@@ -233,5 +274,12 @@ and empty by default, so the app runs with no keys at all.
   check that row-level security is on for every table.
 - **Native modules are stood in for** in `jest.setup.ts`; everything else runs
   for real.
-- **End-to-end (Maestro)** arrives with the full test pass in milestone 4.
-  Controls already carry `testID`s for it.
+- **The paywall** is tested twice: its wording as plain functions against the
+  brief, and the screen itself, rendered and bought from against the preview
+  store.
+- **The server's rules** (what a RevenueCat event means, who may watch, the
+  Mux token) are plain shared code, tested like the engine.
+- **End-to-end (Maestro)** flows are in `.maestro`: first launch through a
+  sandbox trial to a completed class, and the six App Store screenshots. They
+  are written against the screens' `testID`s and have not been run, because
+  this machine has no Simulator.

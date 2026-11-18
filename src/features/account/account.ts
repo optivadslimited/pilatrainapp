@@ -12,7 +12,6 @@ import { identify } from '@/lib/services';
 import { zustandStorage } from '@/lib/storage';
 import { supabase } from '@/lib/supabase';
 
-import { previewAuth } from './previewAuth';
 import { restoreProfile } from './profile';
 import { createSupabaseAuth } from './supabaseAuth';
 import type { Account, AuthProvider, AuthResult } from './types';
@@ -34,11 +33,17 @@ const unavailable: AuthProvider = {
  *   development, no keys   → the preview stand-in
  *   a release with no keys → unavailable (account rows are hidden)
  */
-export const auth: AuthProvider = supabase
-  ? createSupabaseAuth(supabase)
-  : __DEV__
-    ? previewAuth
-    : unavailable;
+function pick(): AuthProvider {
+  if (supabase) return createSupabaseAuth(supabase);
+  if (__DEV__) {
+    // Loaded on demand, so the stand-in never ships in a release build.
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    return (require('./previewAuth') as typeof import('./previewAuth')).previewAuth;
+  }
+  return unavailable;
+}
+
+export const auth: AuthProvider = pick();
 
 export const accountsAvailable = auth.kind !== 'unavailable';
 

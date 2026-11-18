@@ -1,0 +1,71 @@
+# First launch to a completed class, through a sandbox free trial.
+# See .maestro/README.md for how to run it. NOT YET RUN.
+appId: ${APP_ID}
+---
+- launchApp:
+    clearState: true
+    clearKeychain: true
+
+- runFlow: subflows/onboarding.yaml
+
+# Plan preview → paywall → free trial.
+- tapOn:
+    id: preview-start
+- runFlow: subflows/subscribe.yaml
+
+# An account is offered, and can be declined.
+- extendedWaitUntil:
+    visible:
+      id: create-account
+    timeout: 20000
+- tapOn:
+    id: account-not-now
+
+# So are reminders. Declining means no system prompt appears.
+- assertVisible:
+    id: reminders
+- tapOn:
+    id: reminders-not-now
+
+# Today, as a member: the first session can be started.
+- extendedWaitUntil:
+    visible:
+      id: today
+    timeout: 10000
+- assertVisible:
+    id: today-session
+- tapOn:
+    id: today-session-start
+
+# The player. Drag the scrubber to the end so the class finishes.
+- extendedWaitUntil:
+    visible:
+      id: player
+    timeout: 20000
+- tapOn:
+    id: player-surface
+- swipe:
+    from:
+      id: player-scrubber
+    direction: RIGHT
+    duration: 800
+
+# A session may be two classes; the second plays by itself. Either way the
+# after-class screen is where it ends.
+- extendedWaitUntil:
+    visible:
+      id: after-class
+    timeout: 180000
+- assertVisible: 'Nicely done.'
+- tapOn:
+    id: rating-right
+- tapOn:
+    id: after-class-done
+
+# Back on Today, with the session done and nothing locked.
+- extendedWaitUntil:
+    visible:
+      id: today
+    timeout: 10000
+- assertVisible: 'Done for today.'
+- assertNotVisible: 'Continue your plan'

@@ -19,8 +19,8 @@ The marketing site is a separate repository (`optivadslimited/pilatrain`,
 | 1         | Sun 29 Nov | App shell, design system as tokens and components, onboarding quiz with safety gate | **Done** |
 | 2         | Sun 6 Dec  | Plan engine with tests, plan preview, Today screen                                  | **Done** |
 | 3         | Sun 13 Dec | Player, after-class feedback, Plan and Progress tabs                                | **Done** |
-| 4         | Sun 20 Dec | Paywall and subscriptions, You tab, analytics, attribution, full test pass          | Next     |
-| 5         | Mon 21 Dec | TestFlight build to 30 to 50 testers                                                |          |
+| 4         | Sun 20 Dec | Paywall and subscriptions, You tab, analytics, attribution, full test pass          | **Done** |
+| 5         | Mon 21 Dec | TestFlight build to 30 to 50 testers                                                | Next     |
 | 6         | Wed 30 Dec | Submitted to App Review                                                             |          |
 
 ### What works
@@ -87,42 +87,97 @@ The marketing site is a separate repository (`optivadslimited/pilatrain`,
   chart, a month view with a dot on each day she trained, and one line on how
   the classes have felt.
 
+**Membership (milestone 4)**
+
+- **Paywall.** A close button from the first frame; the headline; three ticked
+  lines; three plan cards with the store's full price as the largest text and
+  the per-month figure smaller; the three-point trial timeline; "Start 7-day
+  free trial"; the exact terms directly under it; Terms, Privacy and Restore
+  purchases. Quarterly is pre-selected, or Yearly if the `paywall_variant`
+  flag says so. It opens after the plan preview, after the free class, from a
+  locked class, from Today and from the You tab.
+- **No price is typed into the app.** Every figure on the paywall is the
+  store's own string, or a sum on the store's number. Someone who cannot have
+  the free trial sees "Subscribe" and the word "free" nowhere.
+- **Purchases.** Pending, failed and cancelled each say so plainly; restore is
+  on the paywall and the You tab; offer codes and "Manage subscription" open
+  Apple's own sheets.
+- **What is free.** Her first session, until she has finished it, and any
+  class marked free. Everything else needs a membership. One rule decides
+  this, and the server applies the same rule before it hands out a video.
+- **Accounts.** Sign in with Apple first, an emailed link second (with a
+  6-digit code for when the link opens elsewhere). Creating an account
+  attaches to the anonymous user she already is, so her plan and membership
+  carry over untouched. Always optional.
+- **Reminders.** "Want a nudge on your Pilates days?" on its own screen,
+  showing her days and time. One notification on each day she has a session,
+  kept in step with her plan as sessions are done or moved.
+- **The trial reminder.** Two days before the free week ends, a notification
+  and a banner on Today name the date and the price that follows. Neither is
+  shown if she has already cancelled.
+- **Today's other states.** Without a membership the session card stays, with
+  one button, "Continue your plan". A payment problem shows a banner while
+  Apple retries, and she keeps access meanwhile. With no connection it says so.
+- **You tab.** Days and time, reminders, her plan and its renewal date, manage
+  subscription, restore, redeem a code, account, sign out, help by email, the
+  legal pages, the version, and **Delete account and data**, in two steps.
+- **Analytics** to PostHog, **crashes** to Sentry, **attribution** to
+  AppsFlyer. Each does nothing until its key is supplied. Ad platforms hear a
+  trial start and a purchase, and nothing else.
+- **The server side.** Three more Edge Functions: the RevenueCat webhook keeps
+  each member's row current; `playback-token` checks membership before
+  signing a short-lived Mux token; `delete-account` removes her user and
+  everything of hers.
+
 ### What is stubbed
 
-| Stub                                                                                                                                                                           | Replaced in          |
-| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------- |
-| **Every class plays one sample video.** There are no real classes, captions files or thumbnails yet. Chapter times are scaled to fit the sample.                               | When content arrives |
-| **Everyone is treated as a member.** The locked states exist and can be previewed (You → Developer → "Preview as a non-member"); tapping a locked class shows a short message. | Milestone 4          |
-| "Start my free week" goes straight to Today. There is no paywall yet, and the free class does not lead to one.                                                                 | Milestone 4          |
-| Member video is not yet served with signed Mux tokens.                                                                                                                         | Milestone 4          |
-| A class taken from the library on its own is not counted in Progress. Only sessions of her plan are.                                                                           | To decide            |
-| The Supabase path is written but has never been run (see below). The app runs in local mode.                                                                                   | When keys arrive     |
-| "I already have an account" shows a short message instead of sign-in.                                                                                                          | Milestone 4          |
-| Analytics events are typed and fired, but only printed to the console.                                                                                                         | Milestone 4          |
-| The You tab has the legal links and version only: no plan settings, membership, delete account or sign out.                                                                    | Milestone 4          |
-| Offline is handled as "the request failed, try again". There is no connection listener yet.                                                                                    | Milestone 4          |
-| EAS Update is not configured (it needs the Expo project ID).                                                                                                                   | Milestone 5          |
+| Stub                                                                                                                                                                                                                                                                                                                  | Replaced                        |
+| --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------- |
+| **Purchases run against a preview store.** With no RevenueCat key, development builds and the web preview use a stand-in that sells the three products from `storekit/Pilatrain.storekit`. Nothing is bought. It is left out of release builds, where a missing key means the paywall says membership is unavailable. | When the RevenueCat key arrives |
+| **Accounts run against a stand-in** in development when there is no backend: creating one always works and any six digits are accepted as the code. Left out of release builds.                                                                                                                                       | When the Supabase keys arrive   |
+| **Every class plays one sample video.** There are no real classes, captions files or thumbnails yet. Chapter times are scaled to fit the sample.                                                                                                                                                                      | When content arrives            |
+| **The trial reminder is a notification scheduled on the phone**, not one sent from a server. It arrives whether or not the app is open, but only if she has allowed notifications; the banner on Today does not depend on that.                                                                                       | To decide                       |
+| A class taken from the library on its own is not counted in Progress. Only sessions of her plan are.                                                                                                                                                                                                                  | To decide                       |
+| Deleting an account does not erase analytics events already sent to PostHog under her random ID.                                                                                                                                                                                                                      | To decide                       |
+| The Supabase path, the four Edge Functions and every outside service are written but have never been run (see below). The app runs in local mode.                                                                                                                                                                     | When keys arrive                |
+| EAS Update is not configured (it needs the Expo project ID).                                                                                                                                                                                                                                                          | Milestone 5                     |
 
 ### How it has been verified, and how it has not
 
 `npm run check` passes: TypeScript (strict, with typed routes), ESLint,
-**354 Jest tests**, and **30 database checks**. A production iOS JavaScript
-bundle builds with `npm run bundle:ios` (5.3 MB).
+**467 Jest tests**, and **32 database checks**. A production iOS JavaScript
+bundle builds with `npm run bundle:ios` (10 MB), and has been searched: it
+contains no preview store, no developer tools and no price.
 
 - **The plan engine** has a test for every rule, run against a large
   catalogue where every rule can hold at once, and against the sixteen seed
   classes for every combination of answers (1,920 plans).
+- **The paywall's wording** is tested against the brief, word for word, using
+  the products in the StoreKit configuration: the three cards, "Save 58%",
+  the per-month lines, the terms under the button, the timeline, and the
+  no-trial version. The screen itself is rendered in a test and bought from,
+  cancelled, failed and restored.
+- **Privacy.** A test types every event the app can send and fails if anything
+  but a trial start and a purchase reaches an ad platform, or if a health
+  answer reaches analytics as more than yes or no.
+- **The server's rules** are plain code with their own tests: what each
+  RevenueCat event means, who may watch a class, and the Mux token, whose
+  signature is verified against the public key.
 - **The player's rules** (completion at 90%, the 25/50/75 milestones, saving
   every five seconds, resuming, the close confirmation, chapters) are plain
   code with their own tests.
 - **The database** migrations and seed are run in a real Postgres (PGlite, in
   process, no Docker). The checks include that no other user can read her
-  health answers or her plan, and that they fail when security is switched off.
-- **The screens** have been walked through in the web preview at 375 × 667:
-  the quiz, plan build and preview; Today in each state; a full session played
-  through both of its classes to the after-class screen, with every analytics
-  event checked; rating; the Plan tab; moving a session; Adjust my plan; the
-  library and its filters; class detail; the non-member lock; and Progress.
+  health answers or her plan, that membership is written by the server only,
+  and that they fail when security is switched off.
+- **The screens** have been walked through in the web preview at 375 × 667,
+  against the preview store: a new user from the quiz to the plan preview,
+  the paywall opened and closed, the free class played, the paywall that
+  follows it, account and reminders declined, and Today with the next session
+  locked; a purchase through to an account by email and the reminder screen;
+  the no-trial paywall; a failed purchase; the trial-ending, payment-problem
+  and offline banners; a lapsed membership; a locked class from the library
+  and by direct link; and account deletion.
 
 **Not yet run on an iPhone or the iOS Simulator.** The machine this was built
 on has no Xcode. Treat as untested on a device: haptics, native transitions
@@ -136,12 +191,24 @@ controls fading after three seconds, turning to
 landscape, the screen staying awake, and the "Leave this class?" card, which
 needs more than thirty seconds of playback.
 
-**Not yet run against Supabase.** There is no project yet. Three files have
-only been type-checked or read, never executed:
-`supabase/functions/plan/index.ts` (the function's entry point),
-`supabase/functions/_shared/supabase-store.ts` (rows to plans and back), and
-the remote half of `src/features/plan/repository.ts`. Everything they call is
-tested.
+**Not yet run against any outside service.** There are no accounts yet, so
+none of these has ever been executed. Each is marked `NOT YET RUN` in its
+own file. Everything they call is tested; the calls themselves are not.
+
+- **Supabase:** the four function entry points under `supabase/functions`
+  (type-checked against a stand-in for the Deno runtime),
+  `_shared/supabase-store.ts`, the remote half of
+  `src/features/plan/repository.ts`, and `src/features/account/supabaseAuth.ts`.
+- **RevenueCat and StoreKit:** `src/features/membership/purchases/revenuecat.ts`,
+  the webhook's event shapes, and the REST call in `_shared/billing`.
+- **Sign in with Apple, notifications and the tracking prompt:** all native.
+- **PostHog, Sentry, AppsFlyer and Mux signed playback.**
+- **The Maestro flows** in `.maestro`: written against the app's test IDs,
+  never executed, because there is no Simulator here.
+
+These are the libraries newest to this build, and the AppsFlyer SDK in
+particular changed its API in version 7. Expect the first device build to
+turn up small things in each.
 
 ## Setup
 
@@ -191,16 +258,18 @@ npm run check
 
 That runs the first four below in turn.
 
-| Command              | What it does                                                           |
-| -------------------- | ---------------------------------------------------------------------- |
-| `npm run typecheck`  | TypeScript, strict                                                     |
-| `npm run lint`       | ESLint (Expo config)                                                   |
-| `npm test`           | Jest: engine, plan service, player rules, screens, copy rules          |
-| `npm run db:check`   | Runs the migration and seed in Postgres and checks row-level security  |
-| `npm run seed:build` | Rebuilds `seed.sql` and the app's local catalogue from the class sheet |
-| `npm run seed:check` | Fails if the class sheet and the generated files have drifted          |
-| `npm run bundle:ios` | Builds the production iOS bundle into `dist/`                          |
-| `npm run format`     | Prettier                                                               |
+| Command                  | What it does                                                              |
+| ------------------------ | ------------------------------------------------------------------------- |
+| `npm run typecheck`      | TypeScript, strict                                                        |
+| `npm run lint`           | ESLint (Expo config)                                                      |
+| `npm test`               | Jest: engine, plan service, player rules, screens, copy rules             |
+| `npm run db:check`       | Runs the migration and seed in Postgres and checks row-level security     |
+| `npm run seed:build`     | Rebuilds `seed.sql` and the app's local catalogue from the class sheet    |
+| `npm run seed:check`     | Fails if the class sheet and the generated files have drifted             |
+| `npm run storekit:build` | Rebuilds the preview store's product list from the StoreKit configuration |
+| `npm run storekit:check` | Fails if the two have drifted (also run by the tests)                     |
+| `npm run bundle:ios`     | Builds the production iOS bundle into `dist/`                             |
+| `npm run format`         | Prettier                                                                  |
 
 ## Environments
 
@@ -231,8 +300,9 @@ eas build --profile production --platform ios
 Secrets live in EAS environment variables, one set per
 environment, using the names in `.env.example`. Only `EXPO_PUBLIC_*` values
 reach the app, and all of them are publishable keys. The Supabase service-role
-key, the Mux signing key and the RevenueCat webhook secret belong to the Edge
-Functions and never appear in this app.
+key, the Mux signing key and the RevenueCat secrets belong to the Edge
+Functions and never appear in this app. [docs/services.md](docs/services.md)
+lists every key and where it goes.
 
 ## Renaming the product
 
@@ -253,7 +323,7 @@ Built before any screen, and the only place styling decisions are made.
   switched off.
 - **Components** in [src/components](src/components): Button, Chip, OptionCard,
   QuizProgressBar, Ring, ClassCard, DayPill, StatTile, Sheet, Toast, PlanCard,
-  PlayerControls, EmptyState, Skeleton, BarChart, MonthGrid, plus the base
+  PlayerControls, EmptyState, Skeleton, BarChart, MonthGrid, Banner, plus the base
   pieces they share (Text, Icon, Screen, TextField, Checkbox, ListRow,
   PhotoPlaceholder, Wordmark).
 - **Gallery** at `/dev/gallery`: every component on one screen for design
@@ -263,12 +333,15 @@ Built before any screen, and the only place styling decisions are made.
 
 The rules that are easy to break by accident are held by tests:
 
-| Rule                                                                                                               | Test                                             |
-| ------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------ |
-| Body text holds at least 4.5:1 contrast; no pure white or black                                                    | `src/theme/__tests__/colors.test.ts`             |
-| No weight-loss or medical claims, no guilt or streak pressure, no invented social proof, no typed prices, no emoji | `src/strings/__tests__/copy.test.ts`             |
-| Health answers never reach analytics, only a yes-or-no flag                                                        | `src/lib/__tests__/analytics.test.ts`            |
-| The safety gate appears for the two gated answers, and only those                                                  | `src/features/onboarding/__tests__/flow.test.ts` |
+| Rule                                                                                                               | Test                                                |
+| ------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------- |
+| Body text holds at least 4.5:1 contrast; no pure white or black                                                    | `src/theme/__tests__/colors.test.ts`                |
+| No weight-loss or medical claims, no guilt or streak pressure, no invented social proof, no typed prices, no emoji | `src/strings/__tests__/copy.test.ts`                |
+| Health answers never reach analytics, only a yes-or-no flag                                                        | `src/lib/__tests__/analytics.test.ts`               |
+| The safety gate appears for the two gated answers, and only those                                                  | `src/features/onboarding/__tests__/flow.test.ts`    |
+| The paywall says what the brief says; no price is typed; "free" is never promised to someone who cannot have it    | `src/features/membership/__tests__/pricing.test.ts` |
+| Ad platforms receive a trial start and a purchase, and nothing else                                                | `src/lib/__tests__/adEvents.test.ts`                |
+| Reminders never arrive for a session that is done or gone, and never use pressure                                  | `src/features/reminders/__tests__/schedule.test.ts` |
 
 ## The plan engine
 
@@ -340,39 +413,81 @@ exercise the engine. The instructor must supply the real ones.
 ## The backend
 
 Supabase: Postgres with row-level security, anonymous sign-in from first
-launch, and one Edge Function, `plan`.
+launch, and four Edge Functions.
 
-- [supabase/migrations](supabase/migrations): the nine tables. Each user reads
-  and writes only her own rows; class details are readable by everyone;
+- [supabase/migrations](supabase/migrations): the tables. Each user reads and
+  writes only her own rows; class details are readable by everyone;
   membership is read-only to its owner and written by the service role.
 - [supabase/seed.sql](supabase/seed.sql): generated from the class sheet.
-- [supabase/functions/plan](supabase/functions/plan): build, current, move and
-  complete. It runs as the caller, never with the service role, and works out
-  "today" from the timezone on her users row.
+- [supabase/functions/plan](supabase/functions/plan): build, current, move,
+  complete, rate and adjust. It runs as the caller, never with the service
+  role, and works out "today" from the timezone on her users row.
+- [supabase/functions/revenuecat-webhook](supabase/functions/revenuecat-webhook):
+  keeps one row per member in `subscriptions`. Each event is applied once, a
+  late one cannot undo a newer one, and the four subscription events the spec
+  names are reported to PostHog from here.
+- [supabase/functions/playback-token](supabase/functions/playback-token): the
+  lock on the video. See "Video" below.
+- [supabase/functions/delete-account](supabase/functions/delete-account):
+  removes her auth user and, by foreign key, every row that belongs to her,
+  then her customer record at RevenueCat.
+
+The rules those functions run are plain shared code in
+[supabase/functions/_shared/billing](supabase/functions/_shared/billing),
+tested by Jest like the plan engine.
 
 Health answers live in `quiz_answers.work_around` and in the copy inside
-`plans.profile`. Both are readable only by their owner.
+`plans.profile`. Both are readable only by their owner, and nothing sends
+them anywhere else.
 
 **Until the keys exist the app runs in local mode**: the same plan service
 runs on the phone against the bundled placeholder classes and nothing leaves
 the device. You → Developer shows which mode a build is in.
 
-When the projects exist (one each for development, staging and production):
+[docs/services.md](docs/services.md) is the step-by-step for switching each
+service on: App Store Connect, RevenueCat, Supabase, Mux, PostHog, Sentry and
+AppsFlyer. None of those steps has been run.
 
-1. Turn on anonymous sign-ins in the project's Auth settings.
-2. Apply the migration and deploy the function with the Supabase CLI:
-   `supabase link`, `supabase db push`, `supabase functions deploy plan`.
-3. Run `supabase/seed.sql` in the SQL editor.
-4. Put the project URL and publishable key in the environment
-   (`EXPO_PUBLIC_SUPABASE_URL`, `EXPO_PUBLIC_SUPABASE_ANON_KEY`).
+## Membership
 
-These steps have not been run. Expect the first run to turn up small things
-in the three unexecuted files listed above.
+- **Products.** `pilatrain_annual`, `pilatrain_quarterly` and
+  `pilatrain_monthly`, one subscription group, each with a 7-day free trial.
+  RevenueCat entitlement `member`, one default offering. The IDs are in
+  [src/config/brand.ts](src/config/brand.ts).
+- **Where prices come from.** StoreKit, through RevenueCat, and nowhere else.
+  [storekit/Pilatrain.storekit](storekit/Pilatrain.storekit) is the StoreKit
+  test configuration for Xcode; it is also what the preview store reads in
+  development, through `npm run storekit:build`. It is the only file with a
+  price in it and it does not ship.
+- **What the paywall says** is worked out in
+  [src/features/membership/pricing.ts](src/features/membership/pricing.ts).
+- **Her membership** is RevenueCat's `member` entitlement, reduced to six
+  fields in [entitlement.ts](src/features/membership/entitlement.ts). Every
+  state follows from those: free week, paid, payment problem, ended.
+- **Who may watch what** is one rule,
+  [supabase/functions/_shared/billing/access.ts](supabase/functions/_shared/billing/access.ts),
+  used by the app to draw locks and by the server to decide.
+- **Trying it without a store.** In a development build, You → Developer →
+  "Preview store" puts her straight into any membership state, turns the free
+  trial on or off, and sets how the next purchase ends. "Skip to tomorrow"
+  runs a trial out.
+
+Analytics events, the two funnels and the flag are in
+[docs/analytics.md](docs/analytics.md). Attribution and the tracking prompt
+are in [docs/attribution.md](docs/attribution.md). The App Review checklist
+and the demo account are in [docs/app-review.md](docs/app-review.md), and the
+privacy labels in [docs/privacy-labels.md](docs/privacy-labels.md).
 
 ## Video
 
 Classes play through `expo-video`. A class with a Mux playback ID plays its
-own adaptive stream (`https://stream.mux.com/<id>.m3u8`).
+own adaptive stream, and that stream is **signed**: the address only works
+with a short-lived token. Before playing, the app asks the `playback-token`
+function for one, and the function checks on the server that she may watch
+that class: she is a member, or it is the free class, or it is the first
+session of her first plan. What the app shows as locked is a courtesy; that
+check is the lock. If her purchase's webhook has not arrived yet, the
+function asks RevenueCat directly rather than refuse a new member.
 
 Until the real classes exist, **every class plays one sample video**. It is
 set in the environment:
@@ -396,9 +511,11 @@ add them to the Mux asset; `captions_url` in the sheet is kept for reference.
 ## Project layout
 
 ```
-app.config.ts            Expo config. Reads src/config/brand.ts and APP_ENV.
+app.config.ts            Expo config, the privacy manifest. Reads brand.ts and APP_ENV.
 eas.json                 Build profiles: development, staging, production.
 .env.example             Every key the app reads, with none filled in.
+storekit/                The StoreKit test configuration: the three products.
+.maestro/                End-to-end flows (not yet run).
 src/
   app/                   Screens. The file tree is the route tree (Expo Router).
     index.tsx            Launch
@@ -407,6 +524,9 @@ src/
     holding.tsx          After "I'll check first"
     building.tsx         Building your plan (the real plan call)
     plan-preview.tsx     Her 28 days at a glance
+    paywall.tsx          The paywall
+    create-account.tsx   Create account · sign-in.tsx · email.tsx · auth.tsx (the emailed link)
+    reminders.tsx        "Want a nudge on your Pilates days?"
     (tabs)/              Today · Plan · Progress · You
     class/[id].tsx       Class detail (a sheet)
     player.tsx           The player
@@ -414,17 +534,26 @@ src/
     library.tsx          All classes, with filters
     adjust.tsx           Adjust my plan
     move/[sessionId].tsx The sheet for moving a session
+    delete-account.tsx   Delete account, in two steps
     dev/gallery.tsx      Component gallery (development only)
   components/            The design system
-  config/                brand.ts (the rename file), env.ts
+  config/                brand.ts (the rename file, and the product IDs), env.ts
   features/
-    onboarding/          Quiz definition, day spread, safety gate, flow, store
+    onboarding/          Quiz definition, day spread, safety gate, flow, store,
+                         and what follows the paywall (next.ts)
     plan/                Repository (local or remote), queries, and what each
                          screen shows (today.ts, preview.ts, planTab.ts,
                          progress.ts)
     player/              The player's rules (playback.ts), video sources
-    membership/          Who may play what (a stub until milestone 4)
-  lib/                   storage, supabase, clock, haptics, analytics, formatting
+    membership/          Products, what the paywall says (pricing.ts), her
+                         entitlement, and purchases/: the RevenueCat adapter
+                         and the development preview store
+    account/             Sign in with Apple, email, sign-out, delete
+    reminders/           What to remind her of and when (schedule.ts)
+    dev/                 Developer tools (development only)
+  lib/                   storage, supabase, clock, haptics, formatting,
+                         analytics and its sinks (posthog, attribution,
+                         adEvents), sentry, flags, reminders, connection
   strings/               en.ts
   theme/                 Tokens
 supabase/
@@ -433,12 +562,20 @@ supabase/
   seed.sql               Generated from the sheet
   functions/
     _shared/engine/      The plan engine: the ten rules
+    _shared/billing/     Who may watch, what a RevenueCat event means, Mux tokens
     _shared/             plan-service.ts, supabase-store.ts
-    plan/                The Edge Function
+    plan/                revenuecat-webhook/ · playback-token/ · delete-account/
 scripts/
   build-seed.ts          Class sheet → seed.sql and the app's local catalogue
+  build-storekit.ts      StoreKit configuration → the preview store's products
   check-db.ts            Migration, seed and row-level security checks
-docs/architecture.md     A short walkthrough of how it fits together
+docs/
+  architecture.md        A short walkthrough of how it fits together
+  services.md            Switching each outside service on, step by step
+  analytics.md           Events, the two funnels, the flag
+  attribution.md         AppsFlyer, the tracking prompt, conversion values
+  app-review.md          The App Review checklist and the demo account
+  privacy-labels.md      What to answer under App Privacy
 ```
 
 ## What the owner needs to supply
@@ -454,14 +591,26 @@ Every one of these is marked `TODO(owner)` in the code.
 
 **Keys** (`.env.example`, `src/config/env.ts`)
 
-- [ ] Supabase URL and anon key, one project per environment.
-- [ ] RevenueCat public iOS SDK key.
-- [ ] PostHog project key and host.
-- [ ] Sentry DSN.
-- [ ] Attribution tool chosen (AppsFlyer or Adjust), with its key and the App Store app ID.
-- [ ] Mux keys (server side, for the Edge Functions; milestone 3), and one sample video to stand in for all sixteen classes.
-- [ ] Anonymous sign-ins switched on in each Supabase project.
+Step by step in [docs/services.md](docs/services.md).
+
+- [ ] **App Store Connect:** the subscription group and three products, each with a one-week free trial, and Billing Grace Period switched on. Prices are set there.
+- [ ] **RevenueCat:** the project, the `member` entitlement, a default offering, the public iOS SDK key, a webhook secret and a secret API key.
+- [ ] **Supabase:** URL and anon key, one project per environment, with anonymous sign-ins, manual linking and the Apple provider switched on, and the email templates changed to carry the link and the code.
+- [ ] **Mux:** a signing key, and each member class set to signed playback.
+- [ ] **PostHog:** project key and host, the `paywall_variant` flag and the two funnels.
+- [ ] **Sentry:** the DSN, and the organisation, project and auth token for source maps.
+- [ ] **Attribution:** AppsFlyer confirmed (or Adjust), with its key and the App Store app ID.
 - [ ] A sample video of your own, if you would rather not see a test pattern (`EXPO_PUBLIC_SAMPLE_VIDEO_URL`).
+
+**Decisions**
+
+- [ ] The event name `subscription_started`, added for a purchase with no trial. The spec lists none. ([docs/analytics.md](docs/analytics.md))
+- [ ] Whether the trial reminder should also be sent from a server. Today it is scheduled on the phone.
+- [ ] Whether deleting an account should also erase her analytics events at PostHog. That needs a PostHog personal API key.
+- [ ] The privacy labels, confirmed by whoever is responsible for privacy. ([docs/privacy-labels.md](docs/privacy-labels.md))
+- [ ] A demo account for App Review. ([docs/app-review.md](docs/app-review.md))
+- [ ] "Every class led by [NAME], certified" is on the paywall. The certification must be true before launch.
+- [ ] The Terms, Privacy and Health disclaimer pages must exist at the addresses in `src/config/brand.ts`. The paywall links to them.
 
 **Content** (`src/config/brand.ts` and elsewhere)
 
@@ -569,8 +718,8 @@ Where the brief left a detail open, the calmer, simpler option was chosen.
 - **After class shows all-time minutes and sessions**, the same two numbers as
   the first two Progress tiles, so they always agree.
 - **Adjust my plan is one screen**, not the quiz's four, and it rebuilds from
-  today to the end of the 28 days. Changing "best time of day" only changes
-  the reminder default, which arrives in milestone 4.
+  today to the end of the 28 days. Changing "best time of day" changes when
+  her reminders arrive, and nothing else.
 - **Consistency counts what has had its day**: sessions done, against sessions
   done plus sessions dropped when their week ran out, over the last 28 days.
   Sessions still ahead of her are not counted either way.
@@ -585,3 +734,44 @@ Where the brief left a detail open, the calmer, simpler option was chosen.
   do". The data model's `captions_url` is kept but unused: captions come from
   the stream.
 - **Portrait is held per screen**, not app-wide, so that the player can turn.
+
+**Milestone 4: membership**
+
+- **AppsFlyer**, where the brief says AppsFlyer or Adjust. It is confined to
+  one file.
+- **The free class is her first session**, whichever class that is and
+  whether it is one class or two, until she has finished it. The class marked
+  free in the sheet ("Start here") is free to everyone as well.
+- **"Continue your plan" is the button for anyone without a membership**, not
+  only someone whose membership has ended. It never says "expired".
+- **Closing the paywall goes back to where she was.** After the free class it
+  moves her on instead: to an account, then reminders, then Today.
+- **An account can always be declined**, after a purchase too. Restore
+  purchases works without one, and App Review expects this.
+- **Reminders are asked about once.** After that the switch is on the You tab.
+- **The per-month figure is rounded to the nearest cent** and loses its ".00"
+  when whole, so the quarterly plan reads as the brief has it. "Save 58%" is
+  rounded down, never up.
+- **The yearly plan is called "Yearly"** on its card, to match "billed yearly".
+- **If the store cannot say whether she may have the trial, the paywall
+  assumes she may not**, and says "Subscribe". It never promises a free week
+  it is unsure of.
+- **A purchase with no trial is reported as `subscription_started`**, an event
+  added to the spec's list.
+- **The trial reminder goes out two days before the trial ends**, which for a
+  seven-day trial is day 5, and is scheduled on the phone at the moment of
+  purchase. It is cancelled if she cancels.
+- **Session reminders have no sound** and say only what today's class is and
+  how long it takes.
+- **The tracking prompt is tied to attribution.** With no attribution key it
+  is never shown, because there would be nothing to ask permission for.
+- **"Delete account and data" is offered to everyone**, with or without an
+  account: an anonymous user's answers are on our server too.
+- **Deleting an account does not cancel a subscription**, because only Apple
+  can. The first step says so and offers "Manage subscription".
+- **Signing out clears this phone** and starts a fresh anonymous session. Her
+  plan is on the server and returns when she signs back in.
+- **Data model additions:** `subscriptions.last_event_at` and `environment`,
+  a check on `subscriptions.status`, and `billing_events`, the webhook's log.
+- **The player asks the server for the video address**, rather than building
+  it from the playback ID, so that the membership check happens there.
