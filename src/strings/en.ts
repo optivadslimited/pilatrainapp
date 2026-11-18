@@ -39,6 +39,31 @@ export const en = {
     letter: ['M', 'T', 'W', 'T', 'F', 'S', 'S'],
   },
 
+  months: [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
+  ],
+
+  /** A date written out: "Thursday 19 November". */
+  date: (weekday: string, day: number, month: string) => `${weekday} ${day} ${month}`,
+
+  themes: {
+    foundations: 'Foundations',
+    build: 'Build',
+    strengthen: 'Strengthen',
+    flow: 'Flow',
+  },
+
   dayPill: {
     done: 'done',
     today: 'today',
@@ -57,6 +82,10 @@ export const en = {
     } as Record<string, string>,
     locked: 'Members only',
     move: 'Move',
+    done: 'Done',
+    /** Shown when a 30-minute session is a 20 followed by a 10. */
+    then: (title: string) => `Then ${title}`,
+    photoLabel: (title: string) => `Class photo, 4:5. ${title}.`,
   },
 
   launch: {
@@ -199,11 +228,85 @@ export const en = {
       'Fitting your week',
       'Balancing strength and recovery',
     ],
+    errorTitle: 'Your plan didn’t build.',
+    errorBody: 'Your answers are saved. Check your connection and try again.',
+    noClassesTitle: 'We couldn’t fit a plan to those answers.',
+    noClassesBody:
+      'Go back and change what you’d like to work around, or get in touch and we’ll help.',
+    changeAnswers: 'Change my answers',
+  },
+
+  preview: {
+    headline: (name: string) => `Your 28-day plan, ${name}`,
+    headlineNoName: 'Your 28-day plan',
+    daysChip: (days: number) => `${days} days a week`,
+    minutesChip: (minutes: number) => `${minutes} min`,
+    focusChip: {
+      core_strength: 'Core focus',
+      posture: 'Posture focus',
+      mobility: 'Mobility focus',
+      tone: 'Full-body focus',
+      routine: 'Balanced mix',
+    } as Record<string, string>,
+    weekTitle: (week: number, theme: string) => `Week ${week} · ${theme}`,
+    sessions: (count: number) => (count === 1 ? '1 session' : `${count} sessions`),
+    primary: 'Start my free week',
+    secondary: 'Try the first class free',
   },
 
   today: {
-    emptyTitle: 'Your plan starts here.',
-    emptyBody: 'Once your plan is built, today’s session will be waiting on this screen.',
+    dateLine: (weekday: string, week: number, weeks: number) =>
+      `${weekday} · Week ${week} of ${weeks}`,
+    headline: {
+      session: (title: string) => `Today: ${title}`,
+      rest: 'Rest day. You’ve earned it.',
+      done: 'Done for today.',
+      moved: 'Welcome back. Your plan has moved.',
+      /** Before her very first session, on a day that is not one of her days. */
+      beforeFirst: (weekday: string) => `Your plan starts on ${weekday}.`,
+      /** The last session of a block is behind her and the next block has not begun. */
+      blockDone: 'Four weeks, done.',
+    },
+    next: (weekday: string) => `Next: ${weekday}`,
+    nextLine: (weekday: string, title: string) => `Next: ${weekday} · ${title}`,
+    startEarly: 'Start now',
+    ring: (done: number, total: number) => `${done} of ${total}`,
+    ringLabel: 'sessions this week',
+    ringSpoken: (done: number, total: number) => `${done} of ${total} sessions this week`,
+    comingUp: 'Coming up',
+    moveHint: 'Opens the days this session can move to.',
+    // One quiet line, drawn from her own numbers. Never guilt, never streak pressure.
+    encouragement: {
+      beforeFirst: 'Nothing to prepare. A mat and a little floor is enough.',
+      firstSession: (minutes: number) => `${minutes} minutes is all today asks.`,
+      firstDone: 'That’s the first one done.',
+      doneThisWeek: (done: number, total: number) =>
+        done >= total ? `All ${total} done this week.` : `${done} of ${total} done this week.`,
+      momentum: (done: number) =>
+        done === 1
+          ? 'One done this week. Here’s the next.'
+          : `${done} done this week. Here’s the next.`,
+      weekStart: (week: number) => `Week ${week} starts here.`,
+      restAfterWork: (minutes: number) =>
+        `${minutes} minutes moved this week. Rest is part of the plan.`,
+      rest: 'Rest is part of the plan.',
+      moved: 'Plans bend. Yours has made room.',
+      blockDone: 'Your next four weeks begin tomorrow.',
+    },
+    errorTitle: 'Your plan didn’t load.',
+    errorBody: 'Check your connection and try again.',
+    // TODO(milestone 3): remove once the player exists.
+    playerSoon: 'The player arrives in the next build.',
+  },
+
+  move: {
+    title: 'Move this session',
+    body: (title: string) => `${title} can move to any free day this week.`,
+    today: 'Today',
+    noneTitle: 'No free day left this week.',
+    noneBody: 'This session stays where it is.',
+    moved: (weekday: string) => `Moved to ${weekday}.`,
+    failed: 'That didn’t save. Try again.',
   },
 
   plan: {
@@ -230,6 +333,12 @@ export const en = {
     developer: 'Developer',
     gallery: 'Component gallery',
     restartOnboarding: 'Restart onboarding',
+    completeToday: 'Complete the next session',
+    skipDay: 'Skip to tomorrow',
+    resetDate: 'Back to the real date',
+    daysAhead: (days: number) => (days === 1 ? '1 day ahead' : `${days} days ahead`),
+    localMode: 'Local mode: no backend keys',
+    remoteMode: 'Connected to Supabase',
   },
 
   player: {

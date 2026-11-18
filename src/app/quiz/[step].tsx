@@ -115,7 +115,9 @@ function MultiChoice({ question }: { question: Extract<Question, { kind: 'multi'
   const value = stored ?? fallback;
 
   const toggle = (option: string) => {
-    setAnswer(question.field, toggleOption(value, option, question.exclusive) as never);
+    const next = toggleOption(value, option, question.exclusive);
+    // Equipment can never be empty: with nothing else ticked, it is just a mat.
+    setAnswer(question.field, (next.length === 0 ? fallback : next) as never);
   };
 
   const onContinue = () => {

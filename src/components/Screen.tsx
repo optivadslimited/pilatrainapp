@@ -1,8 +1,9 @@
-import type { ReactNode } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  type RefreshControlProps,
   StyleSheet,
   View,
   type StyleProp,
@@ -23,6 +24,8 @@ export type ScreenProps = {
   /** Drops the 24-point side margin, for full-bleed content. */
   bleed?: boolean;
   contentStyle?: StyleProp<ViewStyle>;
+  /** Pull to refresh. Only with `scroll`. */
+  refreshControl?: ReactElement<RefreshControlProps>;
   testID?: string;
 };
 
@@ -37,6 +40,7 @@ export function Screen({
   edges = ['top', 'bottom'],
   bleed = false,
   contentStyle,
+  refreshControl,
   testID,
 }: ScreenProps) {
   const { colors } = useTheme();
@@ -56,6 +60,7 @@ export function Screen({
                 contentStyle,
               ]}
               keyboardShouldPersistTaps="handled"
+              refreshControl={refreshControl}
               showsVerticalScrollIndicator={false}>
               {children}
             </ScrollView>

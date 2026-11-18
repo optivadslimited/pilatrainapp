@@ -26,3 +26,26 @@ export function formatClassMeta(input: {
   const level = t.classMeta.level[input.level] ?? '';
   return [t.classMeta.minutes(input.minutes), level, kit].filter(Boolean).join(' · ');
 }
+
+const dateParts = (date: string) => {
+  const [year, month, day] = date.split('-').map(Number);
+  // getUTCDay is 0 for Sunday; the strings list starts on Monday.
+  const weekdayIndex = (new Date(Date.UTC(year, month - 1, day)).getUTCDay() + 6) % 7;
+  return { day, monthIndex: month - 1, weekdayIndex };
+};
+
+/** The weekday of a `YYYY-MM-DD` date: "Thursday". */
+export function weekdayName(date: string): string {
+  return t.weekdays.long[dateParts(date).weekdayIndex];
+}
+
+/** One letter for the weekday of a date: "T". */
+export function weekdayLetter(date: string): string {
+  return t.weekdays.letter[dateParts(date).weekdayIndex];
+}
+
+/** A `YYYY-MM-DD` date written out: "Thursday 19 November". */
+export function formatDay(date: string): string {
+  const { day, monthIndex, weekdayIndex } = dateParts(date);
+  return t.date(t.weekdays.long[weekdayIndex], day, t.months[monthIndex]);
+}

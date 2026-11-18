@@ -16,6 +16,10 @@ export type ClassCardProps = {
   title: string;
   /** One line, e.g. "20 min · Beginner · Mat". Build it with `formatClassMeta`. */
   meta: string;
+  /** A small line above the title, e.g. "Thursday" or "Next: Thursday". */
+  eyebrow?: string;
+  /** A small line below the meta, e.g. "Then Posture reset" when a session is two classes. */
+  note?: string | null;
   /** The class thumbnail. Until it exists, a labelled Sand block is shown. */
   imageUrl?: string | null;
   /** What the photo will be, for the placeholder and for VoiceOver. */
@@ -27,8 +31,10 @@ export type ClassCardProps = {
   startLabel?: string;
   /** Members only. Shows a lock in place of the action. */
   locked?: boolean;
+  /** The session is done. Shows a quiet tick. */
+  done?: boolean;
   /** Compact only: a quiet action at the end of the row, e.g. "Move". */
-  action?: { label: string; onPress: () => void };
+  action?: { label: string; onPress: () => void; accessibilityLabel?: string };
   testID?: string;
 };
 
@@ -36,6 +42,12 @@ export type ClassCardProps = {
 export function ClassCard(props: ClassCardProps) {
   return props.variant === 'large' ? <LargeCard {...props} /> : <CompactCard {...props} />;
 }
+
+/** Everything VoiceOver should say about the card, as one sentence. */
+const spoken = ({ eyebrow, title, meta, note, locked, done }: ClassCardProps) =>
+  [eyebrow, title, meta, note, done ? t.classMeta.done : null, locked ? t.classMeta.locked : null]
+    .filter(Boolean)
+    .join('. ');
 
 function Thumbnail({
   imageUrl,
@@ -72,24 +84,39 @@ function Thumbnail({
   );
 }
 
-function LargeCard({
-  title,
-  meta,
-  imageUrl,
-  photoLabel,
-  onPress,
-  onStart,
-  startLabel = t.common.start,
-  locked = false,
-  testID,
-}: ClassCardProps) {
+/** A filled Moss tick, as on a done day in the week strip. */
+function DoneMark() {
+  const { colors } = useTheme();
+  return (
+    <View style={[styles.doneMark, { backgroundColor: colors.primary }]}>
+      <Icon name="check" size={14} color="onPrimary" />
+    </View>
+  );
+}
+
+function LargeCard(props: ClassCardProps) {
+  const {
+    title,
+    meta,
+    eyebrow,
+    note,
+    imageUrl,
+    photoLabel,
+    onPress,
+    onStart,
+    startLabel = t.common.start,
+    locked = false,
+    done = false,
+    testID,
+  } = props;
+
   return (
     <View style={styles.large} testID={testID}>
       <PressableScale
         onPress={onPress}
         disabled={!onPress}
-        accessibilityRole="button"
-        accessibilityLabel={`${title}. ${meta}`}
+        accessibilityRole={onPress ? 'button' : 'text'}
+        accessibilityLabel={spoken(props)}
         style={styles.largeBody}>
         <Thumbnail
           imageUrl={imageUrl}
@@ -98,10 +125,25 @@ function LargeCard({
           compact={false}
         />
         <View style={styles.largeText}>
-          <Text variant="heading">{title}</Text>
+          {eyebrow ? (
+            <Text variant="caption" color="textSecondary" weight="600">
+              {eyebrow}
+            </Text>
+          ) : null}
+          <View style={styles.titleRow}>
+            <Text variant="heading" accessibilityRole="text" style={styles.fill}>
+              {title}
+            </Text>
+            {done ? <DoneMark /> : null}
+          </View>
           <Text variant="callout" color="textSecondary">
             {meta}
           </Text>
+          {note ? (
+            <Text variant="caption" color="textSecondary">
+              {note}
+            </Text>
+          ) : null}
         </View>
       </PressableScale>
       {onStart ? (
@@ -116,16 +158,20 @@ function LargeCard({
   );
 }
 
-function CompactCard({
-  title,
-  meta,
-  imageUrl,
-  photoLabel,
-  onPress,
-  locked = false,
-  action,
-  testID,
-}: ClassCardProps) {
+function CompactCard(props: ClassCardProps) {
+  const {
+    title,
+    meta,
+    eyebrow,
+    note,
+    imageUrl,
+    photoLabel,
+    onPress,
+    locked = false,
+    done = false,
+    action,
+    testID,
+  } = props;
   const { colors } = useTheme();
 
   return (
@@ -133,8 +179,8 @@ function CompactCard({
       <PressableScale
         onPress={onPress}
         disabled={!onPress}
-        accessibilityRole="button"
-        accessibilityLabel={`${title}. ${meta}${locked ? `. ${t.classMeta.locked}` : ''}`}
+        accessibilityRole={onPress ? 'button' : 'text'}
+        accessibilityLabel={spoken(props)}
         style={styles.compactBody}>
         <View style={styles.compactThumb}>
           <Thumbnail
@@ -145,26 +191,57 @@ function CompactCard({
           />
         </View>
         <View style={styles.compactText}>
+          {eyebrow ? (
+            <Text variant="caption" color="textSecondary" weight="600">
+              {eyebrow}
+            </Text>
+          ) : null}
           <Text variant="body" weight="600">
             {title}
           </Text>
           <Text variant="callout" color="textSecondary">
             {meta}
           </Text>
+          {note ? (
+            <Text variant="caption" color="textSecondary">
+              {note}
+            </Text>
+          ) : null}
         </View>
         {locked ? <Icon name="lock" size={20} color="textSecondary" /> : null}
+        {done ? <DoneMark /> : null}
       </PressableScale>
-      {action && !locked ? (
-        <Button label={action.label} onPress={action.onPress} variant="text" />
+      {action && !locked && !done ? (
+        <Button
+          label={action.label}
+          onPress={action.onPress}
+          variant="text"
+          style={styles.compactAction}
+          accessibilityHint={action.accessibilityLabel}
+          testID={testID ? `${testID}-action` : undefined}
+        />
       ) : null}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  fill: { flex: 1 },
   large: { gap: space.md },
   largeBody: { gap: space.sm },
   largeText: { gap: space.xxs },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: space.xs,
+  },
+  doneMark: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   compact: {
     borderRadius: radius.card,
     padding: space.sm,
@@ -179,5 +256,7 @@ const styles = StyleSheet.create({
     gap: space.sm,
   },
   compactThumb: { width: 56 },
+  // Narrower than a free-standing text button, to leave the title room.
+  compactAction: { paddingHorizontal: space.xs },
   compactText: { flex: 1, gap: 2 },
 });

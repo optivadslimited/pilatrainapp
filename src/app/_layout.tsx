@@ -1,6 +1,6 @@
 import { Fraunces_500Medium } from '@expo-google-fonts/fraunces/500Medium';
 import { Fraunces_600SemiBold } from '@expo-google-fonts/fraunces/600SemiBold';
-import { QueryClientProvider } from '@tanstack/react-query';
+import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
@@ -9,9 +9,10 @@ import { useEffect } from 'react';
 import { StyleSheet } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
-import { ToastHost } from '@/components';
+import { sheetOptions, ToastHost } from '@/components';
 import { track } from '@/lib/analytics';
-import { queryClient } from '@/lib/queryClient';
+import { persistOptions, queryClient } from '@/lib/queryClient';
+import { ensureSession } from '@/lib/supabase';
 import { fonts, useReduceMotion, useTheme } from '@/theme';
 
 // Hold the native splash (a plain Paper screen) until the fonts are ready, so
@@ -31,13 +32,17 @@ export default function RootLayout() {
 
   useEffect(() => {
     track('app_opened');
+    // An anonymous session from first launch, so the quiz and the free class
+    // work before an account exists. Does nothing in local mode. If it fails
+    // (no connection), the first request that needs a session tries again.
+    ensureSession().catch(() => {});
   }, []);
 
   if (!ready) return null;
 
   return (
     <GestureHandlerRootView style={[styles.root, { backgroundColor: colors.background }]}>
-      <QueryClientProvider client={queryClient}>
+      <PersistQueryClientProvider client={queryClient} persistOptions={persistOptions}>
         <StatusBar style="dark" />
         <Stack
           screenOptions={{
@@ -51,11 +56,16 @@ export default function RootLayout() {
           <Stack.Screen name="quiz" />
           <Stack.Screen name="holding" options={{ animation: 'fade', gestureEnabled: false }} />
           <Stack.Screen name="building" options={{ animation: 'fade', gestureEnabled: false }} />
+          <Stack.Screen
+            name="plan-preview"
+            options={{ animation: 'fade', gestureEnabled: false }}
+          />
           <Stack.Screen name="(tabs)" options={{ animation: 'fade', gestureEnabled: false }} />
+          <Stack.Screen name="move/[sessionId]" options={sheetOptions([0.6, 1])} />
           <Stack.Screen name="dev/gallery" />
         </Stack>
         <ToastHost />
-      </QueryClientProvider>
+      </PersistQueryClientProvider>
     </GestureHandlerRootView>
   );
 }
