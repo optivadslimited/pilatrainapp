@@ -27,6 +27,7 @@ const ICONS = {
   retry: { ios: 'arrow.clockwise', android: 'refresh' },
   photo: { ios: 'photo', android: 'image' },
   info: { ios: 'info.circle', android: 'info' },
+  alert: { ios: 'exclamationmark.circle', android: 'error' },
   // Tab bar
   today: { ios: 'sun.max', android: 'sunny' },
   plan: { ios: 'calendar', android: 'calendar_today' },

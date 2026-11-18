@@ -35,6 +35,23 @@ export const brand = {
     healthDisclaimer: 'https://pilatrain.com/health-disclaimer',
   },
 
+  /**
+   * In-app purchase identifiers, exactly as created in App Store Connect and
+   * RevenueCat. A product ID can never be reused once it exists, so a rename
+   * of the app leaves these as they are.
+   */
+  store: {
+    /** RevenueCat entitlement that means "member". */
+    entitlement: 'member',
+    /** App Store Connect subscription group. */
+    subscriptionGroup: 'Pilatrain Membership',
+    products: {
+      annual: 'pilatrain_annual',
+      quarterly: 'pilatrain_quarterly',
+      monthly: 'pilatrain_monthly',
+    },
+  },
+
   // TODO(owner): confirm the support inbox exists and is monitored.
   supportEmail: 'hello@pilatrain.com',
 

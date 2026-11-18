@@ -49,3 +49,31 @@ export function formatDay(date: string): string {
   const { day, monthIndex, weekdayIndex } = dateParts(date);
   return t.date(t.weekdays.long[weekdayIndex], day, t.months[monthIndex]);
 }
+
+/** ISO weekdays (1 Monday to 7 Sunday) as a short list: "Mon, Wed, Fri". */
+export function weekdayList(weekdays: readonly number[]): string {
+  return [...weekdays]
+    .sort((a, b) => a - b)
+    .map((day) => t.weekdays.short[day - 1])
+    .join(', ');
+}
+
+/** A wall-clock time ("07:30") the way this phone writes times: "7:30 am" or "07:30". */
+export function formatTime(time: string, locale?: string): string {
+  const [hours, minutes] = time.split(':').map(Number);
+  const moment = new Date(2000, 0, 1, hours, minutes);
+  try {
+    return new Intl.DateTimeFormat(locale, { hour: 'numeric', minute: '2-digit' }).format(moment);
+  } catch {
+    return time;
+  }
+}
+
+/** The calendar date of a moment on this phone, written out: "Thursday 19 November". */
+export function formatMoment(iso: string): string {
+  const moment = new Date(iso);
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return formatDay(
+    `${moment.getFullYear()}-${pad(moment.getMonth() + 1)}-${pad(moment.getDate())}`,
+  );
+}

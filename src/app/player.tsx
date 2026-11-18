@@ -15,6 +15,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Button, EmptyState, IconButton, PlayerControls, Text } from '@/components';
+import { useAccess } from '@/features/membership/useAccess';
 import { indexCatalogue } from '@/features/plan/cards';
 import { useCatalogue, useCompleteSession, useCurrentPlan } from '@/features/plan/queries';
 import { planRepository } from '@/features/plan/repository';
@@ -56,6 +57,7 @@ export default function PlayerScreen() {
   const params = useLocalSearchParams<{ sessionId?: string; classId?: string; source?: string }>();
   const plan = useCurrentPlan();
   const classes = useCatalogue();
+  const access = useAccess();
   const { colors } = useTheme();
 
   const waitingForPlan = Boolean(params.sessionId) && plan.data === undefined;
@@ -80,7 +82,26 @@ export default function PlayerScreen() {
   // Nothing to play: the session or class no longer exists.
   if (queue.length === 0) return <Redirect href="/today" />;
 
-  return <Playlist queue={queue} sessionId={session?.id} source={params.source ?? 'unknown'} />;
+  const allowed = session ? access.canPlay(session.id) : queue.every((cls) => access.canWatch(cls));
+
+  return (
+    <Entry allowed={allowed}>
+      <Playlist queue={queue} sessionId={session?.id} source={params.source ?? 'unknown'} />
+    </Entry>
+  );
+}
+
+/**
+ * The door. Whether she may play this is decided once, as she arrives: her
+ * free class stops being "free" the moment it is finished, and that must not
+ * close the player on her while the last minute is still playing.
+ */
+function Entry({ allowed, children }: { allowed: boolean; children: React.ReactNode }) {
+  const [wasAllowed] = useState(allowed);
+  if (!wasAllowed) {
+    return <Redirect href={{ pathname: '/paywall', params: { placement: 'locked_class' } }} />;
+  }
+  return children;
 }
 
 /** Plays the classes of a session one after another. */

@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { Chip, ClassCard, EmptyState, IconButton, Screen, Skeleton, Text } from '@/components';
-import { canPlay, useMembership } from '@/features/membership/membership';
+import { useAccess } from '@/features/membership/useAccess';
 import { useCatalogue } from '@/features/plan/queries';
 import { formatClassMeta } from '@/lib/format';
 import { useGoBack } from '@/lib/useGoBack';
@@ -18,7 +18,7 @@ import { radius, space } from '@/theme';
 export default function Library() {
   const router = useRouter();
   const goBack = useGoBack('/plan');
-  const { isMember } = useMembership();
+  const access = useAccess();
   const classes = useCatalogue().data;
   const [length, setLength] = useState<Minutes | null>(null);
   const [focus, setFocus] = useState<Focus | null>(null);
@@ -113,7 +113,7 @@ export default function Library() {
               })}
               imageUrl={cls.thumbnailUrl}
               photoLabel={t.classMeta.photoLabel(cls.title)}
-              locked={!canPlay(cls, isMember)}
+              locked={!access.canWatch(cls)}
               onPress={() =>
                 router.push({ pathname: '/class/[id]', params: { id: cls.id, source: 'library' } })
               }

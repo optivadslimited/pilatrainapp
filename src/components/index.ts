@@ -3,6 +3,7 @@
  * if a screen needs something these components cannot do, extend the
  * component, do not work around it.
  */
+export { Banner, type BannerProps } from './Banner';
 export { BarChart, type BarChartProps } from './BarChart';
 export { Button, type ButtonProps, type ButtonVariant } from './Button';
 export { Checkbox, type CheckboxProps } from './Checkbox';

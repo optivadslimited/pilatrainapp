@@ -3,10 +3,14 @@ import { useState } from 'react';
 import { RefreshControl, StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 
-import { ClassCard, DayPill, EmptyState, Ring, Screen, Skeleton, Text } from '@/components';
+import { Banner, ClassCard, DayPill, EmptyState, Ring, Screen, Skeleton, Text } from '@/components';
+import { useMembership } from '@/features/membership/membership';
+import { purchases } from '@/features/membership/purchases';
+import { useMembershipNotice } from '@/features/membership/useMembershipNotice';
 import { indexCatalogue, type SessionCard } from '@/features/plan/cards';
 import { useCatalogue, useCurrentPlan } from '@/features/plan/queries';
 import { todayView, type TodayView } from '@/features/plan/today';
+import { useOnline } from '@/lib/useOnline';
 import { useToday } from '@/lib/useToday';
 import { t } from '@/strings';
 import { aspect, enterStaggered, radius, space, useReduceMotion, useTheme } from '@/theme';
@@ -18,14 +22,16 @@ import { aspect, enterStaggered, radius, space, useReduceMotion, useTheme } from
  * the day and week, a headline that changes with her day, the one session,
  * the week at a glance, and what is coming up.
  *
- * TODO(milestone 4): the locked state for a lapsed membership, and the
- * billing and trial-ending banners.
+ * Above all that, at most one notice: no connection, a payment that needs
+ * attention, or a free week about to end. Without a membership the session
+ * card is still there, with one button: "Continue your plan".
  */
 export default function Today() {
   const { colors } = useTheme();
   const date = useToday();
   const plan = useCurrentPlan();
   const classes = useCatalogue();
+  const { isMember } = useMembership();
   const [refreshing, setRefreshing] = useState(false);
 
   const refresh = async () => {
@@ -38,7 +44,9 @@ export default function Today() {
   if (plan.isSuccess && plan.data === null) return <Redirect href="/building" />;
 
   const view =
-    plan.data && classes.data ? todayView(plan.data, indexCatalogue(classes.data), date) : null;
+    plan.data && classes.data
+      ? todayView(plan.data, indexCatalogue(classes.data), date, { isMember })
+      : null;
 
   // Nothing cached and nothing loaded: say so, plainly, with a way to try again.
   if (!view && (plan.isError || classes.isError)) {
@@ -72,6 +80,8 @@ function TodayContent({ view }: { view: TodayView }) {
   const { colors } = useTheme();
   const reduceMotion = useReduceMotion();
   const { feature } = view;
+  const online = useOnline();
+  const notice = useMembershipNotice();
 
   const openDetail = (card: SessionCard) =>
     router.push({
@@ -81,6 +91,28 @@ function TodayContent({ view }: { view: TodayView }) {
 
   return (
     <>
+      {!online ? (
+        <View style={styles.notice}>
+          <Banner
+            icon="offline"
+            title={t.states.offlineTitle}
+            body={t.states.offlineBody}
+            testID="today-offline"
+          />
+        </View>
+      ) : notice ? (
+        <View style={styles.notice}>
+          <Banner
+            icon={notice.kind === 'billing_issue' ? 'alert' : 'info'}
+            tone={notice.kind === 'billing_issue' ? 'alert' : 'neutral'}
+            title={notice.title}
+            body={notice.body}
+            action={{ label: notice.action, onPress: () => purchases.manage().catch(() => {}) }}
+            testID={`today-${notice.kind.replace('_', '-')}`}
+          />
+        </View>
+      ) : null}
+
       <View style={styles.heading}>
         <Text variant="callout" color="textSecondary" testID="today-date-line">
           {view.dateLine}
@@ -101,15 +133,18 @@ function TodayContent({ view }: { view: TodayView }) {
           photoLabel={feature.card.photoLabel}
           done={feature.kind === 'done'}
           startLabel={feature.startLabel}
+          locked={feature.locked}
           onPress={() => openDetail(feature.card)}
           onStart={
-            feature.canStart
-              ? () =>
-                  router.push({
-                    pathname: '/player',
-                    params: { sessionId: feature.card.session.id, source: 'today' },
-                  })
-              : undefined
+            feature.locked
+              ? () => router.push({ pathname: '/paywall', params: { placement: 'today' } })
+              : feature.canStart
+                ? () =>
+                    router.push({
+                      pathname: '/player',
+                      params: { sessionId: feature.card.session.id, source: 'today' },
+                    })
+                : undefined
           }
           testID="today-session"
         />
@@ -168,6 +203,7 @@ function TodayContent({ view }: { view: TodayView }) {
                 note={card.note}
                 imageUrl={card.imageUrl}
                 photoLabel={card.photoLabel}
+                locked={view.comingUpLocked}
                 onPress={() => openDetail(card)}
                 action={{
                   label: t.classMeta.move,
@@ -211,6 +247,7 @@ function TodaySkeleton() {
 }
 
 const styles = StyleSheet.create({
+  notice: { paddingTop: space.md },
   heading: {
     gap: space.xxs,
     paddingTop: space.md,

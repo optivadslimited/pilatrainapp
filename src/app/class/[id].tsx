@@ -1,8 +1,8 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
 
-import { Button, Chip, PhotoPlaceholder, Sheet, Skeleton, Text, toast } from '@/components';
-import { canPlay, useMembership } from '@/features/membership/membership';
+import { Button, Chip, PhotoPlaceholder, Sheet, Skeleton, Text } from '@/components';
+import { useAccess } from '@/features/membership/useAccess';
 import { useCatalogue, useClassProgress, useInstructors } from '@/features/plan/queries';
 import { resumeFrom } from '@/features/player/playback';
 import { useGoBack } from '@/lib/useGoBack';
@@ -15,6 +15,7 @@ import { aspect, radius, space, useTheme } from '@/theme';
  *
  * When it is opened from a session of her plan, Start plays that session
  * (which may be two classes). From the library it plays the class on its own.
+ * A class she cannot play yet shows a lock, and the button opens the paywall.
  */
 export default function ClassDetail() {
   const router = useRouter();
@@ -25,7 +26,7 @@ export default function ClassDetail() {
     sessionId?: string;
     source?: string;
   }>();
-  const { isMember } = useMembership();
+  const access = useAccess();
   const cls = useCatalogue().data?.find((item) => item.id === id);
   const instructor = useInstructors().data?.find((item) => item.id === cls?.instructorId);
   const progress = useClassProgress(id).data;
@@ -40,13 +41,13 @@ export default function ClassDetail() {
     );
   }
 
-  const locked = !canPlay(cls, isMember);
+  const locked = sessionId ? !access.canPlay(sessionId) : !access.canWatch(cls);
   const resuming = resumeFrom(progress) > 0;
 
   const start = () => {
     if (locked) {
-      // TODO(milestone 4): open the paywall.
-      toast.show(t.classDetail.membershipSoon);
+      // The paywall takes the sheet's place.
+      router.replace({ pathname: '/paywall', params: { placement: 'locked_class' } });
       return;
     }
     // The player takes the sheet's place, so closing it returns to where she was.

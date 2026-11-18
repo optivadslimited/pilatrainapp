@@ -1,0 +1,23 @@
+[
+  {
+    "productId": "pilatrain_annual",
+    "price": 89.99,
+    "currencyCode": "USD",
+    "periodMonths": 12,
+    "trialDays": 7
+  },
+  {
+    "productId": "pilatrain_quarterly",
+    "price": 44.99,
+    "currencyCode": "USD",
+    "periodMonths": 3,
+    "trialDays": 7
+  },
+  {
+    "productId": "pilatrain_monthly",
+    "price": 17.99,
+    "currencyCode": "USD",
+    "periodMonths": 1,
+    "trialDays": 7
+  }
+]

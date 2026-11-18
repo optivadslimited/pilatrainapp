@@ -1,0 +1,6 @@
+
+# Generated files: rebuilt by their scripts, checked by the tests.
+src/features/plan/data/seedClasses.json
+src/features/membership/data/previewProducts.json
+supabase/seed.sql
+storekit/

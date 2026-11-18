@@ -10,9 +10,13 @@ import { StyleSheet } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { sheetOptions, ToastHost } from '@/components';
+import { loadAccount } from '@/features/account/account';
+import { startMembership } from '@/features/membership/membership';
+import { syncSessionReminders, syncTrialReminder, watchReminders } from '@/features/reminders/sync';
 import { track } from '@/lib/analytics';
 import { persistOptions, queryClient } from '@/lib/queryClient';
 import { ensureSession } from '@/lib/supabase';
+import { watchConnection } from '@/lib/useOnline';
 import { fonts, useReduceMotion, useTheme } from '@/theme';
 
 // Hold the native splash (a plain Paper screen) until the fonts are ready, so
@@ -32,10 +36,19 @@ export default function RootLayout() {
 
   useEffect(() => {
     track('app_opened');
+    watchConnection();
+    watchReminders();
+
     // An anonymous session from first launch, so the quiz and the free class
     // work before an account exists. Does nothing in local mode. If it fails
     // (no connection), the first request that needs a session tries again.
-    ensureSession().catch(() => {});
+    // The store is connected once the session exists, so RevenueCat knows her
+    // by the same ID as our database does.
+    ensureSession()
+      .catch(() => null)
+      .then((userId) => startMembership(userId))
+      .then(() => Promise.all([loadAccount(), syncTrialReminder(), syncSessionReminders()]))
+      .catch(() => {});
   }, []);
 
   if (!ready) return null;
@@ -75,6 +88,23 @@ export default function RootLayout() {
             }}
           />
           <Stack.Screen name="after-class" options={{ animation: 'fade', gestureEnabled: false }} />
+          <Stack.Screen
+            name="paywall"
+            options={{
+              // Rises like a sheet and covers the screen. The close button is the way out.
+              animation: reduceMotion ? 'fade' : 'slide_from_bottom',
+              gestureEnabled: false,
+            }}
+          />
+          <Stack.Screen
+            name="create-account"
+            options={{ animation: 'fade', gestureEnabled: false }}
+          />
+          <Stack.Screen name="sign-in" />
+          <Stack.Screen name="email" />
+          <Stack.Screen name="auth" options={{ animation: 'fade', gestureEnabled: false }} />
+          <Stack.Screen name="reminders" options={{ animation: 'fade', gestureEnabled: false }} />
+          <Stack.Screen name="delete-account" />
           <Stack.Screen name="library" />
           <Stack.Screen name="adjust" />
           <Stack.Screen name="dev/gallery" />

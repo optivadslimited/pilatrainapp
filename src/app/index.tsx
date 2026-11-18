@@ -20,8 +20,8 @@ const REST_MS = 250;
  *   said "I'll check first"  → the holding screen
  *   quiz finished            → Today
  *
- * TODO(milestone 2): route on the Supabase session as well (none → Welcome).
- * TODO(milestone 4): a session without membership opens Today in its locked state.
+ * Membership does not change where she lands: without one, Today itself
+ * shows her plan with "Continue your plan" on the session.
  */
 export default function Launch() {
   const { colors } = useTheme();

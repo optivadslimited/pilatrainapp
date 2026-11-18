@@ -1,5 +1,5 @@
 import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persister';
-import { focusManager, QueryClient } from '@tanstack/react-query';
+import { focusManager, QueryClient, type Query } from '@tanstack/react-query';
 import { AppState, Platform } from 'react-native';
 
 import { storage } from './storage';
@@ -42,6 +42,11 @@ export const persistOptions = {
   maxAge: WEEK,
   /** Change this when the shape of cached data changes, to drop old caches. */
   buster: 'plan-v1',
+  // Prices and trial eligibility are never read from an old cache.
+  dehydrateOptions: {
+    shouldDehydrateQuery: (query: Query) =>
+      query.state.status === 'success' && query.meta?.persist !== false,
+  },
 };
 
 // Coming back to the app counts as focus, so the plan is brought up to date

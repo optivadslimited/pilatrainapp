@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { AccessibilityInfo, StyleSheet, View } from 'react-native';
-import Animated, { FadeInDown, FadeOut, ReduceMotion } from 'react-native-reanimated';
+import Animated, { FadeInDown, FadeInUp, FadeOut, ReduceMotion } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { create } from 'zustand';
 
@@ -18,24 +18,32 @@ import {
 
 import { Text } from './Text';
 
+/** Where it appears. The top is for screens whose foot is full of buttons. */
+type ToastPosition = 'bottom' | 'top';
+
 type ToastState = {
-  toast: { id: number; message: string } | null;
-  show: (message: string) => void;
+  toast: { id: number; message: string; position: ToastPosition } | null;
+  show: (message: string, position?: ToastPosition) => void;
   hide: () => void;
 };
 
 const useToastStore = create<ToastState>((set) => ({
   toast: null,
-  show: (message) => set({ toast: { id: Date.now(), message } }),
+  show: (message, position = 'bottom') => set({ toast: { id: Date.now(), message, position } }),
   hide: () => set({ toast: null }),
 }));
 
 /** High enough to sit above a tab bar or a screen's fixed button, never on top of it. */
 const CLEARANCE = 96;
 
-/** Show a short message at the foot of the screen. It leaves by itself. */
+/**
+ * Show a short message. It leaves by itself. It sits at the foot of the screen
+ * unless `showAtTop` is used, which is for the moment she moves to a screen
+ * with several buttons at its foot.
+ */
 export const toast = {
   show: (message: string) => useToastStore.getState().show(message),
+  showAtTop: (message: string) => useToastStore.getState().show(message, 'top'),
   hide: () => useToastStore.getState().hide(),
 };
 
@@ -59,9 +67,11 @@ export function ToastHost() {
 
   if (!current) return null;
 
+  const atTop = current.position === 'top';
   const entering = reduceMotion
     ? fadeIn()
-    : FadeInDown.springify()
+    : (atTop ? FadeInUp : FadeInDown)
+        .springify()
         .damping(standardSpring.damping)
         .stiffness(standardSpring.stiffness)
         .mass(standardSpring.mass);
@@ -69,7 +79,12 @@ export function ToastHost() {
   return (
     <View
       pointerEvents="box-none"
-      style={[styles.host, { paddingBottom: insets.bottom + CLEARANCE }]}>
+      style={[
+        styles.host,
+        atTop
+          ? { justifyContent: 'flex-start', paddingTop: insets.top + space.sm }
+          : { paddingBottom: insets.bottom + CLEARANCE },
+      ]}>
       <Animated.View
         key={current.id}
         entering={entering}

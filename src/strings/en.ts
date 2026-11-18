@@ -106,8 +106,6 @@ export const en = {
     primary: 'Build my plan',
     signIn: 'I already have an account',
     photoLabel: 'Instructor photo. Hero, 3:4, warm daylight, a real room.',
-    // TODO(milestone 4): remove once sign-in exists.
-    signInUnavailable: 'Sign-in arrives with accounts in a later build.',
   },
 
   quiz: {
@@ -259,6 +257,8 @@ export const en = {
     weekTitle: (week: number, theme: string) => `Week ${week} · ${theme}`,
     sessions: (count: number) => (count === 1 ? '1 session' : `${count} sessions`),
     primary: 'Start my free week',
+    // If she has had the trial before, nothing here promises a free week.
+    primaryNoTrial: 'See membership plans',
     secondary: 'Try the first class free',
   },
 
@@ -303,6 +303,22 @@ export const en = {
     },
     errorTitle: 'Your plan didn’t load.',
     errorBody: 'Check your connection and try again.',
+    // Shown on the session card when it needs a membership to play.
+    locked: 'Continue your plan',
+    lockedLine: 'Your plan is saved and waiting for you.',
+    banner: {
+      // Two days before the free week ends. Honest about the date and the price.
+      trialTitle: (date: string) => `Your free week ends on ${date}.`,
+      trialBody: (price: string, period: string) =>
+        `Then ${price} ${period}. Cancel any time in Settings.`,
+      trialBodyNoPrice: 'Your membership then starts. Cancel any time in Settings.',
+      trialAction: 'Manage',
+      // Apple could not take payment and is retrying. She keeps access meanwhile.
+      billingTitle: 'There’s a problem with your payment.',
+      billingBody:
+        'Your plan stays open while Apple tries again. Updating your payment details keeps it that way.',
+      billingAction: 'Update payment',
+    },
   },
 
   move: {
@@ -360,8 +376,6 @@ export const en = {
     easierNote: 'An easier option is there for every part of the class.',
     start: 'Start',
     resume: 'Pick up where you left off',
-    // TODO(milestone 4): replaced by the paywall.
-    membershipSoon: 'Membership arrives in a later build.',
   },
 
   afterClass: {
@@ -418,6 +432,38 @@ export const en = {
     title: 'You',
     greeting: (name: string) => `Hello, ${name}`,
     greetingNoName: 'Hello',
+    plan: 'Your plan',
+    daysAndTime: 'Days and time',
+    reminders: 'Reminders',
+    on: 'On',
+    off: 'Off',
+    remindersOff: 'Reminders are off.',
+    membership: 'Membership',
+    memberPlan: 'Plan',
+    notMember: 'Not a member',
+    status: {
+      trial: 'Free week',
+      grace: 'Payment problem',
+      lapsed: 'Ended',
+    },
+    renews: 'Renews',
+    ends: 'Ends',
+    ended: 'Ended',
+    trialEnds: 'Free week ends',
+    seePlans: 'See membership plans',
+    manage: 'Manage subscription',
+    restore: 'Restore purchases',
+    redeem: 'Redeem a code',
+    account: 'Account',
+    signedInApple: 'Signed in with Apple',
+    createAccount: 'Create an account',
+    signOut: 'Sign out',
+    signedOut: 'You’re signed out.',
+    deleteAccount: 'Delete account and data',
+    help: 'Help',
+    contact: 'Email us',
+    supportSubject: (version: string) => `${brand.name} help, version ${version}`,
+    noMailApp: (email: string) => `Write to us at ${email}.`,
     legal: 'Legal',
     terms: 'Terms',
     privacy: 'Privacy',
@@ -430,8 +476,24 @@ export const en = {
     skipDay: 'Skip to tomorrow',
     resetDate: 'Back to the real date',
     daysAhead: (days: number) => (days === 1 ? '1 day ahead' : `${days} days ahead`),
-    previewNonMember: 'Preview as a non-member',
-    previewMember: 'Preview as a member',
+    devStore: 'Preview store (no real purchases)',
+    devMembership: {
+      none: 'Set: not a member',
+      trial: 'Set: free week, day 1',
+      trial_ending: 'Set: free week ends in 2 days',
+      active: 'Set: paid member',
+      grace: 'Set: payment problem',
+      lapsed: 'Set: membership ended',
+    },
+    devEligible: 'Free trial available',
+    devOutcome: 'Next purchase',
+    devOutcomes: {
+      success: 'Succeeds',
+      cancelled: 'Cancelled',
+      pending: 'Waits for approval',
+      failed: 'Fails',
+    },
+    devOffline: 'Pretend to be offline',
     localMode: 'Local mode: no backend keys',
     remoteMode: 'Connected to Supabase',
   },
@@ -463,6 +525,135 @@ export const en = {
     leave: 'Leave',
     // TODO(owner): remove once the real classes are on Mux.
     sampleNote: 'Sample video. The real class will play here.',
+  },
+
+  paywall: {
+    // Screen-reader label for the group of plan cards.
+    choose: 'Choose a plan',
+    headline: 'Your plan is ready. Start your free week.',
+    // If she has had the trial before, nothing on the screen says "free".
+    headlineNoTrial: 'Your plan is ready.',
+    points: {
+      adapts: 'A plan that adapts to your week',
+      // TODO(owner): confirm the instructor's certification before launch.
+      instructor: (name: string) => `Every class led by ${name}, certified`,
+      cancel: 'Cancel any time in two taps',
+    },
+    planName: {
+      annual: 'Yearly',
+      quarterly: 'Quarterly',
+      monthly: 'Monthly',
+    },
+    // Follows the store's price: "<price> every 3 months".
+    period: {
+      annual: 'a year',
+      quarterly: 'every 3 months',
+      monthly: 'a month',
+    },
+    // The smaller line. The figure is worked out from the store's price.
+    perMonth: {
+      annual: (each: string) => `${each} a month, billed yearly`,
+      quarterly: (each: string) => `${each} a month, billed every 3 months`,
+    },
+    badge: {
+      popular: 'Most popular',
+      save: (percent: number) => `Save ${percent}%`,
+    },
+    timeline: {
+      today: 'Today',
+      access: 'full access',
+      day: (day: number) => `Day ${day}`,
+      remind: 'we remind you',
+      ends: 'trial ends',
+    },
+    startTrial: (days: number) => `Start ${days}-day free trial`,
+    subscribe: 'Subscribe',
+    // The exact terms, directly under the button. Price and period are the store's.
+    terms: (days: number, price: string, period: string) =>
+      `${days} days free, then ${price} ${period}. Cancel any time in Settings at least 24 hours before renewal.`,
+    termsNoTrial: (price: string, period: string) =>
+      `${price} ${period}, renewing until you cancel. Cancel any time in Settings at least 24 hours before renewal.`,
+    termsLink: 'Terms',
+    privacyLink: 'Privacy',
+    restore: 'Restore purchases',
+    redeem: 'Redeem a code',
+    loadErrorTitle: 'The plans didn’t load.',
+    loadErrorBody: 'Check your connection and try again.',
+    unavailableTitle: 'Membership isn’t available right now.',
+    unavailableBody: 'Please try again a little later.',
+    cancelled: 'Cancelled. Nothing was charged.',
+    pending: 'Your purchase is waiting for approval. Your plan opens as soon as it comes through.',
+    failed: 'That didn’t go through. Please try again.',
+    failedOffline: 'No connection. Try again when you’re back online.',
+    notAllowed: 'Purchases are turned off on this device. You can change that in Screen Time.',
+    alreadyMember: 'You’re already a member.',
+    restored: 'Welcome back. Your membership is restored.',
+    nothingToRestore: 'We couldn’t find a membership for this Apple Account.',
+    restoreFailed: 'Restore didn’t finish. Check your connection and try again.',
+    welcome: 'You’re in. Your plan is open.',
+  },
+
+  account: {
+    createTitle: 'Save your plan.',
+    createBody: 'An account keeps your plan and your membership with you if you change phones.',
+    signInTitle: 'Welcome back.',
+    signInBody: 'Sign in to pick up your plan where you left it.',
+    apple: 'Continue with Apple',
+    email: 'Continue with email',
+    emailTitle: 'Your email',
+    emailBody: 'We’ll email you a link. No password needed.',
+    emailLabel: 'Email address',
+    emailPlaceholder: 'you@example.com',
+    emailInvalid: 'That doesn’t look like an email address.',
+    send: 'Email me a link',
+    sentTitle: 'Check your email.',
+    sentBody: (email: string) => `We’ve sent a link to ${email}. Open it on this phone to finish.`,
+    codeLabel: 'Or enter the 6-digit code from the email',
+    verify: 'Continue',
+    resend: 'Send it again',
+    resent: 'Sent again.',
+    codeWrong: 'That code didn’t match. Check the email and try again.',
+    sendFailed: 'That didn’t send. Check your connection and try again.',
+    appleFailed: 'Sign in with Apple didn’t finish. Please try again.',
+    noAccount: 'We couldn’t find an account for that. Build a plan to get started.',
+    created: 'Your account is saved.',
+    signedIn: 'You’re signed in.',
+    finishing: 'Finishing sign-in',
+    linkFailedTitle: 'That link didn’t work.',
+    linkFailedBody: 'It may have expired. Ask for a new one.',
+    unavailable: 'Accounts aren’t switched on in this build.',
+  },
+
+  reminders: {
+    title: 'Want a nudge on your Pilates days?',
+    body: 'One notification on each of your days, and nothing else.',
+    days: 'Your days',
+    time: 'Your time',
+    yes: 'Yes, remind me',
+    on: 'Reminders are on.',
+    // The notification itself. An invitation, never a telling-off.
+    sessionTitle: (title: string) => `Today: ${title}`,
+    sessionBody: (minutes: number) => `${minutes} minutes, whenever suits you.`,
+    // Sent two days before the free week ends.
+    trialTitle: (date: string) => `Your free week ends on ${date}`,
+    trialBody: (price: string, period: string) =>
+      `Your membership then starts at ${price} ${period}. You can cancel any time in Settings.`,
+    trialBodyNoPrice: 'Your membership then starts. You can cancel any time in Settings.',
+  },
+
+  deleteAccount: {
+    title: 'Delete your account?',
+    body: 'This removes your account, your answers, your plan and your history from our records. It can’t be undone.',
+    subscriptionNote:
+      'Deleting your account doesn’t cancel a subscription. Apple bills it, so cancel it first if you have one.',
+    manage: 'Manage subscription',
+    next: 'Continue',
+    keep: 'Keep my account',
+    confirmTitle: 'Delete everything now?',
+    confirmBody: 'Your account and everything in it will be removed straight away.',
+    confirm: 'Delete my account',
+    failed: 'That didn’t finish, and nothing was deleted. Check your connection and try again.',
+    done: 'Your account has been deleted.',
   },
 
   planCard: {

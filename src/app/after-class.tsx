@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { Button, OptionCard, Ring, Screen, StatTile, Text, toast } from '@/components';
+import { useMembership } from '@/features/membership/membership';
 import { indexCatalogue } from '@/features/plan/cards';
 import { afterClassView } from '@/features/plan/progress';
 import { useCatalogue, useCurrentPlan, useHistory, useRateSession } from '@/features/plan/queries';
@@ -29,6 +30,7 @@ export default function AfterClass() {
   const classes = useCatalogue().data;
   const history = useHistory().data;
   const rate = useRateSession();
+  const { isMember } = useMembership();
 
   const [rating, setRating] = useState<Rating | null>(null);
   const [filled, setFilled] = useState(false);
@@ -58,7 +60,15 @@ export default function AfterClass() {
         },
       );
     }
-    // TODO(milestone 4): after the free class, a non-member goes to the paywall from here.
+    // The free class is done. This is where membership is offered; closing the
+    // paywall carries on to an account, reminders and home.
+    if (!isMember) {
+      router.replace({
+        pathname: '/paywall',
+        params: { placement: 'after_free_class', then: 'continue' },
+      });
+      return;
+    }
     router.dismissTo('/today');
   };
 

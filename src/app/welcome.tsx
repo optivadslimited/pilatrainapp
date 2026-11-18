@@ -3,6 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Button, PhotoPlaceholder, Text, toast } from '@/components';
+import { accountsAvailable } from '@/features/account/account';
 import { QUESTIONS } from '@/features/onboarding/questions';
 import { useOnboardingStore } from '@/features/onboarding/store';
 import { track } from '@/lib/analytics';
@@ -42,8 +43,9 @@ export default function Welcome() {
           <Button
             label={t.welcome.signIn}
             variant="text"
-            // TODO(milestone 4): open sign-in (Sign in with Apple, then email magic link).
-            onPress={() => toast.show(t.welcome.signInUnavailable)}
+            onPress={() =>
+              accountsAvailable ? router.push('/sign-in') : toast.show(t.account.unavailable)
+            }
             testID="welcome-sign-in"
           />
         </View>

@@ -2,7 +2,7 @@ import { useFocusEffect } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { AppState } from 'react-native';
 
-import { today } from './clock';
+import { now, today } from './clock';
 
 /**
  * Today's date, kept current: it is read again whenever the screen comes into
@@ -26,4 +26,27 @@ export function useToday(): string {
   }, []);
 
   return date;
+}
+
+/**
+ * This moment, kept current the same way, for things that turn on a time
+ * rather than a date (a trial that ends at a quarter past ten).
+ */
+export function useNow(): Date {
+  const [moment, setMoment] = useState(now);
+
+  useFocusEffect(
+    useCallback(() => {
+      setMoment(now());
+    }, []),
+  );
+
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', (state) => {
+      if (state === 'active') setMoment(now());
+    });
+    return () => subscription.remove();
+  }, []);
+
+  return moment;
 }

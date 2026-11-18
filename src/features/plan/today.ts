@@ -1,4 +1,5 @@
 import { addDays, isOpen, weekOf, weekStart, type ISODate } from '@engine';
+import { freeSessionId } from '@shared/billing/access';
 
 import type { DayState } from '@/components';
 import { weekdayLetter, weekdayName } from '@/lib/format';
@@ -35,6 +36,8 @@ export type TodayView = {
     eyebrow: string | null;
     canStart: boolean;
     startLabel: string;
+    /** It needs a membership. The button opens the paywall instead of the class. */
+    locked: boolean;
   } | null;
   /** "Next: Thursday · Full-body flow", once today's session is done. */
   nextLine: string | null;
@@ -42,6 +45,8 @@ export type TodayView = {
   ring: { done: number; total: number; label: string; spoken: string };
   /** The rest of this week's sessions, soonest first. */
   comingUp: SessionCard[];
+  /** Those sessions need a membership she does not have. */
+  comingUpLocked: boolean;
   /** One quiet line drawn from her own numbers. Never guilt, never streak pressure. */
   encouragement: string;
 };
@@ -50,7 +55,13 @@ const WEEKS = 4;
 const byDate = (a: { date: ISODate }, b: { date: ISODate }) =>
   a.date < b.date ? -1 : a.date > b.date ? 1 : 0;
 
-export function todayView(plan: StoredPlan, catalogue: Catalogue, today: ISODate): TodayView {
+export function todayView(
+  plan: StoredPlan,
+  catalogue: Catalogue,
+  today: ISODate,
+  /** Left out, she is taken to be a member. */
+  access: { isMember: boolean } = { isMember: true },
+): TodayView {
   const week = Math.min(WEEKS, Math.max(1, weekOf(plan.startDate, today)));
   const card = (session: StoredPlan['sessions'][number]) => sessionCard(session, catalogue);
 
@@ -81,6 +92,7 @@ export function todayView(plan: StoredPlan, catalogue: Catalogue, today: ISODate
       eyebrow: null,
       canStart: false,
       startLabel: t.common.start,
+      locked: false,
     };
   } else if (todaysCard) {
     state = justMoved ? 'moved' : 'session';
@@ -91,6 +103,7 @@ export function todayView(plan: StoredPlan, catalogue: Catalogue, today: ISODate
       eyebrow: null,
       canStart: true,
       startLabel: t.common.start,
+      locked: false,
     };
   } else if (nextCard) {
     state = firstStillAhead ? 'before_first' : justMoved ? 'moved' : 'rest';
@@ -107,10 +120,22 @@ export function todayView(plan: StoredPlan, catalogue: Catalogue, today: ISODate
       // She has just finished the quiz. If she wants her first class now, she can have it.
       canStart: firstStillAhead,
       startLabel: t.today.startEarly,
+      locked: false,
     };
   } else {
     state = 'block_done';
     headline = t.today.headline.blockDone;
+  }
+
+  // Without a membership, only her free first class will play. Anything else
+  // is shown as it is, with one button: "Continue your plan".
+  if (
+    feature &&
+    feature.kind !== 'done' &&
+    !access.isMember &&
+    feature.card.session.id !== freeSessionId(plan)
+  ) {
+    feature = { ...feature, locked: true, canStart: true, startLabel: t.today.locked };
   }
 
   const showsNextLine = state === 'done' && nextCard !== null;
@@ -159,6 +184,7 @@ export function todayView(plan: StoredPlan, catalogue: Catalogue, today: ISODate
 
   const lines = t.today.encouragement;
   const encouragement = ((): string => {
+    if (feature?.locked) return t.today.lockedLine;
     switch (state) {
       case 'before_first':
         return lines.beforeFirst;
@@ -185,6 +211,7 @@ export function todayView(plan: StoredPlan, catalogue: Catalogue, today: ISODate
     weekStrip,
     ring,
     comingUp,
+    comingUpLocked: !access.isMember,
     encouragement,
   };
 }

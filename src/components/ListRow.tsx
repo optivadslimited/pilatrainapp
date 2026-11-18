@@ -30,6 +30,8 @@ export function ListRow({
 
   const content = (
     <View
+      // A row that cannot be pressed carries the test ID itself.
+      testID={onPress ? undefined : testID}
       style={[
         styles.row,
         divider && {

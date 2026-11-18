@@ -30,6 +30,14 @@ export function today(now: Date = new Date()): ISODate {
   return addDays(deviceToday(now), devDayOffset());
 }
 
+/**
+ * This moment, as the app sees it: the real time, moved forward by the same
+ * development offset as `today()`, so a trial can be watched running out.
+ */
+export function now(real: Date = new Date()): Date {
+  return new Date(real.getTime() + devDayOffset() * 24 * 60 * 60 * 1000);
+}
+
 /** Her timezone, e.g. "Europe/London". Stored on her users row so the server knows her "today". */
 export function deviceTimezone(): string {
   try {

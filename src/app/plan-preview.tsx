@@ -4,6 +4,9 @@ import { StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 
 import { Button, Chip, ClassCard, Screen, Skeleton, Text } from '@/components';
+import { useMembership } from '@/features/membership/membership';
+import { PRODUCT_IDS } from '@/features/membership/products';
+import { useProducts, useTrialEligibility } from '@/features/membership/queries';
 import { useOnboardingStore } from '@/features/onboarding/store';
 import { indexCatalogue } from '@/features/plan/cards';
 import { planPreview } from '@/features/plan/preview';
@@ -23,6 +26,12 @@ export default function PlanPreview() {
   const firstName = useOnboardingStore((state) => state.answers.firstName);
   const plan = useCurrentPlan();
   const classes = useCatalogue();
+  const { isMember } = useMembership();
+  // Asked for here so the paywall opens with its prices already in hand.
+  useProducts();
+  const eligibility = useTrialEligibility([PRODUCT_IDS.quarterly]).data;
+  // "Free week" is only promised to someone who can have one.
+  const noTrial = eligibility?.[PRODUCT_IDS.quarterly] === false;
 
   useEffect(() => {
     track('plan_preview_viewed');
@@ -43,9 +52,14 @@ export default function PlanPreview() {
       footer={
         <>
           <Button
-            label={t.preview.primary}
-            // TODO(milestone 4): open the paywall here. Until it exists this goes straight to Today.
-            onPress={() => router.replace('/today')}
+            label={
+              isMember ? t.common.continue : noTrial ? t.preview.primaryNoTrial : t.preview.primary
+            }
+            onPress={() =>
+              isMember
+                ? router.replace('/today')
+                : router.push({ pathname: '/paywall', params: { placement: 'plan_preview' } })
+            }
             disabled={!preview}
             testID="preview-start"
           />

@@ -1,0 +1,122 @@
+{
+  "identifier" : "A1B2C3D4",
+  "nonRenewingSubscriptions" : [
+
+  ],
+  "products" : [
+
+  ],
+  "settings" : {
+    "_billingGracePeriodEnabled" : true,
+    "_locale" : "en_US",
+    "_storefront" : "USA",
+    "_storeKitErrors" : [
+
+    ]
+  },
+  "subscriptionGroups" : [
+    {
+      "id" : "21500001",
+      "localizations" : [
+
+      ],
+      "name" : "Pilatrain Membership",
+      "subscriptions" : [
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "89.99",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "6700000001",
+          "introductoryOffer" : {
+            "internalID" : "6700000011",
+            "numberOfPeriods" : 1,
+            "paymentMode" : "free",
+            "subscriptionPeriod" : "P1W"
+          },
+          "localizations" : [
+            {
+              "description" : "Every class and a plan that adapts to your week.",
+              "displayName" : "Yearly membership",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "pilatrain_annual",
+          "recurringSubscriptionPeriod" : "P1Y",
+          "referenceName" : "Annual",
+          "subscriptionGroupID" : "21500001",
+          "type" : "RecurringSubscription"
+        },
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "44.99",
+          "familyShareable" : false,
+          "groupNumber" : 2,
+          "internalID" : "6700000002",
+          "introductoryOffer" : {
+            "internalID" : "6700000012",
+            "numberOfPeriods" : 1,
+            "paymentMode" : "free",
+            "subscriptionPeriod" : "P1W"
+          },
+          "localizations" : [
+            {
+              "description" : "Every class and a plan that adapts to your week.",
+              "displayName" : "Quarterly membership",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "pilatrain_quarterly",
+          "recurringSubscriptionPeriod" : "P3M",
+          "referenceName" : "Quarterly",
+          "subscriptionGroupID" : "21500001",
+          "type" : "RecurringSubscription"
+        },
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "17.99",
+          "familyShareable" : false,
+          "groupNumber" : 3,
+          "internalID" : "6700000003",
+          "introductoryOffer" : {
+            "internalID" : "6700000013",
+            "numberOfPeriods" : 1,
+            "paymentMode" : "free",
+            "subscriptionPeriod" : "P1W"
+          },
+          "localizations" : [
+            {
+              "description" : "Every class and a plan that adapts to your week.",
+              "displayName" : "Monthly membership",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "pilatrain_monthly",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "Monthly",
+          "subscriptionGroupID" : "21500001",
+          "type" : "RecurringSubscription"
+        }
+      ]
+    }
+  ],
+  "version" : {
+    "major" : 4,
+    "minor" : 0
+  }
+}

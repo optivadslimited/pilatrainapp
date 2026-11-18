@@ -42,6 +42,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   ios: {
     bundleIdentifier: `${brand.bundleId}${variant.bundleSuffix}`,
     supportsTablet: false,
+    // Adds the Sign in with Apple entitlement.
+    usesAppleSignIn: true,
     config: { usesNonExemptEncryption: false },
   },
   web: {
@@ -62,6 +64,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     ],
     ['expo-build-properties', { ios: { deploymentTarget: '17.0' } }],
     'expo-notifications',
+    'expo-apple-authentication',
     // Picture-in-picture is off and classes do not play in the background.
     ['expo-video', { supportsBackgroundPlayback: false, supportsPictureInPicture: false }],
   ],

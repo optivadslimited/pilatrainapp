@@ -6,10 +6,10 @@
  * Privacy rule: answers about pregnancy, injury or pain never leave our own
  * database. Analytics receives a single yes-or-no flag instead (see
  * `quizAnswerForAnalytics`). Ad platforms receive only trial and purchase
- * events; that filtering lives with the attribution sink (milestone 4).
+ * events: the attribution sink (src/lib/attribution.ts) forwards nothing else.
  *
- * Until PostHog is wired in (milestone 4) events go to the console in
- * development and nowhere in production.
+ * Events go to every registered sink: PostHog (src/lib/posthog.ts), the
+ * attribution provider, and the console in development.
  */
 export type AnalyticsEvents = {
   // Onboarding
@@ -25,6 +25,11 @@ export type AnalyticsEvents = {
   paywall_viewed: { placement: string; variant: string };
   plan_selected: { product: string };
   trial_started: { product: string };
+  /**
+   * A purchase with no free trial (she has had it before). ASSUMPTION: the
+   * spec lists no event for this, and it is not a trial, so it has its own.
+   */
+  subscription_started: { product: string };
   purchase_failed: { reason: string };
   purchase_cancelled: undefined;
   account_created: { method: 'apple' | 'email' };
