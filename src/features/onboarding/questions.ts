@@ -7,36 +7,35 @@
  * plan engine reads, so treat them as part of the data model.
  */
 
-export const GOALS = ['core_strength', 'posture', 'mobility', 'tone', 'routine'] as const;
+import {
+  EQUIPMENT,
+  GOALS,
+  MINUTES,
+  ownedEquipment,
+  WORK_AROUNDS,
+  type Equipment,
+  type Goal,
+  type Level,
+  type Minutes,
+  type Weekday,
+  type WorkAround,
+} from '@engine';
+
+// The goal, length, equipment and work-around ids are the plan engine's own
+// vocabulary (supabase/functions/_shared/engine/domain.ts), re-exported here
+// so the quiz and the engine can never disagree.
+export { EQUIPMENT, GOALS, MINUTES, ownedEquipment, WORK_AROUNDS };
+export type { Equipment, Goal, Level, Minutes, Weekday, WorkAround };
+
 export const EXPERIENCES = ['new', 'tried', 'sometimes', 'regular'] as const;
-export const MINUTES = [10, 20, 30] as const;
 export const DAYS_PER_WEEK = [2, 3, 4, 5] as const;
 export const TIMES_OF_DAY = ['morning', 'lunchtime', 'evening', 'varies'] as const;
-export const EQUIPMENT = ['mat', 'band', 'ball', 'weights'] as const;
-export const WORK_AROUNDS = [
-  'lower_back',
-  'neck_shoulders',
-  'knees',
-  'wrists',
-  'pregnant_postpartum',
-  'recent_injury_surgery',
-  'none',
-] as const;
 
-export type Goal = (typeof GOALS)[number];
 export type Experience = (typeof EXPERIENCES)[number];
-export type Minutes = (typeof MINUTES)[number];
 export type DaysPerWeek = (typeof DAYS_PER_WEEK)[number];
 export type TimeOfDay = (typeof TIMES_OF_DAY)[number];
-export type Equipment = (typeof EQUIPMENT)[number];
-export type WorkAround = (typeof WORK_AROUNDS)[number];
 
-/** ISO weekday: 1 is Monday, 7 is Sunday. Matches Postgres `isodow`. */
-export type Weekday = 1 | 2 | 3 | 4 | 5 | 6 | 7;
 export const WEEKDAYS: readonly Weekday[] = [1, 2, 3, 4, 5, 6, 7];
-
-/** Level 1 is beginner, level 2 is improver. */
-export type Level = 1 | 2;
 
 export type QuizAnswers = {
   goal: Goal;
@@ -128,14 +127,6 @@ export const REMINDER_TIMES: Record<TimeOfDay, string> = {
   evening: '18:30',
   varies: '09:00',
 };
-
-/**
- * What she can train with. Everyone has a mat ("Just a mat" is the baseline),
- * so the mat is always included whatever else she ticked.
- */
-export function ownedEquipment(answer: readonly Equipment[]): Equipment[] {
-  return EQUIPMENT.filter((item) => item === 'mat' || answer.includes(item));
-}
 
 /**
  * Toggle `value` in a multi-select answer, honouring the exclusive option:
