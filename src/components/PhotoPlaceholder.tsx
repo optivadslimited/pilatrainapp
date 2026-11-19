@@ -18,11 +18,12 @@ export type PhotoPlaceholderProps = {
 };
 
 /**
- * Stands in for instructor photography until the owner supplies it: a neutral
- * Sand block at the right aspect ratio, labelled with what the photo will be.
- * Never a stock photo.
+ * Holds the place of a photo that does not exist yet: a neutral Sand block at
+ * the right aspect ratio, labelled with what the photo will be. Never a stock
+ * photo. Screens use `Photo`, which shows this whenever it has nothing else.
  *
- * TODO(owner): supply the photography; each use of this component is one photo.
+ * TODO(owner): supply the instructor photography. Until then the Welcome hero
+ * and each class show a generated stand-in (src/config/photos.ts).
  */
 export function PhotoPlaceholder({
   label,

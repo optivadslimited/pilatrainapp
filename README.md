@@ -29,7 +29,8 @@ The marketing site is a separate repository (`optivadslimited/pilatrain`,
 
 - **Launch.** Paper screen, the wordmark fades in over 400 ms, then routes on
   what is saved on the phone: Welcome, the holding screen, or Today.
-- **Welcome.** Photo block across the top 60%, headline, line, "Build my plan".
+- **Welcome.** A photo across the top 60% (a stand-in for now, see "What is
+  stubbed"), headline, line, "Build my plan".
 - **The quiz.** All nine questions, one per screen, with the thin progress bar,
   back arrow and auto-advance 250 ms after a single choice.
 - **Safety gate.** "Pregnant or postpartum" or "Recent injury or surgery" opens
@@ -131,21 +132,22 @@ The marketing site is a separate repository (`optivadslimited/pilatrain`,
 
 ### What is stubbed
 
-| Stub                                                                                                                                                                                                                                                                                                                  | Replaced                        |
-| --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------- |
-| **Purchases run against a preview store.** With no RevenueCat key, development builds and the web preview use a stand-in that sells the three products from `storekit/Pilatrain.storekit`. Nothing is bought. It is left out of release builds, where a missing key means the paywall says membership is unavailable. | When the RevenueCat key arrives |
-| **Accounts run against a stand-in** in development when there is no backend: creating one always works and any six digits are accepted as the code. Left out of release builds.                                                                                                                                       | When the Supabase keys arrive   |
-| **Every class plays one sample video.** There are no real classes, captions files or thumbnails yet. Chapter times are scaled to fit the sample.                                                                                                                                                                      | When content arrives            |
-| **The trial reminder is a notification scheduled on the phone**, not one sent from a server. It arrives whether or not the app is open, but only if she has allowed notifications; the banner on Today does not depend on that.                                                                                       | To decide                       |
-| A class taken from the library on its own is not counted in Progress. Only sessions of her plan are.                                                                                                                                                                                                                  | To decide                       |
-| Deleting an account does not erase analytics events already sent to PostHog under her random ID.                                                                                                                                                                                                                      | To decide                       |
-| The Supabase path, the four Edge Functions and every outside service are written but have never been run (see below). The app runs in local mode.                                                                                                                                                                     | When keys arrive                |
-| EAS Update is not configured (it needs the Expo project ID).                                                                                                                                                                                                                                                          | Milestone 5                     |
+| Stub                                                                                                                                                                                                                                                                                                                     | Replaced                                      |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------- |
+| **Purchases run against a preview store.** With no RevenueCat key, development builds and the web preview use a stand-in that sells the three products from `storekit/Pilatrain.storekit`. Nothing is bought. It is left out of release builds, where a missing key means the paywall says membership is unavailable.    | When the RevenueCat key arrives               |
+| **Accounts run against a stand-in** in development when there is no backend: creating one always works and any six digits are accepted as the code. Left out of release builds.                                                                                                                                          | When the Supabase keys arrive                 |
+| **Every class plays one sample video.** There are no real classes, captions files or thumbnails yet. Chapter times are scaled to fit the sample.                                                                                                                                                                         | When content arrives                          |
+| **Every photo is a generated stand-in.** The Welcome hero and one photo per class are images made with Higgsfield, in `assets/images/stand-ins`, listed in `src/config/photos.ts`. The woman in them is not a real person and is not the instructor. A class shows its own `thumbnail_url` as soon as the sheet has one. | Before release: replace with real photography |
+| **The trial reminder is a notification scheduled on the phone**, not one sent from a server. It arrives whether or not the app is open, but only if she has allowed notifications; the banner on Today does not depend on that.                                                                                          | To decide                                     |
+| A class taken from the library on its own is not counted in Progress. Only sessions of her plan are.                                                                                                                                                                                                                     | To decide                                     |
+| Deleting an account does not erase analytics events already sent to PostHog under her random ID.                                                                                                                                                                                                                         | To decide                                     |
+| The Supabase path, the four Edge Functions and every outside service are written but have never been run (see below). The app runs in local mode.                                                                                                                                                                        | When keys arrive                              |
+| EAS Update is not configured (it needs the Expo project ID).                                                                                                                                                                                                                                                             | Milestone 5                                   |
 
 ### How it has been verified, and how it has not
 
 `npm run check` passes: TypeScript (strict, with typed routes), ESLint,
-**480 Jest tests**, and **32 database checks**. A production iOS JavaScript
+**484 Jest tests**, and **32 database checks**. A production iOS JavaScript
 bundle builds with `npm run bundle:ios` (10 MB), and has been searched: it
 contains no preview store, no developer tools and no price.
 
@@ -355,7 +357,7 @@ Built before any screen, and the only place styling decisions are made.
 - **Components** in [src/components](src/components): Button, Chip, OptionCard,
   QuizProgressBar, Ring, ClassCard, DayPill, StatTile, Sheet, Toast, PlanCard,
   PlayerControls, EmptyState, Skeleton, BarChart, MonthGrid, Banner, plus the base
-  pieces they share (Text, Icon, Screen, TextField, Checkbox, ListRow,
+  pieces they share (Text, Icon, Screen, TextField, Checkbox, ListRow, Photo,
   PhotoPlaceholder, Wordmark).
 - **Gallery** at `/dev/gallery`: every component on one screen for design
   review. Development builds only.
@@ -569,6 +571,7 @@ src/
     dev/gallery.tsx      Component gallery (development only)
   components/            The design system
   config/                brand.ts (the rename file, and the product IDs), env.ts
+                         photos.ts (the stand-in photos, until the real ones)
   features/
     onboarding/          Quiz definition, day spread, safety gate, flow, store,
                          and what follows the paywall (next.ts)
@@ -649,7 +652,7 @@ Step by step in [docs/services.md](docs/services.md).
 - [x] Company legal name: Optivads Limited.
 - [x] Support email confirmed: `hello@pilatrain.com`.
 - [ ] Trademark check on the name.
-- [ ] Instructor photography. Each `PhotoPlaceholder` in the code is one photo; the Welcome hero is the first.
+- [ ] Instructor photography: the Welcome hero (3:4) and one photo per class (3:4, cropped to 4:5 on cards). Generated stand-ins are shown until then. They must be replaced before release: the woman in them is not the instructor, and the app names the instructor beside them. Then delete `assets/images/stand-ins` and the list in `src/config/photos.ts`.
 - [ ] App icon artwork, 1024 × 1024. The current icon is a generated placeholder (`assets/images/icon.png`).
 - [ ] The sixteen classes with video, captions and thumbnails, and the instructor's tag sheet filled into `supabase/seed/classes.csv`: level, length, focus, intensity, equipment, what each class is unsuitable for, chapter times and an easier option per chapter. See "What the class sheet must cover". The current sheet is placeholder content.
 - [ ] A decision on catalogue size. Sixteen classes cannot give every plan "no class more than twice" (ten-minute plans three or more days a week are the clearest case). More short classes fix it; otherwise the engine repeats a class a third time.
@@ -658,6 +661,14 @@ Step by step in [docs/services.md](docs/services.md).
 ## Assumptions made
 
 Where the brief left a detail open, the calmer, simpler option was chosen.
+
+- **Stand-in photos, by the owner's decision on 19 November 2026.** The brief
+  asks for neutral Sand blocks until the real photography arrives, and no
+  stock photos. The owner asked for generated stand-ins instead, so that test
+  builds show pictures. They are 17 images made with Higgsfield (Nano Banana
+  Pro, 896 × 1200), all in one room and one outfit, with her face turned away
+  or small in the frame. They are for test builds only. A class with neither
+  a thumbnail nor a stand-in still gets the Sand block.
 
 - **Reanimated 4, not 3.** The brief names Reanimated 3; the latest stable Expo
   SDK ships Reanimated 4, which is the supported version on the new

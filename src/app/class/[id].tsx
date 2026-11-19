@@ -1,7 +1,8 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
 
-import { Button, Chip, PhotoPlaceholder, Sheet, Skeleton, Text } from '@/components';
+import { Button, Chip, Photo, Sheet, Skeleton, Text } from '@/components';
+import { classPhoto } from '@/config/photos';
 import { useAccess } from '@/features/membership/useAccess';
 import { useCatalogue, useClassProgress, useInstructors } from '@/features/plan/queries';
 import { resumeFrom } from '@/features/player/playback';
@@ -73,8 +74,12 @@ export default function ClassDetail() {
           testID="class-start"
         />
       }>
-      {/* TODO(owner): class hero photo, 3:4. */}
-      <PhotoPlaceholder label={t.classDetail.heroLabel(cls.title)} aspectRatio={aspect.hero} />
+      {/* TODO(owner): class hero photo, 3:4. A stand-in is shown until then (src/config/photos.ts). */}
+      <Photo
+        source={classPhoto(cls)}
+        label={t.classDetail.heroLabel(cls.title)}
+        aspectRatio={aspect.hero}
+      />
 
       <View style={styles.heading}>
         <Text variant="title">{cls.title}</Text>

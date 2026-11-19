@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { Chip, ClassCard, EmptyState, IconButton, Screen, Skeleton, Text } from '@/components';
+import { classPhoto } from '@/config/photos';
 import { useAccess } from '@/features/membership/useAccess';
 import { useCatalogue } from '@/features/plan/queries';
 import { formatClassMeta } from '@/lib/format';
@@ -111,7 +112,7 @@ export default function Library() {
                 level: cls.level,
                 equipment: cls.equipment,
               })}
-              imageUrl={cls.thumbnailUrl}
+              imageUrl={classPhoto(cls)}
               photoLabel={t.classMeta.photoLabel(cls.title)}
               locked={!access.canWatch(cls)}
               onPress={() =>

@@ -22,6 +22,7 @@ from milestone 4 so nothing is found late.
 | Notification permission asked in context                                                                   | The reminder screen, after a purchase or the free class                | Built                                                                         |
 | A demo account with an active membership                                                                   | See below                                                              | TODO(owner)                                                                   |
 | Works on iPhone SE (3rd generation) through iPhone 16 Pro Max                                              |                                                                        | Not yet run on any device                                                     |
+| No generated stand-in photos in the build; every photo is real photography of the instructor               | `src/config/photos.ts`, `assets/images/stand-ins`                      | TODO(owner): stand-ins are in use today and must be replaced first            |
 | Six screenshots at 6.9 and 6.5 inches                                                                      | `.maestro/screenshots.yaml`                                            | Written, not yet run. Needs the real photography first                        |
 
 ## The demo account

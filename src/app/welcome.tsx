@@ -2,7 +2,8 @@ import { useRouter } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Button, PhotoPlaceholder, Text, toast } from '@/components';
+import { Button, Photo, Text, toast } from '@/components';
+import { standInPhotos } from '@/config/photos';
 import { accountsAvailable } from '@/features/account/account';
 import { QUESTIONS } from '@/features/onboarding/questions';
 import { useOnboardingStore } from '@/features/onboarding/store';
@@ -11,8 +12,9 @@ import { t } from '@/strings';
 import { screenMargin, space, useTheme } from '@/theme';
 
 /**
- * Welcome. The instructor's photo fills the top 60% of the screen; the
- * headline, one line and two actions sit beneath it.
+ * Welcome. A photo fills the top 60% of the screen: the instructor's once it
+ * exists, a stand-in until then. The headline, one line and two actions sit
+ * beneath it.
  */
 export default function Welcome() {
   const { colors } = useTheme();
@@ -28,8 +30,16 @@ export default function Welcome() {
 
   return (
     <View style={[styles.screen, { backgroundColor: colors.background }]} testID="welcome">
-      {/* TODO(owner): instructor hero photo, 3:4, warm daylight, neutral clothing, a real room. */}
-      <PhotoPlaceholder label={t.welcome.photoLabel} borderRadius={0} style={styles.photo} />
+      {/* TODO(owner): instructor hero photo, 3:4, warm daylight, neutral clothing, a real room.
+          A stand-in is shown until then: it is not the instructor (src/config/photos.ts). */}
+      <Photo
+        source={standInPhotos.welcome}
+        label={t.welcome.photoLabel}
+        alt={t.welcome.photoAlt}
+        borderRadius={0}
+        style={styles.photo}
+        testID="welcome-photo"
+      />
 
       <View style={[styles.content, { paddingBottom: Math.max(insets.bottom, space.md) }]}>
         <View style={styles.copy}>

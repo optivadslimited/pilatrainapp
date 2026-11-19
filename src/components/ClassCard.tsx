@@ -1,12 +1,12 @@
-import { Image } from 'expo-image';
 import { StyleSheet, View } from 'react-native';
 
+import type { PhotoSource } from '@/config/photos';
 import { t } from '@/strings';
-import { aspect, duration, radius, space, useTheme } from '@/theme';
+import { aspect, radius, space, useTheme } from '@/theme';
 
 import { Button } from './Button';
 import { Icon } from './Icon';
-import { PhotoPlaceholder } from './PhotoPlaceholder';
+import { Photo } from './Photo';
 import { PressableScale } from './PressableScale';
 import { Text } from './Text';
 
@@ -20,8 +20,8 @@ export type ClassCardProps = {
   eyebrow?: string;
   /** A small line below the meta, e.g. "Then Posture reset" when a session is two classes. */
   note?: string | null;
-  /** The class thumbnail. Until it exists, a labelled Sand block is shown. */
-  imageUrl?: string | null;
+  /** The class thumbnail: a web address or a bundled image. Until it exists, a labelled Sand block is shown. */
+  imageUrl?: PhotoSource | null;
   /** What the photo will be, for the placeholder and for VoiceOver. */
   photoLabel: string;
   /** Opens the class detail sheet. */
@@ -49,37 +49,20 @@ const spoken = ({ eyebrow, title, meta, note, locked, done }: ClassCardProps) =>
     .filter(Boolean)
     .join('. ');
 
+/** The card is read out as one sentence, so the photo itself is not announced. */
 function Thumbnail({
   imageUrl,
   photoLabel,
   borderRadius,
   compact,
 }: Pick<ClassCardProps, 'imageUrl' | 'photoLabel'> & { borderRadius: number; compact: boolean }) {
-  const { colors } = useTheme();
-
-  if (!imageUrl) {
-    return (
-      <PhotoPlaceholder
-        label={photoLabel}
-        aspectRatio={aspect.thumbnail}
-        borderRadius={borderRadius}
-        compact={compact}
-      />
-    );
-  }
-
   return (
-    <Image
+    <Photo
       source={imageUrl}
-      contentFit="cover"
-      cachePolicy="memory-disk"
-      transition={duration.fade}
-      accessibilityLabel={photoLabel}
-      style={{
-        aspectRatio: aspect.thumbnail,
-        borderRadius,
-        backgroundColor: colors.surface,
-      }}
+      label={photoLabel}
+      aspectRatio={aspect.thumbnail}
+      borderRadius={borderRadius}
+      compact={compact}
     />
   );
 }

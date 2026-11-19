@@ -106,6 +106,8 @@ export const en = {
     primary: 'Build my plan',
     signIn: 'I already have an account',
     photoLabel: 'Instructor photo. Hero, 3:4, warm daylight, a real room.',
+    /** What VoiceOver says about the stand-in photo. Rewrite it with the real photo. */
+    photoAlt: 'A woman sits on a mat by a window in a quiet, daylit room.',
   },
 
   quiz: {

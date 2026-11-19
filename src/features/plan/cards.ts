@@ -1,5 +1,6 @@
 import { isOpen, type Scheduled } from '@engine';
 
+import { classPhoto, type PhotoSource } from '@/config/photos';
 import { formatClassMeta, weekdayName } from '@/lib/format';
 import { t } from '@/strings';
 
@@ -19,7 +20,8 @@ export type SessionCard = {
   minutes: number;
   /** "Thursday" */
   weekday: string;
-  imageUrl: string | null;
+  /** The first class's photo: a web address or a bundled image. */
+  imageUrl: PhotoSource | null;
   photoLabel: string;
   isOpen: boolean;
   isDone: boolean;
@@ -55,7 +57,7 @@ export function sessionCard(session: StoredSession, catalogue: Catalogue): Sessi
     note: rest.length > 0 ? t.classMeta.then(rest.map((cls) => cls.title).join(', ')) : null,
     minutes,
     weekday: weekdayName(session.date),
-    imageUrl: first.thumbnailUrl,
+    imageUrl: classPhoto(first),
     photoLabel: t.classMeta.photoLabel(first.title),
     isOpen: isOpen(session),
     isDone: session.status === 'done',

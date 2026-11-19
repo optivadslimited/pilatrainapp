@@ -15,6 +15,7 @@ import {
   ListRow,
   MonthGrid,
   OptionCard,
+  Photo,
   PhotoPlaceholder,
   PlanCard,
   PlayerControls,
@@ -29,6 +30,7 @@ import {
   Wordmark,
   type DayState,
 } from '@/components';
+import { standInPhotos } from '@/config/photos';
 import { formatClassMeta } from '@/lib/format';
 import { t } from '@/strings';
 import { aspect, palette, radius, space, useTheme } from '@/theme';
@@ -367,7 +369,8 @@ export default function Gallery() {
         <Skeleton width="40%" />
       </Section>
 
-      <Section title="PhotoPlaceholder">
+      <Section title="Photo">
+        <Photo source={standInPhotos.welcome} label="Hero image, 3:4" aspectRatio={aspect.hero} />
         <PhotoPlaceholder label="Hero image, 3:4" aspectRatio={aspect.hero} />
       </Section>
 

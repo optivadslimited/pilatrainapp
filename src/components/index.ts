@@ -16,6 +16,7 @@ export { IconButton, type IconButtonProps } from './IconButton';
 export { ListRow, type ListRowProps } from './ListRow';
 export { MonthGrid, type MonthGridProps } from './MonthGrid';
 export { OptionCard, type OptionCardProps } from './OptionCard';
+export { Photo, type PhotoProps } from './Photo';
 export { PhotoPlaceholder, type PhotoPlaceholderProps } from './PhotoPlaceholder';
 export { PlanCard, type PlanCardProps } from './PlanCard';
 export { PlayerControls, type Chapter, type PlayerControlsProps } from './PlayerControls';
