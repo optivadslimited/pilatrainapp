@@ -3,6 +3,7 @@ import { Platform } from 'react-native';
 import { env } from '@/config/env';
 
 import { NO_ENTITLEMENT } from '../entitlement';
+import { usableStoreKey } from './storeKey';
 import type { PurchasesProvider } from './types';
 
 export type { PurchaseFailure, PurchaseOutcome, PurchasesProvider, RestoreOutcome } from './types';
@@ -39,15 +40,15 @@ const unavailableProvider: PurchasesProvider = {
 };
 
 /**
- *   an iOS build with a RevenueCat key   → RevenueCat (StoreKit)
+ *   an iOS build with a RevenueCat key   → RevenueCat (StoreKit, or its Test Store)
  *   development, otherwise               → the preview store
- *   a release build with no key          → unavailable
+ *   a release build with no usable key   → unavailable (see storeKey.ts)
  *
  * The modules are loaded on demand so the preview store never ships in a
  * release build and the native library is never touched on the web.
  */
 function pick(): PurchasesProvider {
-  if (Platform.OS === 'ios' && env.revenueCatIosKey) {
+  if (Platform.OS === 'ios' && usableStoreKey(env.revenueCatIosKey, __DEV__)) {
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     return (require('./revenuecat') as typeof import('./revenuecat')).revenueCatProvider;
   }

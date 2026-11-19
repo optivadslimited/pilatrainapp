@@ -27,6 +27,12 @@ export const brand = {
   // Confirmed by the owner on 19 November 2026. It cannot change after the first App Store upload.
   bundleId: 'com.pilatrain.app',
 
+  /**
+   * The Expo (EAS) project that builds and updates the app, from the Expo
+   * dashboard. It is an identifier, not a secret.
+   */
+  expoProjectId: '354c1b4e-e35c-40b4-95ee-a232d99f37a3',
+
   domain: 'pilatrain.com',
   urls: {
     site: 'https://pilatrain.com',

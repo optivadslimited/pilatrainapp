@@ -6,6 +6,7 @@ import {
   type RcEntitlementInfo,
   type RcProduct,
 } from '../purchases/mapping';
+import { isTestStoreKey, usableStoreKey } from '../purchases/storeKey';
 
 const member: RcEntitlementInfo = {
   isActive: true,
@@ -97,5 +98,23 @@ describe('RevenueCat products', () => {
     expect(
       trialDaysOf({ price: 4.99, cycles: 1, periodUnit: 'MONTH', periodNumberOfUnits: 1 }),
     ).toBeNull();
+  });
+});
+
+describe('which RevenueCat key a build may use', () => {
+  it('uses a platform key in any build', () => {
+    expect(usableStoreKey('appl_ABC', true)).toBe('appl_ABC');
+    expect(usableStoreKey('appl_ABC', false)).toBe('appl_ABC');
+  });
+
+  it('uses a Test Store key in development only, because the SDK crashes on it in a release', () => {
+    expect(isTestStoreKey('test_ABC')).toBe(true);
+    expect(usableStoreKey('test_ABC', true)).toBe('test_ABC');
+    expect(usableStoreKey('test_ABC', false)).toBeNull();
+  });
+
+  it('has nothing to use when no key is set', () => {
+    expect(usableStoreKey('', true)).toBeNull();
+    expect(usableStoreKey('', false)).toBeNull();
   });
 });

@@ -179,7 +179,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   extra: {
     appEnv,
-    // TODO(owner): run `eas init` once the Expo account exists; it writes the project ID here.
-    eas: { projectId: process.env.EAS_PROJECT_ID },
+    // The Expo project the build belongs to. Set in src/config/brand.ts; the
+    // environment variable is only for building against a different project.
+    eas: { projectId: process.env.EAS_PROJECT_ID || brand.expoProjectId },
   },
 });

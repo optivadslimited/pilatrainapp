@@ -145,7 +145,7 @@ The marketing site is a separate repository (`optivadslimited/pilatrain`,
 ### How it has been verified, and how it has not
 
 `npm run check` passes: TypeScript (strict, with typed routes), ESLint,
-**477 Jest tests**, and **32 database checks**. A production iOS JavaScript
+**480 Jest tests**, and **32 database checks**. A production iOS JavaScript
 bundle builds with `npm run bundle:ios` (10 MB), and has been searched: it
 contains no preview store, no developer tools and no price.
 
@@ -585,7 +585,7 @@ Every one of these is marked `TODO(owner)` in the code.
 
 - [x] **Xcode on the development Mac.** Installed, with CocoaPods. The app compiles for the iOS Simulator (first built 19 November 2026). Still to do once: `sudo xcode-select -s /Applications/Xcode.app/Contents/Developer`, so Xcode's tools work from any terminal.
 - [ ] Apple Developer account and App Store Connect access. Requested 19 November 2026; waiting on Apple.
-- [ ] Expo account: created. Still to do: `npx eas-cli login`, then `eas init` to create the project ID (`app.config.ts`).
+- [x] Expo account and project. The project ID is in `src/config/brand.ts`. Still to do before the first cloud build: `npx eas-cli login`.
 - [x] Bundle ID confirmed: `com.pilatrain.app` (`src/config/brand.ts`). It cannot change after the first upload.
 
 **Keys** (`.env.example`, `src/config/env.ts`)

@@ -32,11 +32,50 @@ repository.
 
 ## 2. RevenueCat
 
-1. Create a project and add the iOS app with the App Store Connect key.
-2. Add the three products, one entitlement called **`member`** with all three
-   attached, and one offering, set as **default**, with three packages
-   (annual, three-month, monthly).
-3. `EXPO_PUBLIC_REVENUECAT_IOS_KEY`: the public iOS SDK key.
+There are two stages, because RevenueCat can be set up before Apple has
+approved the developer account.
+
+### Now: the Test Store (no Apple account needed)
+
+RevenueCat's Test Store sells pretend products with nothing behind them. It
+lets the real purchase code run in a development build today.
+
+1. In **Product catalog → Products**, in the Test Store, create three
+   subscriptions. The identifiers must match exactly:
+
+   | Identifier            | Duration |
+   | --------------------- | -------- |
+   | `pilatrain_annual`    | 1 year   |
+   | `pilatrain_quarterly` | 3 months |
+   | `pilatrain_monthly`   | 1 month  |
+
+   Give them the prices you intend to charge. A Test Store product cannot be
+   edited once saved; to change a price you create a new one.
+
+2. In **Entitlements**, create one called **`member`** and attach all three.
+3. In **Offerings**, make one offering, set it as **default**, and add the
+   three products as its annual, three-month and monthly packages.
+4. The products RevenueCat created by itself when the project was made
+   (`lifetime`, `yearly`, `monthly`, and the entitlement `pilatrain_com_pro`)
+   are not used by the app. Leave them out of the default offering.
+5. Put the Test Store key (it starts `test_`) in `.env.local` as
+   `EXPO_PUBLIC_REVENUECAT_IOS_KEY`. **Development builds only.** RevenueCat's
+   SDK crashes on purpose if a Test Store key is used in a release build, and
+   TestFlight counts as one. The app refuses to hand a Test Store key to the
+   SDK outside development for that reason.
+
+Not known yet: whether a Test Store product can carry a free trial. If it
+cannot, the paywall in development shows "Subscribe" rather than "Start
+7-day free trial", which is what it is meant to do for a product with no
+trial. The trial itself is then first seen with the real products.
+
+### Once Apple has approved the account
+
+1. Add the iOS app to the RevenueCat project with the App Store Connect key.
+2. Add the three App Store products (same identifiers) and attach them to the
+   same `member` entitlement and the same default offering.
+3. `EXPO_PUBLIC_REVENUECAT_IOS_KEY` for staging and production builds: the
+   public **iOS** SDK key (it starts `appl_`), not the Test Store key.
 4. Webhook: URL `https://<project>.supabase.co/functions/v1/revenuecat-webhook`,
    and an authorization header value of your choosing. The same value goes in
    the `REVENUECAT_WEBHOOK_SECRET` server secret.
@@ -48,6 +87,10 @@ repository.
 
 RevenueCat's user ID is her Supabase user ID from the first launch, so the
 two systems always agree on who she is.
+
+The app draws its own paywall, as the brief specifies, and "Manage
+subscription" opens Apple's own sheet. RevenueCat's hosted Paywalls and
+Customer Center are not used.
 
 ## 3. Supabase
 
