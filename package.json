@@ -93,8 +93,15 @@
       "/node_modules/",
       "/dist/",
       "/.expo/",
+      "<rootDir>/ios/",
+      "<rootDir>/android/",
       "/__tests__/fixtures\\.ts$"
     ],
-    "resolver": "react-native-reanimated/jest/resolver"
+    "resolver": "react-native-reanimated/jest/resolver",
+    "modulePathIgnorePatterns": [
+      "<rootDir>/ios/",
+      "<rootDir>/android/",
+      "<rootDir>/dist/"
+    ]
   }
 }

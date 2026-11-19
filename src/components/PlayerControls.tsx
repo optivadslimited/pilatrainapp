@@ -1,5 +1,5 @@
 import { useEffect, type ReactNode } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
 import { GestureDetector, usePanGesture } from 'react-native-gesture-handler';
 import Animated, {
   useAnimatedStyle,
@@ -27,6 +27,12 @@ export type PlayerControlsProps = {
   /** Controls fade out when false. The player sets this after 3 seconds without a touch. */
   visible: boolean;
   isPlaying: boolean;
+  /**
+   * The video is meant to be playing but is not yet: still loading, or
+   * buffering. The centre button shows a spinner, so a pause she did not ask
+   * for is never drawn as one she did.
+   */
+  buffering?: boolean;
   positionSec: number;
   durationSec: number;
   /** Marked on the scrubber. */
@@ -62,6 +68,7 @@ const THUMB = 16;
 export function PlayerControls({
   visible,
   isPlaying,
+  buffering = false,
   positionSec,
   durationSec,
   chapters = [],
@@ -141,7 +148,9 @@ export function PlayerControls({
         <Pressable
           onPress={touched(onPlayPause)}
           accessibilityRole="button"
-          accessibilityLabel={isPlaying ? t.player.pause : t.player.play}
+          accessibilityLabel={
+            buffering ? t.player.loading : isPlaying ? t.player.pause : t.player.play
+          }
           testID="player-play-pause"
           style={({ pressed }) => [
             styles.play,
@@ -149,7 +158,11 @@ export function PlayerControls({
             { backgroundColor: colors.background },
             pressed && styles.pressed,
           ]}>
-          <Icon name={isPlaying ? 'pause' : 'play'} size={32} color="text" />
+          {buffering ? (
+            <ActivityIndicator color={colors.text} />
+          ) : (
+            <Icon name={isPlaying ? 'pause' : 'play'} size={32} color="text" />
+          )}
         </Pressable>
         <IconButton
           icon="forward10"

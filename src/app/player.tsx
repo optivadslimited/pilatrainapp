@@ -253,6 +253,8 @@ function ClassPlayback({
   const [showing, setShowing] = useState(true);
   const [touches, setTouches] = useState(0);
   const [card, setCard] = useState<'easier' | 'leave' | null>(null);
+  /** She pressed pause, or is being asked whether to leave. Anything else that stops the video is buffering. */
+  const [pausedByHer, setPausedByHer] = useState(false);
   /** `undefined` while her saved place is being read. */
   const [saved, setSaved] = useState<SavedProgress | null | undefined>(undefined);
 
@@ -344,6 +346,7 @@ function ClassPlayback({
     if (isLast && current?.isCompleted) return onFinish();
     if (needsCloseConfirmation(current?.watchedSec ?? 0, current?.isCompleted ?? false)) {
       player.pause();
+      setPausedByHer(true);
       setCard('leave');
       return;
     }
@@ -390,7 +393,8 @@ function ClassPlayback({
   }
 
   const controlsVisible = (showing || !isPlaying) && card === null;
-  const loading = status !== 'readyToPlay' || saved === undefined;
+  // Meant to be playing, but not: the first load, or a stall partway through.
+  const buffering = !pausedByHer && !isPlaying;
 
   return (
     <View style={[styles.screen, { backgroundColor: colors.surfaceDark }]} testID="player">
@@ -409,12 +413,6 @@ function ClassPlayback({
           playsInline
         />
 
-        {loading ? (
-          <View style={[StyleSheet.absoluteFill, styles.centred]}>
-            <ActivityIndicator color={colors.onDark} accessibilityLabel={t.player.loading} />
-          </View>
-        ) : null}
-
         {/* Under the controls: a tap on the bare video brings them back. */}
         <Pressable
           onPress={touch}
@@ -427,11 +425,20 @@ function ClassPlayback({
         <PlayerControls
           visible={controlsVisible}
           isPlaying={isPlaying}
+          buffering={buffering}
           positionSec={position}
           durationSec={duration}
           chapters={chapters}
           captionsOn={captionsOn}
-          onPlayPause={() => (isPlaying ? player.pause() : player.play())}
+          onPlayPause={() => {
+            if (isPlaying) {
+              player.pause();
+              setPausedByHer(true);
+            } else {
+              player.play();
+              setPausedByHer(false);
+            }
+          }}
           onSeekBy={(delta) => player.seekBy(delta)}
           onSeekTo={(seconds) => seekTo(player, seconds)}
           onToggleCaptions={() => setCaptionsOn((on) => !on)}
@@ -568,6 +575,7 @@ function ClassPlayback({
             label={t.player.keepGoing}
             onPress={() => {
               setCard(null);
+              setPausedByHer(false);
               player.play();
             }}
             testID="player-keep-going"

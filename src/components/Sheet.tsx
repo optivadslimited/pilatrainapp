@@ -1,5 +1,5 @@
 import type { NativeStackNavigationOptions } from 'expo-router';
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -45,10 +45,20 @@ export type SheetProps = {
   testID?: string;
 };
 
-/** The inside of a sheet: Paper, a title row, the 24-point margin, an optional fixed footer. */
+/**
+ * The inside of a sheet: Paper, a title row, the 24-point margin, an optional
+ * fixed footer.
+ *
+ * How it is laid out is dictated by the native sheet. On iOS the sheet takes
+ * the ScrollView it finds and sizes it to fill the whole sheet, whatever
+ * else is beside it. So the footer is not stacked under the scroll area: it
+ * is an opaque bar laid over the bottom of it, and the content is padded by
+ * the bar's height so its last line can always be scrolled clear.
+ */
 export function Sheet({ title, children, footer, onClose, scroll = true, testID }: SheetProps) {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
+  const [footerHeight, setFooterHeight] = useState(0);
 
   const body = (
     <>
@@ -69,20 +79,37 @@ export function Sheet({ title, children, footer, onClose, scroll = true, testID 
     </>
   );
 
+  // Room for the footer bar, so nothing ends up underneath it.
+  const clearFooter = footer ? { paddingBottom: footerHeight + space.lg } : null;
+
   return (
-    <View style={[styles.sheet, { backgroundColor: colors.background }]} testID={testID}>
+    // `collapsable={false}` keeps this view in the native hierarchy. Flattened
+    // away, the native sheet mistakes its children for a header and a list
+    // and sizes the ScrollView to nothing: a blank sheet.
+    <View
+      collapsable={false}
+      style={[styles.sheet, { backgroundColor: colors.background }]}
+      testID={testID}>
       {scroll ? (
         <ScrollView
-          contentContainerStyle={styles.content}
+          contentContainerStyle={[styles.content, clearFooter]}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled">
           {body}
         </ScrollView>
       ) : (
-        <View style={[styles.content, styles.fill]}>{body}</View>
+        <View style={[styles.content, styles.fill, clearFooter]}>{body}</View>
       )}
       {footer ? (
-        <View style={[styles.footer, { paddingBottom: Math.max(insets.bottom, space.md) }]}>
+        <View
+          onLayout={(event) => setFooterHeight(event.nativeEvent.layout.height)}
+          style={[
+            styles.footer,
+            {
+              backgroundColor: colors.background,
+              paddingBottom: Math.max(insets.bottom, space.md),
+            },
+          ]}>
           {footer}
         </View>
       ) : null}
@@ -107,6 +134,10 @@ const styles = StyleSheet.create({
   },
   title: { flex: 1 },
   footer: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
     paddingHorizontal: screenMargin,
     paddingTop: space.sm,
     gap: space.xs,

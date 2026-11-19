@@ -93,6 +93,9 @@ function RootLayout() {
               animation: 'fade',
               gestureEnabled: false,
               orientation: 'all',
+              // The player is dark, so the clock and battery are drawn light. On iOS
+              // this is set per screen here; a <StatusBar> inside the screen is ignored.
+              statusBarStyle: 'light',
             }}
           />
           <Stack.Screen name="after-class" options={{ animation: 'fade', gestureEnabled: false }} />

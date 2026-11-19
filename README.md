@@ -179,17 +179,49 @@ contains no preview store, no developer tools and no price.
   and offline banners; a lapsed membership; a locked class from the library
   and by direct link; and account deletion.
 
-**Not yet run on an iPhone or the iOS Simulator.** The machine this was built
-on has no Xcode. Treat as untested on a device: haptics, native transitions
-and sheets, SF Symbols, notifications, pull to refresh, Dynamic Type at the
-largest size, VoiceOver, and frame rate.
+**Run on the iOS Simulator, not yet on an iPhone.** The app was first built
+and run natively on 19 November 2026 (Xcode 27.2, iPhone 17 simulator, iOS
+27.2), against the preview store and in local mode. Seen working there:
 
-**The player most of all.** `expo-video` is native. In the web preview it
-plays a five-second MP4, which was enough to prove the flow but nothing else.
-Never yet seen working: adaptive (HLS) playback, captions, AirPlay, the
-controls fading after three seconds, turning to
-landscape, the screen staying awake, and the "Leave this class?" card, which
-needs more than thirty seconds of playback.
+- launch, the Welcome screen and the whole quiz, with native transitions;
+- the plan built on the device, and the plan preview;
+- the paywall, a purchase from the preview store, the create-account screen
+  with Apple's own "Continue with Apple" button, and the reminder screen
+  followed by the real iOS notification prompt;
+- Today, the Plan tab, and the class detail sheet with the system's own
+  sheet physics;
+- the player: adaptive (HLS) playback of the sample stream, captions on by
+  default, the controls fading after three seconds, scrubbing, the chapter
+  list following the video, and the class completing into the after-class
+  screen;
+- everything still there after the app and the simulator were restarted.
+
+That first run found three faults, all fixed:
+
+- **The class detail sheet opened blank.** On iOS the native sheet sizes the
+  scroll area itself, and the Sheet component's layout fought it. The footer
+  is now an opaque bar over the scroll area. See `src/components/Sheet.tsx`.
+- **The player's status bar was dark on dark.** On iOS it is set per screen
+  in the navigator, not from inside the screen.
+- **A video that was still loading looked paused.** The centre button now
+  shows a spinner whenever the video is meant to be playing and is not.
+
+Still not seen on a device, and so still untested: a real iPhone at all;
+haptics; VoiceOver; Dynamic Type at the largest size; the player in landscape,
+AirPlay, the screen staying awake and the "Leave this class?" card; a
+notification actually arriving; the Progress and You tabs; Sign in with Apple
+itself; frame rate.
+
+Two things from that run to look at again:
+
+- **Seeking near the end of the sample stream.** After scrubbing to 9:43 of
+  10:00, the test pattern's own on-screen clock jumped back to zero, though
+  the class still completed and the after-class screen opened as it should.
+  It may be the sample stream; check it with a real class video.
+- **On an iPhone 17 the paywall's three-point timeline sits just below the
+  fold.** The close button, the three plans, the button and the terms are all
+  on screen at once; the timeline needs a short scroll. Smaller phones will
+  scroll more.
 
 **Not yet run against any outside service.** There are no accounts yet, so
 none of these has ever been executed. Each is marked `NOT YET RUN` in its

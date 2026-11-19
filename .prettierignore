@@ -4,3 +4,7 @@ src/features/plan/data/seedClasses.json
 src/features/membership/data/previewProducts.json
 supabase/seed.sql
 storekit/
+
+# Generated native projects (expo prebuild). Not in git.
+ios/
+android/
