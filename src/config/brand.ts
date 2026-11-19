@@ -24,7 +24,7 @@ export const brand = {
   /** Expo project slug. */
   slug: 'pilatrain',
 
-  // TODO(owner): confirm the bundle ID. It cannot change after the first App Store upload.
+  // Confirmed by the owner on 19 November 2026. It cannot change after the first App Store upload.
   bundleId: 'com.pilatrain.app',
 
   domain: 'pilatrain.com',
@@ -52,12 +52,11 @@ export const brand = {
     },
   },
 
-  // TODO(owner): confirm the support inbox exists and is monitored.
+  // Confirmed by the owner on 19 November 2026.
   supportEmail: 'hello@pilatrain.com',
 
   company: {
-    // TODO(owner): company legal name.
-    legalName: '[COMPANY]',
+    legalName: 'Optivads Limited',
   },
 
   instructor: {

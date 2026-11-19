@@ -583,10 +583,10 @@ Every one of these is marked `TODO(owner)` in the code.
 
 **To run and ship**
 
-- [ ] **Xcode on the development Mac**, or an Expo account for EAS cloud builds. Nothing has been run on iOS yet.
-- [ ] Apple Developer account and App Store Connect access.
-- [ ] Expo account, then `eas init` to create the project ID (`app.config.ts`).
-- [ ] Bundle ID confirmed. Assumed `com.pilatrain.app` (`src/config/brand.ts`). It cannot change after the first upload.
+- [x] **Xcode on the development Mac.** Installed, with CocoaPods. The app compiles for the iOS Simulator (first built 19 November 2026). Still to do once: `sudo xcode-select -s /Applications/Xcode.app/Contents/Developer`, so Xcode's tools work from any terminal.
+- [ ] Apple Developer account and App Store Connect access. Requested 19 November 2026; waiting on Apple.
+- [ ] Expo account: created. Still to do: `npx eas-cli login`, then `eas init` to create the project ID (`app.config.ts`).
+- [x] Bundle ID confirmed: `com.pilatrain.app` (`src/config/brand.ts`). It cannot change after the first upload.
 
 **Keys** (`.env.example`, `src/config/env.ts`)
 
@@ -614,8 +614,8 @@ Step by step in [docs/services.md](docs/services.md).
 **Content** (`src/config/brand.ts` and elsewhere)
 
 - [ ] Instructor's name and credential. Shown as `[NAME]`, `[CREDENTIAL]` until supplied.
-- [ ] Company legal name. Shown as `[COMPANY]`.
-- [ ] Support email confirmed. Assumed `hello@pilatrain.com`.
+- [x] Company legal name: Optivads Limited.
+- [x] Support email confirmed: `hello@pilatrain.com`.
 - [ ] Trademark check on the name.
 - [ ] Instructor photography. Each `PhotoPlaceholder` in the code is one photo; the Welcome hero is the first.
 - [ ] App icon artwork, 1024 × 1024. The current icon is a generated placeholder (`assets/images/icon.png`).
