@@ -230,12 +230,16 @@ yet, so none of these has been executed. Each is marked `NOT YET RUN` in its
 own file. Everything they call is tested; the calls themselves are not. The
 exception is RevenueCat's Test Store, below.
 
-- **Supabase:** the database is set up in the Supabase project (21 November
-  2026): every table, access rule and database function, and the class list,
-  each checked against this repo. Not yet run: the four function entry points
-  under `supabase/functions` (type-checked against a stand-in for the Deno
-  runtime), `_shared/supabase-store.ts`, the remote half of
-  `src/features/plan/repository.ts`, and `src/features/account/supabaseAuth.ts`.
+- **Supabase:** set up and run on 21 November 2026. The database (every
+  table, access rule and database function, and the class list) was checked
+  against this repo; the four functions are deployed and each refuses an
+  unsigned call; a throwaway user went from anonymous sign-in to a built plan
+  to a deleted account against the live project; and the app in the Simulator
+  signed in anonymously, saved its quiz answers, had its plan built by the
+  server, and was known to RevenueCat by the same ID. Not yet run live:
+  creating an account, signing in and out (`supabaseAuth.ts`), restoring a
+  profile on a new phone, and moving, completing, rating and adjusting
+  sessions.
 - **RevenueCat and StoreKit:** `src/features/membership/purchases/revenuecat.ts`
   has run against RevenueCat's Test Store in the Simulator (21 November 2026:
   the offering, its prices, a purchase and the `member` entitlement). Not yet
@@ -635,7 +639,7 @@ Step by step in [docs/services.md](docs/services.md).
 
 - [ ] **App Store Connect:** the subscription group and three products, each with a one-week free trial, and Billing Grace Period switched on. Prices are set there.
 - [ ] **RevenueCat:** done for the Test Store (the project, the three products, the `member` entitlement and the default offering, 21 November 2026). Still needed once Apple approves: the App Store products added to that entitlement and offering, the public iOS SDK key, a webhook secret and a secret API key.
-- [ ] **Supabase:** the project "Pilatrain" exists, its database is set up and its four functions deployed (21 November 2026), and the URL and publishable key are in `.env.local`, the key switched off until the rest is done. Still needed: anonymous sign-ins, manual linking and the `pilatrain://auth` redirect switched on in the dashboard (anonymous sign-ins were still off when checked on 21 November); the Apple provider once Apple approves; the email templates changed to carry the link and the code. TODO(owner): a second project for development, so test users stay out of the one holding the website's waitlist.
+- [ ] **Supabase:** the project "Pilatrain" exists, its database is set up and its four functions deployed (21 November 2026), and the URL and publishable key are in `.env.local` and switched on, with anonymous sign-ins on. Still needed: manual linking switched on (it was still off when tried on 21 November), the `pilatrain://auth` redirect (not checkable from outside); the Apple provider once Apple approves; the email templates changed to carry the link and the code. TODO(owner): a second project for development, so test users stay out of the one holding the website's waitlist.
 - [ ] **Mux:** a signing key, and each member class set to signed playback.
 - [ ] **PostHog:** project key and host, the `paywall_variant` flag and the two funnels.
 - [ ] **Sentry:** the DSN, and the organisation, project and auth token for source maps.

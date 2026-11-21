@@ -142,8 +142,10 @@ const toClassDetails = (row: ClassRow): ClassDetails =>
   }) as ClassDetails;
 
 /**
- * NOT YET RUN AGAINST A REAL PROJECT: there are no Supabase keys yet.
- * TODO(owner): supply them, then this path can be exercised end to end.
+ * Run on 21 November 2026 in the Simulator against the Supabase project: the
+ * quiz answers were saved and the plan function built and returned her
+ * 28-day plan. Not yet run: moving, completing and rating sessions, and
+ * "Adjust my plan", against the live project.
  */
 function createRemoteRepository(client: NonNullable<typeof supabase>): PlanRepository {
   // Reads go straight to the database; row-level security keeps them to her own rows.

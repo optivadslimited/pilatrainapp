@@ -21,10 +21,11 @@ import type {
  * row-level security applies to everything here: it can only ever read and
  * write her own rows.
  *
- * NOT YET RUN AGAINST A REAL PROJECT. The SQL it relies on is tested
- * (`npm run db:check`), and the service above it is tested against the
- * phone's store, but this mapping between rows and plans has only been
- * type-checked. TODO(owner): supply a Supabase project so it can be run.
+ * Run on 21 November 2026 against the Supabase project, through the plan
+ * function: building a plan and reading it back. The SQL it relies on is
+ * tested (`npm run db:check`), and the service above it is tested against
+ * the phone's store. Not yet run live: moving, completing, rating and
+ * adjusting.
  */
 
 /** The little of supabase-js this file uses, so it type-checks in both Deno and the app. */

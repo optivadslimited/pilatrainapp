@@ -16,8 +16,10 @@ import type { Account, AuthFailure, AuthProvider, AuthResult } from './types';
  * membership (RevenueCat uses the same ID) simply become hers to sign back
  * in to. That is the "merge".
  *
- * NOT YET RUN AGAINST A REAL PROJECT. It needs, in the Supabase dashboard:
- * anonymous sign-ins on, manual identity linking on, the Apple provider
+ * The anonymous session has run against the Supabase project (21 November
+ * 2026). Creating an account, signing in and signing out have NOT YET RUN
+ * against it. They need, in the Supabase dashboard:
+ * anonymous sign-ins on (done), manual identity linking on, the Apple provider
  * configured with the app's bundle ID, and the email templates changed to
  * send both a link (`{{ .RedirectTo }}?token_hash={{ .TokenHash }}&type=...`)
  * and the 6-digit code (`{{ .Token }}`). The README lists the steps.

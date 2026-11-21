@@ -13,8 +13,10 @@ import { storage } from './storage';
  * With keys, the quiz answers, the plan and everything else live in our own
  * database, behind row-level security.
  *
- * NOT YET RUN AGAINST A REAL PROJECT. TODO(owner): supply the Supabase URL
- * and publishable (anon) key for each environment.
+ * Run on 21 November 2026 against the Supabase project "Pilatrain": a fresh
+ * install signed in anonymously once, and kept that session through a
+ * relaunch and a code reload. TODO(owner): one project per environment; the
+ * staging and production keys go in EAS.
  */
 export const isBackendConfigured = Boolean(env.supabaseUrl && env.supabaseAnonKey);
 

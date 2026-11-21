@@ -75,8 +75,10 @@ What to expect when testing with the Test Store:
   trial. The trial itself is first seen with the real App Store products.
 - Subscriptions run on a short clock. A three-month plan bought at 00:34 was
   due to renew at about 00:49, so "Renews" on the You tab shows today's date.
-- Until Supabase is switched on, RevenueCat sees an anonymous user
-  (`$RCAnonymousID:…`) rather than her Supabase user ID.
+- With Supabase switched on, RevenueCat knows her by her Supabase user ID
+  from the first launch (checked on 21 November 2026: RevenueCat first saw
+  the Simulator's user in the same second Supabase created her). With
+  Supabase off, it sees an anonymous ID (`$RCAnonymousID:…`).
 
 ### Once Apple has approved the account
 
@@ -126,10 +128,16 @@ npx --yes supabase@3.2.0 functions deploy plan --remote=emiadurcphdcumunooka --u
 ```
 
 Each function was then called without signing in, and each refused (401).
-Not yet run with a signed-in user: that waits on anonymous sign-ins.
+Then, once anonymous sign-ins were on, a throwaway user went through it all
+against the live project: an anonymous sign-in (which made its `users` row),
+saving quiz answers under the access rules, `plan` building a 28-day plan
+of 12 sessions in under a second and returning it again, `playback-token`
+answering for the free class (no Mux video yet, so no playback ID), and
+`delete-account` removing the user and every row of hers.
 
-Still to do: steps 1 to 3 below (dashboard settings) and the server secrets
-(step 6). TODO(owner): this one
+Still to do: **manual linking** (step 1) was still off when tried, which
+"Sign in with Apple" needs; the Apple provider and email templates (steps 2
+and 3); and the server secrets (step 6). TODO(owner): this one
 project serves development and the website for now; give development its own
 project before launch.
 
