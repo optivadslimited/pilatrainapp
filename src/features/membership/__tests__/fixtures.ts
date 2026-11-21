@@ -12,6 +12,7 @@ export const usProducts: StoreProduct[] = preview.map((item) => ({
   plan: planOf(item.productId)!,
   price: item.price,
   priceString: formatMoney(item.price, item.currencyCode, 'en-US'),
+  pricePerMonthString: formatMoney(item.price / item.periodMonths, item.currencyCode, 'en-US'),
   currencyCode: item.currencyCode,
   periodMonths: item.periodMonths,
   trialDays: item.trialDays,

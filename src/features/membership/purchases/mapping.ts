@@ -38,6 +38,8 @@ export type RcProduct = {
   identifier: string;
   price: number;
   priceString: string;
+  /** The price divided by the months in the period, formatted as `priceString` is. */
+  pricePerMonthString: string | null;
   currencyCode: string;
   /** ISO 8601, e.g. "P3M". */
   subscriptionPeriod: string | null;
@@ -69,6 +71,7 @@ export function storeProductFrom(product: RcProduct): StoreProduct | null {
     plan,
     price: product.price,
     priceString: product.priceString,
+    pricePerMonthString: product.pricePerMonthString,
     currencyCode: product.currencyCode,
     periodMonths,
     trialDays: trialDaysOf(product.introPrice),

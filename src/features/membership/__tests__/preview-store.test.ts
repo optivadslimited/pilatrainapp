@@ -19,6 +19,7 @@ describe('the preview store', () => {
     expect(products.map((item) => item.plan)).toEqual(['annual', 'quarterly', 'monthly']);
     for (const product of products) {
       expect(product.priceString).toContain(String(product.price));
+      expect(product.pricePerMonthString).toMatch(/\d/);
       expect(product.trialDays).toBe(7);
     }
   });

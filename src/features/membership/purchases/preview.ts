@@ -80,6 +80,7 @@ const products = (): StoreProduct[] =>
             plan,
             price: item.price,
             priceString: formatMoney(item.price, item.currencyCode),
+            pricePerMonthString: formatMoney(item.price / item.periodMonths, item.currencyCode),
             currencyCode: item.currencyCode,
             periodMonths: item.periodMonths,
             trialDays: item.trialDays,

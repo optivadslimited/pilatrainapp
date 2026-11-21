@@ -8,25 +8,46 @@ import { PLAN_KEYS, type PlanKey, type StoreProduct } from './products';
  * returned. The rules of an honest paywall live here, where they are tested:
  *
  *  - the full price is the store's own string, shown as it is;
- *  - the per-month figure is a sum on the store's number, and is always the
- *    smaller text;
+ *  - the per-month figure is the store's own too, so it is written the same
+ *    way as the full price, and it is always the smaller text;
  *  - the terms under the button name the exact price and period she will be
  *    charged, and when;
  *  - if she cannot have a free trial, nothing on the screen says "free".
  */
 
-/** An amount in a currency, the way the device writes money. Whole amounts lose their ".00". */
+/**
+ * An amount written the way a store writes one: in its currency, with its
+ * minor unit ("$15.00", "¥1,500"). Only the preview store and the tests use
+ * this, to stand in for StoreKit. Real prices are the store's own strings.
+ */
 export function formatMoney(amount: number, currencyCode: string, locale?: string): string {
-  const plain = new Intl.NumberFormat(locale, { style: 'currency', currency: currencyCode });
-  const digits = plain.resolvedOptions().maximumFractionDigits ?? 2;
-  const rounded = Number(amount.toFixed(digits));
-  if (!Number.isInteger(rounded)) return plain.format(rounded);
-  return new Intl.NumberFormat(locale, {
-    style: 'currency',
-    currency: currencyCode,
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(rounded);
+  return new Intl.NumberFormat(locale, { style: 'currency', currency: currencyCode }).format(
+    amount,
+  );
+}
+
+/** How many digits the currency's minor unit has: 2 for dollars, 0 for yen. `null` if unknown. */
+function minorDigits(currencyCode: string): number | null {
+  try {
+    return (
+      new Intl.NumberFormat('en', { style: 'currency', currency: currencyCode }).resolvedOptions()
+        .maximumFractionDigits ?? null
+    );
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * The store's amount without a minor unit of zeros: "$15.00" reads "$15" and
+ * "15,00 US$" reads "15 US$", as the brief writes the quarterly plan. Anything
+ * else is left exactly as the store wrote it.
+ */
+export function dropZeroMinorUnit(text: string, currencyCode: string): string {
+  const digits = minorDigits(currencyCode);
+  if (!digits) return text;
+  // The last number in the string, if it ends in a separator and only zeros.
+  return text.replace(new RegExp(`(\\d)[.,]0{${digits}}(?=\\D*$)`), '$1');
 }
 
 /** What one month of this plan costs, as money. */
@@ -69,22 +90,29 @@ export type PaywallPlan = {
 };
 
 /** The plan cards, in order, from whatever products the store returned. */
-export function paywallPlans(products: readonly StoreProduct[], locale?: string): PaywallPlan[] {
+export function paywallPlans(products: readonly StoreProduct[]): PaywallPlan[] {
   const monthly = products.find((product) => product.plan === 'monthly');
 
   return PLAN_KEYS.flatMap((key) => {
     const product = products.find((item) => item.plan === key);
     if (!product) return [];
 
-    const each = formatMoney(monthlyCost(product), product.currencyCode, locale);
+    // The store's own per-month figure, so it matches the full price however
+    // the phone writes money. If the store gives none, the card shows the
+    // full price alone rather than a figure written some other way.
+    const each = product.pricePerMonthString
+      ? dropZeroMinorUnit(product.pricePerMonthString, product.currencyCode)
+      : null;
     const saving = savingPercent(product, monthly);
 
     const perMonth =
-      key === 'annual'
-        ? t.paywall.perMonth.annual(each)
-        : key === 'quarterly'
-          ? t.paywall.perMonth.quarterly(each)
-          : null;
+      each === null
+        ? null
+        : key === 'annual'
+          ? t.paywall.perMonth.annual(each)
+          : key === 'quarterly'
+            ? t.paywall.perMonth.quarterly(each)
+            : null;
 
     const badge: PaywallPlan['badge'] =
       key === 'annual' && saving !== null

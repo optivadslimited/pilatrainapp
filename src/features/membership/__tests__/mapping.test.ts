@@ -54,17 +54,19 @@ describe('RevenueCat products', () => {
     identifier: 'pilatrain_quarterly',
     price: 44.99,
     priceString: 'STORE PRICE',
+    pricePerMonthString: 'STORE PRICE A MONTH',
     currencyCode: 'USD',
     subscriptionPeriod: 'P3M',
     introPrice: { price: 0, cycles: 1, periodUnit: 'WEEK', periodNumberOfUnits: 1 },
   };
 
-  it('keeps the store’s own price string', () => {
+  it('keeps the store’s own price strings', () => {
     expect(storeProductFrom(product)).toEqual({
       productId: 'pilatrain_quarterly',
       plan: 'quarterly',
       price: 44.99,
       priceString: 'STORE PRICE',
+      pricePerMonthString: 'STORE PRICE A MONTH',
       currencyCode: 'USD',
       periodMonths: 3,
       trialDays: 7,

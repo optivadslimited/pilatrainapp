@@ -14,8 +14,8 @@ export const planOf = (productId: string | null | undefined): PlanKey | null =>
  * A subscription as the store describes it.
  *
  * Every figure here comes from StoreKit, through RevenueCat. No price is ever
- * typed into the app: `priceString` is shown exactly as the store gives it,
- * and `price` exists only so the per-month figure can be worked out.
+ * typed into the app: `priceString` and `pricePerMonthString` are shown as
+ * the store gives them, and `price` exists only so a saving can be worked out.
  */
 export type StoreProduct = {
   productId: string;
@@ -24,6 +24,11 @@ export type StoreProduct = {
   price: number;
   /** The store's own localised price, shown as it is. */
   priceString: string;
+  /**
+   * What one month of the plan comes to, written by the store the same way as
+   * `priceString` ("$7.50", "12,50 US$"). `null` if the store gave none.
+   */
+  pricePerMonthString: string | null;
   currencyCode: string;
   /** How many months one payment covers: 1, 3 or 12. */
   periodMonths: number;

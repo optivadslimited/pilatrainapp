@@ -147,7 +147,7 @@ The marketing site is a separate repository (`optivadslimited/pilatrain`,
 ### How it has been verified, and how it has not
 
 `npm run check` passes: TypeScript (strict, with typed routes), ESLint,
-**484 Jest tests**, and **32 database checks**. A production iOS JavaScript
+**488 Jest tests**, and **32 database checks**. A production iOS JavaScript
 bundle builds with `npm run bundle:ios` (10 MB), and has been searched: it
 contains no preview store, no developer tools and no price.
 
@@ -795,9 +795,12 @@ Where the brief left a detail open, the calmer, simpler option was chosen.
 - **An account can always be declined**, after a purchase too. Restore
   purchases works without one, and App Review expects this.
 - **Reminders are asked about once.** After that the switch is on the You tab.
-- **The per-month figure is rounded to the nearest cent** and loses its ".00"
-  when whole, so the quarterly plan reads as the brief has it. "Save 58%" is
-  rounded down, never up.
+- **The per-month figure is the store's own** (RevenueCat's
+  `pricePerMonthString`), so it is always written the same way as the full
+  price above it, whatever the phone's language and region. It loses a ".00"
+  when whole, so the quarterly plan reads as the brief has it. If the store
+  ever gave no per-month figure, the card would show the full price alone.
+  "Save 58%" is rounded down, never up.
 - **The yearly plan is called "Yearly"** on its card, to match "billed yearly".
 - **If the store cannot say whether she may have the trial, the paywall
   assumes she may not**, and says "Subscribe". It never promises a free week

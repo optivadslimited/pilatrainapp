@@ -4,6 +4,7 @@ import path from 'path';
 import { en } from '@/strings/en';
 
 import {
+  dropZeroMinorUnit,
   formatMoney,
   offersTrial,
   paywallOffer,
@@ -15,7 +16,7 @@ import {
 } from '../pricing';
 import { product, usProducts } from './fixtures';
 
-const plans = paywallPlans(usProducts, 'en-US');
+const plans = paywallPlans(usProducts);
 const plan = (key: string) => plans.find((item) => item.product.plan === key)!;
 
 describe('the StoreKit configuration', () => {
@@ -41,14 +42,30 @@ describe('the StoreKit configuration', () => {
 });
 
 describe('money', () => {
-  it('writes amounts the way the locale does, and drops ".00"', () => {
+  it('stands in for the store by writing amounts with their minor unit', () => {
     expect(formatMoney(89.99, 'USD', 'en-US')).toBe('$89.99');
-    expect(formatMoney(15, 'USD', 'en-US')).toBe('$15');
-    expect(formatMoney(14.9967, 'USD', 'en-US')).toBe('$15');
+    expect(formatMoney(14.9967, 'USD', 'en-US')).toBe('$15.00');
     expect(formatMoney(7.4992, 'USD', 'en-US')).toBe('$7.50');
     expect(formatMoney(7.5, 'GBP', 'en-GB')).toBe('£7.50');
     // A currency with no minor unit.
     expect(formatMoney(1500, 'JPY', 'en-US')).toBe('¥1,500');
+  });
+
+  it('drops a minor unit of zeros from the store’s string, however the store writes it', () => {
+    expect(dropZeroMinorUnit('$15.00', 'USD')).toBe('$15');
+    expect(dropZeroMinorUnit('15,00 US$', 'USD')).toBe('15 US$');
+    expect(dropZeroMinorUnit('15,00 €', 'EUR')).toBe('15 €');
+    expect(dropZeroMinorUnit('$1,000.00', 'USD')).toBe('$1,000');
+    expect(dropZeroMinorUnit('1.000,00 €', 'EUR')).toBe('1.000 €');
+  });
+
+  it('leaves every other amount exactly as the store wrote it', () => {
+    expect(dropZeroMinorUnit('$7.50', 'USD')).toBe('$7.50');
+    expect(dropZeroMinorUnit('12,50 US$', 'USD')).toBe('12,50 US$');
+    expect(dropZeroMinorUnit('$1,000', 'USD')).toBe('$1,000');
+    // No minor unit: "¥1,000" is a thousand yen, not one.
+    expect(dropZeroMinorUnit('¥1,000', 'JPY')).toBe('¥1,000');
+    expect(dropZeroMinorUnit('$15.00', 'not a currency')).toBe('$15.00');
   });
 });
 
@@ -64,11 +81,30 @@ describe('plan cards', () => {
     expect(`${plan('monthly').price} ${plan('monthly').period}`).toBe('$17.99 a month');
   });
 
-  it('works out the smaller per-month line from the store’s price', () => {
+  it('takes the smaller per-month line from the store', () => {
     expect(plan('annual').perMonth).toBe('$7.50 a month, billed yearly');
     expect(plan('quarterly').perMonth).toBe('$15 a month, billed every 3 months');
     // The monthly card already says it: no second line.
     expect(plan('monthly').perMonth).toBeNull();
+  });
+
+  it('writes the per-month line the same way the store writes the full price', () => {
+    // As RevenueCat's Test Store gave them on a phone in English with its region set to Spain.
+    const spain = {
+      ...product('annual'),
+      price: 150,
+      priceString: '150,00 US$',
+      pricePerMonthString: '12,50 US$',
+    };
+    const [card] = paywallPlans([spain]);
+    expect(card.price).toBe('150,00 US$');
+    expect(card.perMonth).toBe('12,50 US$ a month, billed yearly');
+  });
+
+  it('shows no per-month line when the store gives no per-month figure', () => {
+    const [card] = paywallPlans([{ ...product('quarterly'), pricePerMonthString: null }]);
+    expect(card.price).toBe('$44.99');
+    expect(card.perMonth).toBeNull();
   });
 
   it('badges yearly with its saving and quarterly as most popular', () => {
@@ -92,15 +128,15 @@ describe('plan cards', () => {
     expect(savingPercent({ ...product('annual'), currencyCode: 'EUR' }, monthly)).toBeNull();
     // Dearer per month than monthly: nothing to badge.
     expect(savingPercent({ ...product('annual'), price: 400 }, monthly)).toBeNull();
-    const dear = paywallPlans([{ ...product('annual'), price: 400 }, monthly], 'en-US');
+    const dear = paywallPlans([{ ...product('annual'), price: 400 }, monthly]);
     expect(dear[0].badge).toBeNull();
   });
 
   it('shows only the plans the store returned', () => {
-    expect(paywallPlans([product('monthly')], 'en-US').map((item) => item.name)).toEqual([
+    expect(paywallPlans([product('monthly')]).map((item) => item.name)).toEqual([
       'Monthly',
     ]);
-    expect(paywallPlans([], 'en-US')).toEqual([]);
+    expect(paywallPlans([])).toEqual([]);
   });
 
   it('follows the store into another currency', () => {
@@ -108,8 +144,9 @@ describe('plan cards', () => {
       ...item,
       currencyCode: 'GBP',
       priceString: formatMoney(item.price, 'GBP', 'en-GB'),
+      pricePerMonthString: formatMoney(item.price / item.periodMonths, 'GBP', 'en-GB'),
     }));
-    const cards = paywallPlans(uk, 'en-GB');
+    const cards = paywallPlans(uk);
     expect(cards[1].price).toBe('£44.99');
     expect(cards[1].perMonth).toBe('£15 a month, billed every 3 months');
   });
@@ -127,7 +164,7 @@ describe('the pre-selected plan', () => {
   });
 
   it('falls back to a plan that exists', () => {
-    expect(preselected(paywallPlans([product('monthly')], 'en-US'), 'quarterly')).toBe('monthly');
+    expect(preselected(paywallPlans([product('monthly')]), 'quarterly')).toBe('monthly');
     expect(preselected([], 'quarterly')).toBeNull();
   });
 });
@@ -176,7 +213,7 @@ describe('the offer, with no free trial', () => {
   });
 
   it('treats a product with no trial the same way, even if she is eligible', () => {
-    const noTrial = paywallPlans([{ ...product('quarterly'), trialDays: null }], 'en-US')[0];
+    const noTrial = paywallPlans([{ ...product('quarterly'), trialDays: null }])[0];
     expect(offersTrial(noTrial.product, true)).toBe(false);
     expect(paywallOffer(noTrial, true).cta).toBe('Subscribe');
   });
