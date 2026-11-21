@@ -116,8 +116,20 @@ from this repo will report those two versions as unknown, which is expected.
 Supabase's security advisor then reports only the tables that are meant to
 have no access rules (service role only).
 
-Still to do: steps 1 to 3 below (dashboard settings), deploying the four
-functions (step 4), and the server secrets (step 6). TODO(owner): this one
+The four functions were deployed the same day with the Supabase CLI, run
+through `npx` (version 3.2.0), which bundles them on Supabase's side so no
+Docker is needed. In version 3 `--project-ref` became `--remote`, and a
+deploy run by an agent stops until `--yes` is added with the owner's go-ahead:
+
+```bash
+npx --yes supabase@3.2.0 functions deploy plan --remote=emiadurcphdcumunooka --use-api
+```
+
+Each function was then called without signing in, and each refused (401).
+Not yet run with a signed-in user: that waits on anonymous sign-ins.
+
+Still to do: steps 1 to 3 below (dashboard settings) and the server secrets
+(step 6). TODO(owner): this one
 project serves development and the website for now; give development its own
 project before launch.
 
