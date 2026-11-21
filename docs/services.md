@@ -64,10 +64,19 @@ lets the real purchase code run in a development build today.
    TestFlight counts as one. The app refuses to hand a Test Store key to the
    SDK outside development for that reason.
 
-Not known yet: whether a Test Store product can carry a free trial. If it
-cannot, the paywall in development shows "Subscribe" rather than "Start
-7-day free trial", which is what it is meant to do for a product with no
-trial. The trial itself is then first seen with the real products.
+Done on 21 November 2026, and tried in the Simulator: the paywall showed the
+three Test Store prices, a test purchase of the three-month plan opened the
+app, and RevenueCat showed the `member` entitlement as active.
+
+What to expect when testing with the Test Store:
+
+- The three products have no free trial, so the paywall says "Subscribe" and
+  never mentions "free". That is what it is meant to do for a product with no
+  trial. The trial itself is first seen with the real App Store products.
+- Subscriptions run on a short clock. A three-month plan bought at 00:34 was
+  due to renew at about 00:49, so "Renews" on the You tab shows today's date.
+- Until Supabase is switched on, RevenueCat sees an anonymous user
+  (`$RCAnonymousID:…`) rather than her Supabase user ID.
 
 ### Once Apple has approved the account
 

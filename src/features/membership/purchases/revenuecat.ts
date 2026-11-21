@@ -15,9 +15,12 @@ import type { PurchaseFailure, PurchasesProvider } from './types';
 /**
  * The real store: StoreKit, through RevenueCat.
  *
- * NOT YET RUN. It needs an iOS build, a RevenueCat project with the `member`
- * entitlement and a default offering, and the three products in App Store
- * Connect. TODO(owner): supply EXPO_PUBLIC_REVENUECAT_IOS_KEY.
+ * Run on 21 November 2026 in the iOS Simulator against RevenueCat's Test
+ * Store: the default offering, its three prices, a purchase and the `member`
+ * entitlement all worked. NOT YET RUN against the App Store itself: that needs
+ * Apple's approval and the three products in App Store Connect.
+ * TODO(owner): the public iOS key (it starts `appl_`) for staging and
+ * production builds, in EXPO_PUBLIC_REVENUECAT_IOS_KEY.
  */
 let packages: PurchasesPackage[] = [];
 

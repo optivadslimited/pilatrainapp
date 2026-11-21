@@ -132,17 +132,17 @@ The marketing site is a separate repository (`optivadslimited/pilatrain`,
 
 ### What is stubbed
 
-| Stub                                                                                                                                                                                                                                                                                                                     | Replaced                                      |
-| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------- |
-| **Purchases run against a preview store.** With no RevenueCat key, development builds and the web preview use a stand-in that sells the three products from `storekit/Pilatrain.storekit`. Nothing is bought. It is left out of release builds, where a missing key means the paywall says membership is unavailable.    | When the RevenueCat key arrives               |
-| **Accounts run against a stand-in** in development when there is no backend: creating one always works and any six digits are accepted as the code. Left out of release builds.                                                                                                                                          | When the Supabase keys arrive                 |
-| **Every class plays one sample video.** There are no real classes, captions files or thumbnails yet. Chapter times are scaled to fit the sample.                                                                                                                                                                         | When content arrives                          |
-| **Every photo is a generated stand-in.** The Welcome hero and one photo per class are images made with Higgsfield, in `assets/images/stand-ins`, listed in `src/config/photos.ts`. The woman in them is not a real person and is not the instructor. A class shows its own `thumbnail_url` as soon as the sheet has one. | Before release: replace with real photography |
-| **The trial reminder is a notification scheduled on the phone**, not one sent from a server. It arrives whether or not the app is open, but only if she has allowed notifications; the banner on Today does not depend on that.                                                                                          | To decide                                     |
-| A class taken from the library on its own is not counted in Progress. Only sessions of her plan are.                                                                                                                                                                                                                     | To decide                                     |
-| Deleting an account does not erase analytics events already sent to PostHog under her random ID.                                                                                                                                                                                                                         | To decide                                     |
-| The Supabase path, the four Edge Functions and every outside service are written but have never been run (see below). The app runs in local mode.                                                                                                                                                                        | When keys arrive                              |
-| EAS Update is not configured (it needs the Expo project ID).                                                                                                                                                                                                                                                             | Milestone 5                                   |
+| Stub                                                                                                                                                                                                                                                                                                                                                                                                                | Replaced                                        |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------- |
+| **Purchases run against RevenueCat's Test Store** in development, with the `test_` key in `.env.local`: real RevenueCat, simulated purchases, nothing charged. With no key, development builds and the web preview fall back to a stand-in that sells the three products from `storekit/Pilatrain.storekit`. Neither reaches a release build, where a missing key means the paywall says membership is unavailable. | When Apple approves and the `appl_` key arrives |
+| **Accounts run against a stand-in** in development when there is no backend: creating one always works and any six digits are accepted as the code. Left out of release builds.                                                                                                                                                                                                                                     | When the Supabase keys arrive                   |
+| **Every class plays one sample video.** There are no real classes, captions files or thumbnails yet. Chapter times are scaled to fit the sample.                                                                                                                                                                                                                                                                    | When content arrives                            |
+| **Every photo is a generated stand-in.** The Welcome hero and one photo per class are images made with Higgsfield, in `assets/images/stand-ins`, listed in `src/config/photos.ts`. The woman in them is not a real person and is not the instructor. A class shows its own `thumbnail_url` as soon as the sheet has one.                                                                                            | Before release: replace with real photography   |
+| **The trial reminder is a notification scheduled on the phone**, not one sent from a server. It arrives whether or not the app is open, but only if she has allowed notifications; the banner on Today does not depend on that.                                                                                                                                                                                     | To decide                                       |
+| A class taken from the library on its own is not counted in Progress. Only sessions of her plan are.                                                                                                                                                                                                                                                                                                                | To decide                                       |
+| Deleting an account does not erase analytics events already sent to PostHog under her random ID.                                                                                                                                                                                                                                                                                                                    | To decide                                       |
+| The Supabase path, the four Edge Functions and every outside service are written but have never been run (see below). The app runs in local mode.                                                                                                                                                                                                                                                                   | When keys arrive                                |
+| EAS Update is not configured (it needs the Expo project ID).                                                                                                                                                                                                                                                                                                                                                        | Milestone 5                                     |
 
 ### How it has been verified, and how it has not
 
@@ -225,20 +225,24 @@ Two things from that run to look at again:
   on screen at once; the timeline needs a short scroll. Smaller phones will
   scroll more.
 
-**Not yet run against any outside service.** There are no accounts yet, so
-none of these has ever been executed. Each is marked `NOT YET RUN` in its
-own file. Everything they call is tested; the calls themselves are not.
+**Not yet run against most outside services.** Most accounts are not set up
+yet, so none of these has been executed. Each is marked `NOT YET RUN` in its
+own file. Everything they call is tested; the calls themselves are not. The
+exception is RevenueCat's Test Store, below.
 
 - **Supabase:** the four function entry points under `supabase/functions`
   (type-checked against a stand-in for the Deno runtime),
   `_shared/supabase-store.ts`, the remote half of
   `src/features/plan/repository.ts`, and `src/features/account/supabaseAuth.ts`.
-- **RevenueCat and StoreKit:** `src/features/membership/purchases/revenuecat.ts`,
-  the webhook's event shapes, and the REST call in `_shared/billing`.
+- **RevenueCat and StoreKit:** `src/features/membership/purchases/revenuecat.ts`
+  has run against RevenueCat's Test Store in the Simulator (21 November 2026:
+  the offering, its prices, a purchase and the `member` entitlement). Not yet
+  run: StoreKit itself, the webhook's event shapes, and the REST call in
+  `_shared/billing`.
 - **Sign in with Apple, notifications and the tracking prompt:** all native.
 - **PostHog, Sentry, Adjust and Mux signed playback.**
 - **The Maestro flows** in `.maestro`: written against the app's test IDs,
-  never executed, because there is no Simulator here.
+  never executed, because Maestro is not installed here.
 
 These are the libraries newest to this build. Expect the first device build
 to turn up small things in each.
@@ -628,7 +632,7 @@ Every one of these is marked `TODO(owner)` in the code.
 Step by step in [docs/services.md](docs/services.md).
 
 - [ ] **App Store Connect:** the subscription group and three products, each with a one-week free trial, and Billing Grace Period switched on. Prices are set there.
-- [ ] **RevenueCat:** the project, the `member` entitlement, a default offering, the public iOS SDK key, a webhook secret and a secret API key.
+- [ ] **RevenueCat:** done for the Test Store (the project, the three products, the `member` entitlement and the default offering, 21 November 2026). Still needed once Apple approves: the App Store products added to that entitlement and offering, the public iOS SDK key, a webhook secret and a secret API key.
 - [ ] **Supabase:** URL and anon key, one project per environment, with anonymous sign-ins, manual linking and the Apple provider switched on, and the email templates changed to carry the link and the code.
 - [ ] **Mux:** a signing key, and each member class set to signed playback.
 - [ ] **PostHog:** project key and host, the `paywall_variant` flag and the two funnels.
