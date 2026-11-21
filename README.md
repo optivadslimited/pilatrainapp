@@ -624,7 +624,7 @@ Every one of these is marked `TODO(owner)` in the code.
 
 - [x] **Xcode on the development Mac.** Installed, with CocoaPods, and selected for the command line. The app compiles for and runs on the iOS Simulator (first built 19 November 2026).
 - [ ] Apple Developer account and App Store Connect access. Requested 19 November 2026; waiting on Apple.
-- [x] Expo account and project. The project ID is in `src/config/brand.ts`. Still to do before the first cloud build: `npx eas-cli login`.
+- [x] Expo account and project. The project ID is in `src/config/brand.ts`. This Mac is signed in to Expo (done 21 November 2026), so cloud builds can start once Apple approves.
 - [x] Bundle ID confirmed: `com.pilatrain.app` (`src/config/brand.ts`). It cannot change after the first upload.
 
 **Keys** (`.env.example`, `src/config/env.ts`)
