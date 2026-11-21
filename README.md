@@ -141,13 +141,13 @@ The marketing site is a separate repository (`optivadslimited/pilatrain`,
 | **The trial reminder is a notification scheduled on the phone**, not one sent from a server. It arrives whether or not the app is open, but only if she has allowed notifications; the banner on Today does not depend on that.                                                                                                                                                                                     | To decide                                       |
 | A class taken from the library on its own is not counted in Progress. Only sessions of her plan are.                                                                                                                                                                                                                                                                                                                | To decide                                       |
 | Deleting an account does not erase analytics events already sent to PostHog under her random ID.                                                                                                                                                                                                                                                                                                                    | To decide                                       |
-| The Supabase path, the four Edge Functions and every outside service are written but have never been run (see below). The app runs in local mode.                                                                                                                                                                                                                                                                   | When keys arrive                                |
+| The app's Supabase path, the four Edge Functions and most outside services are written but have never been run (see below). The Supabase database itself is set up. The app runs in local mode.                                                                                                                                                                                                                     | When keys arrive                                |
 | EAS Update is not configured (it needs the Expo project ID).                                                                                                                                                                                                                                                                                                                                                        | Milestone 5                                     |
 
 ### How it has been verified, and how it has not
 
 `npm run check` passes: TypeScript (strict, with typed routes), ESLint,
-**488 Jest tests**, and **32 database checks**. A production iOS JavaScript
+**488 Jest tests**, and **33 database checks**. A production iOS JavaScript
 bundle builds with `npm run bundle:ios` (10 MB), and has been searched: it
 contains no preview store, no developer tools and no price.
 
@@ -230,9 +230,11 @@ yet, so none of these has been executed. Each is marked `NOT YET RUN` in its
 own file. Everything they call is tested; the calls themselves are not. The
 exception is RevenueCat's Test Store, below.
 
-- **Supabase:** the four function entry points under `supabase/functions`
-  (type-checked against a stand-in for the Deno runtime),
-  `_shared/supabase-store.ts`, the remote half of
+- **Supabase:** the database is set up in the Supabase project (21 November
+  2026): every table, access rule and database function, and the class list,
+  each checked against this repo. Not yet run: the four function entry points
+  under `supabase/functions` (type-checked against a stand-in for the Deno
+  runtime), `_shared/supabase-store.ts`, the remote half of
   `src/features/plan/repository.ts`, and `src/features/account/supabaseAuth.ts`.
 - **RevenueCat and StoreKit:** `src/features/membership/purchases/revenuecat.ts`
   has run against RevenueCat's Test Store in the Simulator (21 November 2026:
@@ -633,7 +635,7 @@ Step by step in [docs/services.md](docs/services.md).
 
 - [ ] **App Store Connect:** the subscription group and three products, each with a one-week free trial, and Billing Grace Period switched on. Prices are set there.
 - [ ] **RevenueCat:** done for the Test Store (the project, the three products, the `member` entitlement and the default offering, 21 November 2026). Still needed once Apple approves: the App Store products added to that entitlement and offering, the public iOS SDK key, a webhook secret and a secret API key.
-- [ ] **Supabase:** URL and anon key, one project per environment, with anonymous sign-ins, manual linking and the Apple provider switched on, and the email templates changed to carry the link and the code.
+- [ ] **Supabase:** the project "Pilatrain" exists, its database is set up (21 November 2026) and the URL and publishable key are in `.env.local`, the key switched off until the rest is done. Still needed: anonymous sign-ins, manual linking and the `pilatrain://auth` redirect switched on in the dashboard; the four functions deployed; the Apple provider once Apple approves; the email templates changed to carry the link and the code. TODO(owner): a second project for development, so test users stay out of the one holding the website's waitlist.
 - [ ] **Mux:** a signing key, and each member class set to signed playback.
 - [ ] **PostHog:** project key and host, the `paywall_variant` flag and the two funnels.
 - [ ] **Sentry:** the DSN, and the organisation, project and auth token for source maps.

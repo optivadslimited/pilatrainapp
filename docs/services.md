@@ -105,6 +105,22 @@ Customer Center are not used.
 
 One project each for development, staging and production.
 
+**Done on 21 November 2026** in the project "Pilatrain" (`emiadurcphdcumunooka`,
+EU West): the four migrations and the seed, applied through Supabase's own
+connector and then compared with this repo (every table, access rule, index,
+database function and class matched). The migration history carries the same
+versions as the files here, so `supabase migration list` agrees. The same
+project also holds the website's waitlist tables (`waitlist`, `consent_log`,
+`rate_limits`), from the website repo's own migrations; `supabase db push`
+from this repo will report those two versions as unknown, which is expected.
+Supabase's security advisor then reports only the tables that are meant to
+have no access rules (service role only).
+
+Still to do: steps 1 to 3 below (dashboard settings), deploying the four
+functions (step 4), and the server secrets (step 6). TODO(owner): this one
+project serves development and the website for now; give development its own
+project before launch.
+
 1. Auth settings: turn on **anonymous sign-ins** and **manual linking**
    (creating an account attaches Apple or an email to the anonymous user).
 2. Auth providers: **Apple**, with the app's bundle ID as the client ID (and

@@ -28,6 +28,9 @@ const SUPABASE_STAND_IN = `
   create table auth.users (id uuid primary key, is_anonymous boolean not null default false);
   create function auth.uid() returns uuid language sql stable
     as $$ select nullif(current_setting('request.jwt.claim.sub', true), '')::uuid $$;
+  create role supabase_auth_admin nologin;
+  grant usage on schema auth to supabase_auth_admin;
+  grant insert on auth.users to supabase_auth_admin;
   grant usage on schema public, auth to anon, authenticated, service_role;
   alter default privileges in schema public grant all on tables to service_role;
 `;
@@ -162,6 +165,38 @@ async function main() {
       (await db.query<{ n: number }>('select count(*)::int as n from public.users')).rows[0].n,
       2,
       'users',
+    );
+  });
+
+  await check('the sign-in service adds users, but nobody can call the trigger function', async () => {
+    const C = 'cccccccc-cccc-4ccc-8ccc-cccccccccccc';
+    let made = 0;
+    await db
+      .transaction(async (tx) => {
+        // As Supabase's sign-in service, which has no right to call the function itself.
+        await tx.exec('set local role supabase_auth_admin');
+        await tx.query('insert into auth.users (id, is_anonymous) values ($1, true)', [C]);
+        await tx.exec('reset role');
+        made = Number(
+          (
+            await tx.query<{ n: number }>(
+              'select count(*)::int as n from public.users where id = $1',
+              [C],
+            )
+          ).rows[0].n,
+        );
+        await tx.rollback();
+      })
+      .catch(() => {});
+    equal(made, 1, 'users row made by the trigger');
+    const { rows } = await db.query<{ allowed: boolean }>(
+      `select has_function_privilege(r, 'public.handle_new_user()', 'execute') as allowed
+       from unnest(array['anon', 'authenticated', 'supabase_auth_admin']) as r`,
+    );
+    equal(
+      rows.map((row) => row.allowed),
+      [false, false, false],
+      'who may call handle_new_user()',
     );
   });
 

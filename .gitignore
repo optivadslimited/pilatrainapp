@@ -50,3 +50,6 @@ coverage/
 
 # Local-only notes (the owner brief is kept out of this public repository)
 *.local.md
+
+# Supabase CLI working files
+supabase/.temp/
