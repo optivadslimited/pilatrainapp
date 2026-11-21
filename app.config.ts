@@ -119,7 +119,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   // Light appearance at launch. The tokens in src/theme are ready for dark.
   userInterfaceStyle: 'light',
   backgroundColor: PAPER,
-  // TODO(owner): final app icon artwork (1024 × 1024, no transparency). This is a placeholder.
+  // The owner chose this icon on 21 November 2026: a figure in a shoulder bridge on a clay mat
+  // line. assets/brand/app-icon.svg is the drawing it is exported from (1024 × 1024, no transparency).
   icon: './assets/images/icon.png',
   ios: {
     bundleIdentifier: `${brand.bundleId}${variant.bundleSuffix}`,

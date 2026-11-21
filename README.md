@@ -663,7 +663,7 @@ Step by step in [docs/services.md](docs/services.md).
 - [x] Support email confirmed: `hello@pilatrain.com`.
 - [ ] Trademark check on the name.
 - [ ] Instructor photography: the Welcome hero (3:4) and one photo per class (3:4, cropped to 4:5 on cards). Generated stand-ins are shown until then. They must be replaced before release: the woman in them is not the instructor, and the app names the instructor beside them. Then delete `assets/images/stand-ins` and the list in `src/config/photos.ts`.
-- [ ] App icon artwork, 1024 × 1024. The current icon is a generated placeholder (`assets/images/icon.png`).
+- [x] App icon, chosen on 21 November 2026: a figure in a shoulder bridge on a clay mat line. It was picked from eight generated drafts and redrawn as exact vector artwork in the app's colours, so `assets/brand/app-icon.svg` is the source and `assets/images/icon.png` (1024 × 1024, no transparency) is exported from it.
 - [ ] The sixteen classes with video, captions and thumbnails, and the instructor's tag sheet filled into `supabase/seed/classes.csv`: level, length, focus, intensity, equipment, what each class is unsuitable for, chapter times and an easier option per chapter. See "What the class sheet must cover". The current sheet is placeholder content.
 - [ ] A decision on catalogue size. Sixteen classes cannot give every plan "no class more than twice" (ten-minute plans three or more days a week are the clearest case). More short classes fix it; otherwise the engine repeats a class a third time.
 - [ ] Sign-off on the dark colour map before it is ever switched on (`src/theme/colors.ts`).
