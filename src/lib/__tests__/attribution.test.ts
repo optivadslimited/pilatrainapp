@@ -1,48 +1,34 @@
 /**
- * The Adjust wiring, run against a stand-in for the SDK. This checks what the
- * app asks Adjust to do. It does not check Adjust itself: that needs a device.
+ * The AppsFlyer wiring, run against stand-ins for the SDK and for Apple's
+ * tracking prompt. This checks what the app asks AppsFlyer to do. It does not
+ * check AppsFlyer itself: that needs a device and an AppsFlyer app.
  */
-type Listener = (value: number) => void;
-
-const mockAdjust = {
-  initSdk: jest.fn(),
-  trackEvent: jest.fn(),
-  getAdid: jest.fn((callback: (adid: string | null) => void) => callback('ADID')),
-  addGlobalCallbackParameter: jest.fn(),
-  removeGlobalCallbackParameter: jest.fn(),
-  getAppTrackingAuthorizationStatus: jest.fn((callback: Listener) => callback(0)),
-  requestAppTrackingAuthorization: jest.fn((handler: Listener) => handler(3)),
+const mockAppsFlyer = {
+  init: jest.fn(() => Promise.resolve()),
+  enableDebug: jest.fn(() => Promise.resolve()),
+  registerSessionReadyListener: jest.fn((onReady: () => void) => {
+    onReady();
+    return Promise.resolve();
+  }),
+  start: jest.fn(() => Promise.resolve()),
+  getAppsFlyerUID: jest.fn(() => Promise.resolve('AFUID')),
+  logEvent: jest.fn((_params: { eventName: string; eventValues?: Record<string, unknown> }) =>
+    Promise.resolve(),
+  ),
+  setCustomerUserId: jest.fn((_params: { customerId: string }) => Promise.resolve()),
 };
 
-class MockAdjustConfig {
-  static EnvironmentSandbox = 'sandbox';
-  static EnvironmentProduction = 'production';
-  static LogLevelInfo = 'INFO';
-  static LogLevelSuppress = 'SUPPRESS';
-  constructor(
-    public appToken: string,
-    public environment: string,
-  ) {}
-  setLogLevel() {}
-}
+jest.mock('react-native-appsflyer', () => ({ __esModule: true, default: mockAppsFlyer }));
 
-class MockAdjustEvent {
-  callbackParameters: Record<string, string> = {};
-  partnerParameters: Record<string, string> = {};
-  constructor(public eventToken: string) {}
-  addCallbackParameter(key: string, value: string) {
-    this.callbackParameters[key] = value;
-  }
-  addPartnerParameter(key: string, value: string) {
-    this.partnerParameters[key] = value;
-  }
-}
+type Status = 'granted' | 'denied' | 'undetermined';
 
-jest.mock('react-native-adjust', () => ({
-  Adjust: mockAdjust,
-  AdjustConfig: MockAdjustConfig,
-  AdjustEvent: MockAdjustEvent,
-}));
+const mockTracking = {
+  PermissionStatus: { GRANTED: 'granted', DENIED: 'denied', UNDETERMINED: 'undetermined' },
+  getTrackingPermissionsAsync: jest.fn(() => Promise.resolve({ status: 'undetermined' as Status })),
+  requestTrackingPermissionsAsync: jest.fn(() => Promise.resolve({ status: 'granted' as Status })),
+};
+
+jest.mock('expo-tracking-transparency', () => mockTracking);
 
 const ENV = { ...process.env };
 
@@ -63,6 +49,9 @@ function load() {
   return loaded;
 }
 
+/** Lets the SDK's promise chain (start, then the ID) run. */
+const settle = () => new Promise((resolve) => setImmediate(resolve));
+
 beforeEach(() => {
   jest.clearAllMocks();
   process.env = { ...ENV };
@@ -72,8 +61,13 @@ afterAll(() => {
   process.env = ENV;
 });
 
-describe('with no Adjust app token', () => {
-  it('starts nothing, sends nothing and never asks to track', async () => {
+describe('without the AppsFlyer dev key and app ID', () => {
+  it.each([
+    ['neither', {}],
+    ['only the dev key', { EXPO_PUBLIC_APPSFLYER_DEV_KEY: 'DEVKEY' }],
+    ['only the app ID', { EXPO_PUBLIC_APPSFLYER_APP_ID: '1234567890' }],
+  ])('with %s, starts nothing, sends nothing and never asks to track', async (_, extra) => {
+    Object.assign(process.env, extra);
     const { attribution, analytics } = load();
     const onId = jest.fn();
 
@@ -81,21 +75,20 @@ describe('with no Adjust app token', () => {
     attribution.startAttribution(onId);
     analytics.track('trial_started', { product: 'pilatrain_quarterly' });
     await attribution.askToTrack();
+    await settle();
 
-    expect(mockAdjust.initSdk).not.toHaveBeenCalled();
-    expect(mockAdjust.trackEvent).not.toHaveBeenCalled();
-    expect(mockAdjust.requestAppTrackingAuthorization).not.toHaveBeenCalled();
+    expect(mockAppsFlyer.init).not.toHaveBeenCalled();
+    expect(mockAppsFlyer.logEvent).not.toHaveBeenCalled();
+    expect(mockTracking.requestTrackingPermissionsAsync).not.toHaveBeenCalled();
     expect(onId).not.toHaveBeenCalled();
   });
 });
 
-describe('with Adjust switched on', () => {
-  const start = (extra: Record<string, string> = {}) => {
+describe('with AppsFlyer switched on', () => {
+  const start = () => {
     Object.assign(process.env, {
-      EXPO_PUBLIC_ADJUST_APP_TOKEN: 'APPTOKEN',
-      EXPO_PUBLIC_ADJUST_TRIAL_EVENT_TOKEN: 'TRIAL1',
-      EXPO_PUBLIC_ADJUST_PURCHASE_EVENT_TOKEN: 'PURCH1',
-      ...extra,
+      EXPO_PUBLIC_APPSFLYER_DEV_KEY: 'DEVKEY',
+      EXPO_PUBLIC_APPSFLYER_APP_ID: '1234567890',
     });
     const loaded = load();
     const onId = jest.fn();
@@ -103,46 +96,30 @@ describe('with Adjust switched on', () => {
     return { ...loaded, onId };
   };
 
-  it('starts the SDK in the sandbox outside production, and once only', () => {
+  it('initialises with the dev key and app ID, starts when the session is ready, and once only', async () => {
     const { attribution, onId } = start();
-    expect(mockAdjust.initSdk).toHaveBeenCalledTimes(1);
-    expect(mockAdjust.initSdk.mock.calls[0][0]).toMatchObject({
-      appToken: 'APPTOKEN',
-      environment: 'sandbox',
-    });
-    // Adjust's ID is handed on, for RevenueCat.
-    expect(onId).toHaveBeenCalledWith('ADID');
+    expect(mockAppsFlyer.init).toHaveBeenCalledTimes(1);
+    expect(mockAppsFlyer.init).toHaveBeenCalledWith({ devKey: 'DEVKEY', appId: '1234567890' });
+    expect(mockAppsFlyer.registerSessionReadyListener).toHaveBeenCalledTimes(1);
+    expect(mockAppsFlyer.start).toHaveBeenCalledTimes(1);
+
+    // AppsFlyer's ID is handed on, for RevenueCat.
+    await settle();
+    expect(onId).toHaveBeenCalledWith('AFUID');
 
     attribution.startAttribution(onId);
-    expect(mockAdjust.initSdk).toHaveBeenCalledTimes(1);
+    expect(mockAppsFlyer.init).toHaveBeenCalledTimes(1);
   });
 
-  it('reports to production in a production build', () => {
-    start({ EXPO_PUBLIC_APP_ENV: 'production' });
-    expect(mockAdjust.initSdk.mock.calls[0][0]).toMatchObject({ environment: 'production' });
-  });
-
-  it('sends a trial start and a purchase, each with its own token and the product', () => {
+  it('sends a trial start and a purchase under AppsFlyer’s own names, with the product only', () => {
     const { analytics } = start();
     analytics.track('trial_started', { product: 'pilatrain_quarterly' });
     analytics.track('subscription_started', { product: 'pilatrain_monthly' });
 
-    expect(mockAdjust.trackEvent.mock.calls.map(([event]) => event)).toEqual([
-      expect.objectContaining({
-        eventToken: 'TRIAL1',
-        callbackParameters: { product: 'pilatrain_quarterly' },
-      }),
-      expect.objectContaining({
-        eventToken: 'PURCH1',
-        callbackParameters: { product: 'pilatrain_monthly' },
-      }),
+    expect(mockAppsFlyer.logEvent.mock.calls.map(([params]) => params)).toEqual([
+      { eventName: 'af_start_trial', eventValues: { af_content_id: 'pilatrain_quarterly' } },
+      { eventName: 'af_subscribe', eventValues: { af_content_id: 'pilatrain_monthly' } },
     ]);
-  });
-
-  it('passes nothing on to ad networks beyond the event itself', () => {
-    const { analytics } = start();
-    analytics.track('trial_started', { product: 'pilatrain_quarterly' });
-    expect(mockAdjust.trackEvent.mock.calls[0][0].partnerParameters).toEqual({});
   });
 
   it('sends nothing else, whatever happens in the app', () => {
@@ -154,55 +131,70 @@ describe('with Adjust switched on', () => {
     analytics.track('paywall_viewed', { placement: 'plan_preview', variant: 'quarterly' });
     analytics.track('class_completed', { class: 'start-here' });
     analytics.track('account_created', { method: 'apple' });
-    expect(mockAdjust.trackEvent).not.toHaveBeenCalled();
+    expect(mockAppsFlyer.logEvent).not.toHaveBeenCalled();
   });
 
-  it('leaves out an event whose token has not been set', () => {
-    const { analytics } = start({ EXPO_PUBLIC_ADJUST_PURCHASE_EVENT_TOKEN: '' });
-    analytics.track('subscription_started', { product: 'pilatrain_monthly' });
-    expect(mockAdjust.trackEvent).not.toHaveBeenCalled();
-    analytics.track('trial_started', { product: 'pilatrain_quarterly' });
-    expect(mockAdjust.trackEvent).toHaveBeenCalledTimes(1);
+  it('never passes on more than the product, even if an event carries more', () => {
+    const { analytics } = start();
+    // The event types forbid this; the rule must hold even if they are got round.
+    const extra = { product: 'pilatrain_quarterly', goal: 'posture' } as unknown as {
+      product: string;
+    };
+    analytics.track('trial_started', extra);
+    expect(mockAppsFlyer.logEvent.mock.calls[0][0].eventValues).toEqual({
+      af_content_id: 'pilatrain_quarterly',
+    });
   });
 
-  it('attaches her user ID, and replaces it when she changes', () => {
+  it('sets her user ID as the customer user ID, and clears it when she has none', () => {
     const { attribution } = start();
     attribution.identifyForAttribution('user-1');
-    expect(mockAdjust.addGlobalCallbackParameter).toHaveBeenCalledWith('user_id', 'user-1');
+    expect(mockAppsFlyer.setCustomerUserId).toHaveBeenLastCalledWith({ customerId: 'user-1' });
 
     attribution.identifyForAttribution(null);
-    expect(mockAdjust.removeGlobalCallbackParameter).toHaveBeenCalledTimes(2);
-    expect(mockAdjust.addGlobalCallbackParameter).toHaveBeenCalledTimes(1);
+    expect(mockAppsFlyer.setCustomerUserId).toHaveBeenLastCalledWith({ customerId: '' });
   });
 
   it('asks to track only if she has never been asked', async () => {
     const { attribution } = start();
     await attribution.askToTrack();
-    expect(mockAdjust.requestAppTrackingAuthorization).toHaveBeenCalledTimes(1);
+    expect(mockTracking.requestTrackingPermissionsAsync).toHaveBeenCalledTimes(1);
 
-    // Already answered (3 is "authorised", 2 is "denied"): no second prompt.
-    for (const status of [1, 2, 3]) {
-      mockAdjust.requestAppTrackingAuthorization.mockClear();
-      mockAdjust.getAppTrackingAuthorizationStatus.mockImplementationOnce((callback: Listener) =>
-        callback(status),
+    for (const status of ['granted', 'denied'] as Status[]) {
+      mockTracking.requestTrackingPermissionsAsync.mockClear();
+      mockTracking.getTrackingPermissionsAsync.mockImplementationOnce(() =>
+        Promise.resolve({ status }),
       );
       await attribution.askToTrack();
-      expect(mockAdjust.requestAppTrackingAuthorization).not.toHaveBeenCalled();
+      expect(mockTracking.requestTrackingPermissionsAsync).not.toHaveBeenCalled();
     }
   });
 
   it('never leaves the screen waiting if the status does not come back', async () => {
     jest.useFakeTimers();
     const { attribution } = start();
-    mockAdjust.getAppTrackingAuthorizationStatus.mockImplementationOnce(() => {});
+    mockTracking.getTrackingPermissionsAsync.mockImplementationOnce(
+      () => new Promise<{ status: Status }>(() => {}),
+    );
     let settled = false;
     const asked = attribution.askToTrack().then(() => {
       settled = true;
     });
-    jest.advanceTimersByTime(1500);
+    await jest.advanceTimersByTimeAsync(1500);
     await asked;
     expect(settled).toBe(true);
-    expect(mockAdjust.requestAppTrackingAuthorization).not.toHaveBeenCalled();
+    expect(mockTracking.requestTrackingPermissionsAsync).not.toHaveBeenCalled();
     jest.useRealTimers();
+  });
+
+  it('carries on if the SDK’s own calls fail', async () => {
+    mockAppsFlyer.init.mockImplementationOnce(() => Promise.reject(new Error('no network')));
+    mockAppsFlyer.start.mockImplementationOnce(() => Promise.reject(new Error('no network')));
+    const { analytics, onId } = start();
+    await settle();
+    expect(onId).not.toHaveBeenCalled();
+    expect(() =>
+      analytics.track('trial_started', { product: 'pilatrain_quarterly' }),
+    ).not.toThrow();
   });
 });

@@ -123,7 +123,7 @@ The marketing site is a separate repository (`optivadslimited/pilatrain`,
   subscription, restore, redeem a code, account, sign out, help by email, the
   legal pages, the version, and **Delete account and data**, in two steps.
 - **Analytics** to PostHog, **crashes** to Sentry, **attribution** to
-  Adjust. Each does nothing until its key is supplied. Ad platforms hear a
+  AppsFlyer. Each does nothing until its key is supplied. Ad platforms hear a
   trial start and a purchase, and nothing else.
 - **The server side.** Three more Edge Functions: the RevenueCat webhook keeps
   each member's row current; `playback-token` checks membership before
@@ -246,7 +246,7 @@ exception is RevenueCat's Test Store, below.
   run: StoreKit itself, the webhook's event shapes, and the REST call in
   `_shared/billing`.
 - **Sign in with Apple, notifications and the tracking prompt:** all native.
-- **PostHog, Sentry, Adjust and Mux signed playback.**
+- **PostHog, Sentry, AppsFlyer and Mux signed playback.**
 - **The Maestro flows** in `.maestro`: written against the app's test IDs,
   never executed, because Maestro is not installed here.
 
@@ -489,7 +489,7 @@ the device. You → Developer shows which mode a build is in.
 
 [docs/services.md](docs/services.md) is the step-by-step for switching each
 service on: App Store Connect, RevenueCat, Supabase, Mux, PostHog, Sentry and
-Adjust. None of those steps has been run.
+AppsFlyer. None of those steps has been run.
 
 ## Membership
 
@@ -617,7 +617,7 @@ docs/
   architecture.md        A short walkthrough of how it fits together
   services.md            Switching each outside service on, step by step
   analytics.md           Events, the two funnels, the flag
-  attribution.md         Adjust, the tracking prompt, conversion values
+  attribution.md         AppsFlyer, the tracking prompt, conversion values
   app-review.md          The App Review checklist and the demo account
   privacy-labels.md      What to answer under App Privacy
 ```
@@ -643,7 +643,7 @@ Step by step in [docs/services.md](docs/services.md).
 - [ ] **Mux:** a signing key, and each member class set to signed playback.
 - [ ] **PostHog:** project key and host, the `paywall_variant` flag and the two funnels.
 - [ ] **Sentry:** the DSN, and the organisation, project and auth token for source maps.
-- [ ] **Adjust:** the app token, and the tokens of two events created in its dashboard ("Trial started" and "Subscription started").
+- [ ] **AppsFlyer** (chosen on 21 November 2026 in place of Adjust; the account is connected but has no app yet): once Apple approves and the app exists in App Store Connect, add it in AppsFlyer as a pending app with its numeric Apple ID, plus a test app for development builds; then the dev key and app ID (`EXPO_PUBLIC_APPSFLYER_DEV_KEY`, `EXPO_PUBLIC_APPSFLYER_APP_ID`), the RevenueCat integration, partner postbacks and SKAN conversion values. Steps in `docs/attribution.md`.
 - [ ] A sample video of your own, if you would rather not see a test pattern (`EXPO_PUBLIC_SAMPLE_VIDEO_URL`).
 
 **Decisions**
@@ -789,8 +789,9 @@ Where the brief left a detail open, the calmer, simpler option was chosen.
 
 **Milestone 4: membership**
 
-- **Adjust for attribution.** The brief offered AppsFlyer or Adjust; the owner
-  chose Adjust. It is confined to one file.
+- **AppsFlyer for attribution.** The brief offered AppsFlyer or Adjust; the owner
+  chose Adjust first, then AppsFlyer on 21 November 2026. It is confined to one
+  file, so the switch touched only that file, its test and the build settings.
 - **The free class is her first session**, whichever class that is and
   whether it is one class or two, until she has finished it. The class marked
   free in the sheet ("Start here") is free to everyone as well.
@@ -818,8 +819,8 @@ Where the brief left a detail open, the calmer, simpler option was chosen.
   purchase. It is cancelled if she cancels.
 - **Session reminders have no sound** and say only what today's class is and
   how long it takes.
-- **The tracking prompt is tied to attribution.** With no Adjust app token it
-  is never shown, because there would be nothing to ask permission for.
+- **The tracking prompt is tied to attribution.** With no AppsFlyer dev key and
+  app ID it is never shown, because there would be nothing to ask permission for.
 - **"Delete account and data" is offered to everyone**, with or without an
   account: an anonymous user's answers are on our server too.
 - **Deleting an account does not cancel a subscription**, because only Apple

@@ -23,11 +23,20 @@ const variants: Record<AppEnv, { nameSuffix: string; bundleSuffix: string }> = {
 const variant = variants[appEnv] ?? variants.development;
 
 /**
- * Attribution (Adjust) is switched on only when its app token is present at
- * build time. A build without it starts no tracking, declares none in its
- * privacy manifest and never shows the tracking permission prompt.
+ * Attribution (AppsFlyer) is switched on only when its dev key and the app's
+ * Apple ID are present at build time. A build without them starts no
+ * tracking, declares none in its privacy manifest and never shows the
+ * tracking permission prompt.
  */
-const attribution = Boolean(process.env.EXPO_PUBLIC_ADJUST_APP_TOKEN);
+const attribution = Boolean(
+  process.env.EXPO_PUBLIC_APPSFLYER_DEV_KEY && process.env.EXPO_PUBLIC_APPSFLYER_APP_ID,
+);
+
+/** Where SKAdNetwork and AdAttributionKit send a copy of their postbacks. */
+const ATTRIBUTION_REPORTS = 'https://appsflyer-skadnetwork.com/';
+
+/** The wording of Apple's tracking prompt. It has to be true. */
+const TRACKING_PROMPT = `This lets ${brand.name} see which adverts bring people to the app. Your answers and anything about your health are never shared.`;
 
 /** Sentry's build step (source maps) runs only when its project is known. */
 const sentry = Boolean(process.env.SENTRY_ORG && process.env.SENTRY_PROJECT);
@@ -65,8 +74,8 @@ const collected = (
  */
 const privacyManifest = {
   NSPrivacyTracking: attribution,
-  // The Adjust SDK declares its own tracking domains in its own manifest; the app
-  // adds none. Check Xcode's privacy report on the first build.
+  // The AppsFlyer SDK declares its own tracking domains in its own manifest; the
+  // app adds none. Check Xcode's privacy report on the first build.
   NSPrivacyTrackingDomains: [] as string[],
   NSPrivacyCollectedDataTypes: [
     collected('EmailAddress', [FUNCTIONALITY]),
@@ -131,15 +140,14 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     privacyManifests: privacyManifest,
     infoPlist: {
       // The wording of Apple's tracking prompt. It is always declared, because the
-      // Adjust library is always in the build and an upload without it is rejected.
-      // The prompt itself is only ever shown when attribution is switched on, and
-      // then only after her first completed class. It has to be true.
-      NSUserTrackingUsageDescription: `This lets ${brand.name} see which adverts bring people to the app. Your answers and anything about your health are never shared.`,
-      // Where SKAdNetwork and AdAttributionKit send a copy of their postbacks.
+      // AppsFlyer library is always in the build and an upload without it is
+      // rejected. The prompt itself is only ever shown when attribution is switched
+      // on, and then only after her first completed class. It has to be true.
+      NSUserTrackingUsageDescription: TRACKING_PROMPT,
       ...(attribution
         ? {
-            NSAdvertisingAttributionReportEndpoint: 'https://adjust-skadnetwork.com',
-            AttributionCopyEndpoint: 'https://adjust-skadnetwork.com',
+            NSAdvertisingAttributionReportEndpoint: ATTRIBUTION_REPORTS,
+            AttributionCopyEndpoint: ATTRIBUTION_REPORTS,
           }
         : {}),
     },
@@ -165,6 +173,11 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     'expo-apple-authentication',
     // Picture-in-picture is off and classes do not play in the background.
     ['expo-video', { supportsBackgroundPlayback: false, supportsPictureInPicture: false }],
+    // Attribution. Strict mode stays off: with her permission, the advertising ID
+    // is what lets an advert be matched to an install.
+    ['react-native-appsflyer', { shouldUseStrictMode: false }],
+    // Apple's tracking prompt, shown by src/lib/attribution.ts after her first class.
+    ['expo-tracking-transparency', { userTrackingPermission: TRACKING_PROMPT }],
     ...(sentry
       ? ([
           [

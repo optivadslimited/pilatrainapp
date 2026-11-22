@@ -24,15 +24,15 @@ import type { PurchaseFailure, PurchasesProvider } from './types';
  */
 let packages: PurchasesPackage[] = [];
 
-/** Adjust starts before RevenueCat is configured, so its ID may arrive first and has to wait. */
+/** AppsFlyer starts before RevenueCat is configured, so its ID may arrive first and has to wait. */
 let configured = false;
 let attributionId: string | null = null;
 
 function shareAttributionId(): void {
   if (!configured || !attributionId) return;
-  // What RevenueCat's Adjust integration asks for: the device identifiers and Adjust's own ID.
+  // What RevenueCat's AppsFlyer integration asks for: the device identifiers and AppsFlyer's own ID.
   Purchases.collectDeviceIdentifiers().catch(() => {});
-  Purchases.setAdjustID(attributionId).catch(() => {});
+  Purchases.setAppsflyerID(attributionId).catch(() => {});
 }
 
 const failureOf = (code: unknown): PurchaseFailure => {

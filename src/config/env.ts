@@ -44,11 +44,11 @@ export const env = {
   // TODO(owner): Sentry DSN.
   sentryDsn: read(process.env.EXPO_PUBLIC_SENTRY_DSN),
 
-  // Attribution: Adjust. TODO(owner): the app token, and the token of each of
-  // the two events created in the Adjust dashboard (docs/attribution.md).
-  adjustAppToken: read(process.env.EXPO_PUBLIC_ADJUST_APP_TOKEN),
-  adjustTrialEventToken: read(process.env.EXPO_PUBLIC_ADJUST_TRIAL_EVENT_TOKEN),
-  adjustPurchaseEventToken: read(process.env.EXPO_PUBLIC_ADJUST_PURCHASE_EVENT_TOKEN),
+  // Attribution: AppsFlyer. TODO(owner): the dev key, and the app's numeric
+  // Apple ID, which exists once the app is created in App Store Connect
+  // (docs/attribution.md).
+  appsFlyerDevKey: read(process.env.EXPO_PUBLIC_APPSFLYER_DEV_KEY),
+  appsFlyerAppId: read(process.env.EXPO_PUBLIC_APPSFLYER_APP_ID),
 } as const;
 
 export type Env = typeof env;
