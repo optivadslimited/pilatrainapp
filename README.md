@@ -14,14 +14,14 @@ The marketing site is a separate repository (`optivadslimited/pilatrain`,
 
 ## Where the build stands
 
-| Milestone | Due        | Delivers                                                                            | Status   |
-| --------- | ---------- | ----------------------------------------------------------------------------------- | -------- |
-| 1         | Sun 29 Nov | App shell, design system as tokens and components, onboarding quiz with safety gate | **Done** |
-| 2         | Sun 6 Dec  | Plan engine with tests, plan preview, Today screen                                  | **Done** |
-| 3         | Sun 13 Dec | Player, after-class feedback, Plan and Progress tabs                                | **Done** |
-| 4         | Sun 20 Dec | Paywall and subscriptions, You tab, analytics, attribution, full test pass          | **Done** |
-| 5         | Mon 21 Dec | TestFlight build to 30 to 50 testers                                                | Next     |
-| 6         | Wed 30 Dec | Submitted to App Review                                                             |          |
+| Milestone | Due        | Delivers                                                                            | Status      |
+| --------- | ---------- | ----------------------------------------------------------------------------------- | ----------- |
+| 1         | Sun 29 Nov | App shell, design system as tokens and components, onboarding quiz with safety gate | **Done**    |
+| 2         | Sun 6 Dec  | Plan engine with tests, plan preview, Today screen                                  | **Done**    |
+| 3         | Sun 13 Dec | Player, after-class feedback, Plan and Progress tabs                                | **Done**    |
+| 4         | Sun 20 Dec | Paywall and subscriptions, You tab, analytics, attribution, full test pass          | **Done**    |
+| 5         | Mon 21 Dec | TestFlight build to 30 to 50 testers                                                | In progress |
+| 6         | Wed 30 Dec | Submitted to App Review                                                             |             |
 
 ### What works
 
@@ -142,7 +142,7 @@ The marketing site is a separate repository (`optivadslimited/pilatrain`,
 | A class taken from the library on its own is not counted in Progress. Only sessions of her plan are.                                                                                                                                                                                                                                                                                                                | To decide                                       |
 | Deleting an account does not erase analytics events already sent to PostHog under her random ID.                                                                                                                                                                                                                                                                                                                    | To decide                                       |
 | The app's Supabase path, the four Edge Functions and most outside services are written but have never been run (see below). The Supabase database itself is set up. The app runs in local mode.                                                                                                                                                                                                                     | When keys arrive                                |
-| EAS Update is not configured (it needs the Expo project ID).                                                                                                                                                                                                                                                                                                                                                        | Milestone 5                                     |
+| EAS Update is set up (one channel per build profile), but nothing has been published through it yet.                                                                                                                                                                                                                                                                                                                | Milestone 5                                     |
 
 ### How it has been verified, and how it has not
 
@@ -346,6 +346,58 @@ reach the app, and all of them are publishable keys. The Supabase service-role
 key, the Mux signing key and the RevenueCat secrets belong to the Edge
 Functions and never appear in this app. [docs/services.md](docs/services.md)
 lists every key and where it goes.
+
+## TestFlight
+
+Store builds come from EAS, using the `production` profile: testers get the
+build that will go to App Review. (A `staging` store build would need its own
+App Store Connect app for `com.pilatrain.app.staging`. It is not set up.)
+
+**The first build** needs the owner at the keyboard once, to sign in to Apple:
+
+```bash
+npx eas-cli build --profile production --platform ios
+```
+
+Log in to Apple when asked, with the Apple ID of the developer account, and
+let EAS create the distribution certificate and provisioning profile and
+register the bundle ID. The build itself runs in Expo's cloud, about 20
+minutes.
+
+**App Store Connect** (steps in [docs/services.md](docs/services.md)): the
+Paid Applications agreement, the app record, the subscription group with its
+three products, and Billing Grace Period.
+
+**Uploading:**
+
+```bash
+npx eas-cli submit --profile production --platform ios --latest
+```
+
+The first time, let it create an App Store Connect API key, so later uploads
+need no sign-in. Then put the app's numeric Apple ID in `eas.json` as
+`ascAppId`.
+
+**Testers** (App Store Connect → TestFlight): an internal group for people on
+the team, with no review; an external group for everyone else, by email or a
+public link, after Apple's short Beta App Review of the first build.
+
+**Fixes without a new build:** a change to JavaScript only reaches installed
+builds of the same version on the same channel through EAS Update:
+
+```bash
+npx eas-cli update --channel production --environment production --message "What changed"
+```
+
+A change to native code, a new native library or a new version number needs
+a new build.
+
+**Settings** live in EAS environment variables (expo.dev → the project →
+Environment variables), one set per environment. Set so far, in all three:
+`EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_ANON_KEY` (the
+publishable key). Still to add, for production and preview:
+`EXPO_PUBLIC_REVENUECAT_IOS_KEY` (the `appl_` key). Until it is there, a
+store build's paywall says membership is unavailable.
 
 ## Renaming the product
 
@@ -629,7 +681,7 @@ Every one of these is marked `TODO(owner)` in the code.
 **To run and ship**
 
 - [x] **Xcode on the development Mac.** Installed, with CocoaPods, and selected for the command line. The app compiles for and runs on the iOS Simulator (first built 19 November 2026).
-- [ ] Apple Developer account and App Store Connect access. Requested 19 November 2026; waiting on Apple.
+- [x] Apple Developer account and App Store Connect access. Approved by Apple on 23 November 2026.
 - [x] Expo account and project. The project ID is in `src/config/brand.ts`. This Mac is signed in to Expo (done 21 November 2026), so cloud builds can start once Apple approves.
 - [x] Bundle ID confirmed: `com.pilatrain.app` (`src/config/brand.ts`). It cannot change after the first upload.
 

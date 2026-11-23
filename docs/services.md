@@ -12,8 +12,13 @@ repository.
 
 ## 1. App Store Connect
 
-1. Create the app with the bundle ID in `src/config/brand.ts`.
-2. Create one subscription group, **Pilatrain Membership**, with three
+1. Sign the **Paid Applications** agreement (Business → Agreements), with
+   the bank and tax details. Until it is active no purchase works, not even
+   in the sandbox or TestFlight.
+2. Create the app with the bundle ID in `src/config/brand.ts`
+   (My Apps → + → New App). The bundle ID appears in the list once the first
+   EAS build has registered it (see "TestFlight" in the README).
+3. Create one subscription group, **Pilatrain Membership**, with three
    auto-renewable subscriptions. The product IDs must match exactly:
 
    | Product ID            | Period   | Introductory offer |
@@ -26,8 +31,8 @@ repository.
    `storekit/Pilatrain.storekit` mirrors these for testing in Xcode without
    an App Store Connect account; keep the two in step.
 
-3. Turn on **Billing Grace Period** for the app (16 days, all renewals).
-4. Offer codes, if wanted, are created here. The app redeems them through
+4. Turn on **Billing Grace Period** for the app (16 days, all renewals).
+5. Offer codes, if wanted, are created here. The app redeems them through
    Apple's own sheet (You → Membership → Redeem a code).
 
 ## 2. RevenueCat

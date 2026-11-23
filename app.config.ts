@@ -116,12 +116,22 @@ const privacyManifest = {
 /** Paper. Kept in step with src/theme/colors.ts so the native splash matches the first frame. */
 const PAPER = '#F7F4EE';
 
+// The Expo project the build belongs to. Set in src/config/brand.ts; the
+// environment variable is only for building against a different project.
+const projectId = process.env.EAS_PROJECT_ID || brand.expoProjectId;
+
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
   name: `${brand.displayName}${variant.nameSuffix}`,
   slug: brand.slug,
   scheme: brand.scheme,
   version: '1.0.0',
+  // EAS Update: JavaScript-only fixes reach installed builds on the same channel
+  // (development, staging or production, set per profile in eas.json). An update
+  // only reaches builds of the same app version, so a change to native code or to
+  // the version number always needs a new build.
+  runtimeVersion: { policy: 'appVersion' },
+  updates: { url: `https://u.expo.dev/${projectId}` },
   // All orientations are allowed here so that the player can turn to landscape.
   // Every other screen is held in portrait by the root layout (src/app/_layout.tsx).
   orientation: 'default',
@@ -193,8 +203,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   extra: {
     appEnv,
-    // The Expo project the build belongs to. Set in src/config/brand.ts; the
-    // environment variable is only for building against a different project.
-    eas: { projectId: process.env.EAS_PROJECT_ID || brand.expoProjectId },
+    eas: { projectId },
   },
 });
