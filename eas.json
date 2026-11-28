@@ -49,7 +49,10 @@
       "ios": {}
     },
     "production": {
-      "ios": {}
+      "ios": {
+        "ascAppId": "6840217338",
+        "appleTeamId": "Z5CJ84ACQJ"
+      }
     }
   }
 }
