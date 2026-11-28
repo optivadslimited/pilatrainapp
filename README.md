@@ -14,14 +14,14 @@ The marketing site is a separate repository (`optivadslimited/pilatrain`,
 
 ## Where the build stands
 
-| Milestone | Due        | Delivers                                                                            | Status      |
-| --------- | ---------- | ----------------------------------------------------------------------------------- | ----------- |
-| 1         | Sun 29 Nov | App shell, design system as tokens and components, onboarding quiz with safety gate | **Done**    |
-| 2         | Sun 6 Dec  | Plan engine with tests, plan preview, Today screen                                  | **Done**    |
-| 3         | Sun 13 Dec | Player, after-class feedback, Plan and Progress tabs                                | **Done**    |
-| 4         | Sun 20 Dec | Paywall and subscriptions, You tab, analytics, attribution, full test pass          | **Done**    |
-| 5         | Mon 21 Dec | TestFlight build to 30 to 50 testers                                                | In progress |
-| 6         | Wed 30 Dec | Submitted to App Review                                                             |             |
+| Milestone | Due        | Delivers                                                                            | Status                                      |
+| --------- | ---------- | ----------------------------------------------------------------------------------- | ------------------------------------------- |
+| 1         | Sun 29 Nov | App shell, design system as tokens and components, onboarding quiz with safety gate | **Done**                                    |
+| 2         | Sun 6 Dec  | Plan engine with tests, plan preview, Today screen                                  | **Done**                                    |
+| 3         | Sun 13 Dec | Player, after-class feedback, Plan and Progress tabs                                | **Done**                                    |
+| 4         | Sun 20 Dec | Paywall and subscriptions, You tab, analytics, attribution, full test pass          | **Done**                                    |
+| 5         | Mon 21 Dec | TestFlight build to 30 to 50 testers                                                | **Build 4 uploaded 28 Nov**; testers to add |
+| 6         | Wed 30 Dec | Submitted to App Review                                                             |                                             |
 
 ### What works
 
@@ -694,7 +694,7 @@ Every one of these is marked `TODO(owner)` in the code.
 
 Step by step in [docs/services.md](docs/services.md).
 
-- [ ] **App Store Connect:** the subscription group and three products, each with a one-week free trial, and Billing Grace Period switched on. Prices are set there.
+- [ ] **App Store Connect:** the app exists (Pilatrain, Apple ID 6840217338, created 28 November 2026; build 4 uploaded the same day). Still needed: the Paid Applications agreement, the subscription group and three products, each with a one-week free trial, and Billing Grace Period switched on. Prices are set there.
 - [ ] **RevenueCat:** done for the Test Store (the project, the three products, the `member` entitlement and the default offering, 21 November 2026). Still needed once Apple approves: the App Store products added to that entitlement and offering, the public iOS SDK key, a webhook secret and a secret API key.
 - [ ] **Supabase:** the project "Pilatrain" exists, its database is set up and its four functions deployed (21 November 2026), and the URL and publishable key are in `.env.local` and switched on, with anonymous sign-ins on. Still needed: manual linking switched on (it was still off when tried on 21 November), the `pilatrain://auth` redirect (not checkable from outside); the Apple provider once Apple approves; the email templates changed to carry the link and the code. TODO(owner): a second project for development, so test users stay out of the one holding the website's waitlist.
 - [ ] **Mux:** a signing key, and each member class set to signed playback.
