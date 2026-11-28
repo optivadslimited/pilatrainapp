@@ -14,14 +14,14 @@ The marketing site is a separate repository (`optivadslimited/pilatrain`,
 
 ## Where the build stands
 
-| Milestone | Due        | Delivers                                                                            | Status                                      |
-| --------- | ---------- | ----------------------------------------------------------------------------------- | ------------------------------------------- |
-| 1         | Sun 29 Nov | App shell, design system as tokens and components, onboarding quiz with safety gate | **Done**                                    |
-| 2         | Sun 6 Dec  | Plan engine with tests, plan preview, Today screen                                  | **Done**                                    |
-| 3         | Sun 13 Dec | Player, after-class feedback, Plan and Progress tabs                                | **Done**                                    |
-| 4         | Sun 20 Dec | Paywall and subscriptions, You tab, analytics, attribution, full test pass          | **Done**                                    |
-| 5         | Mon 21 Dec | TestFlight build to 30 to 50 testers                                                | **Build 4 uploaded 28 Nov**; testers to add |
-| 6         | Wed 30 Dec | Submitted to App Review                                                             |                                             |
+| Milestone | Due        | Delivers                                                                            | Status                                                                                        |
+| --------- | ---------- | ----------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| 1         | Sun 29 Nov | App shell, design system as tokens and components, onboarding quiz with safety gate | **Done**                                                                                      |
+| 2         | Sun 6 Dec  | Plan engine with tests, plan preview, Today screen                                  | **Done**                                                                                      |
+| 3         | Sun 13 Dec | Player, after-class feedback, Plan and Progress tabs                                | **Done**                                                                                      |
+| 4         | Sun 20 Dec | Paywall and subscriptions, You tab, analytics, attribution, full test pass          | **Done**                                                                                      |
+| 5         | Mon 21 Dec | TestFlight build to 30 to 50 testers                                                | **Build 4 in Beta App Review since 28 Nov**; external group "Pilatrain testers" has 2 testers |
+| 6         | Wed 30 Dec | Submitted to App Review                                                             |                                                                                               |
 
 ### What works
 
