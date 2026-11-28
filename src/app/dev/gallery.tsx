@@ -305,7 +305,7 @@ export default function Gallery() {
           price="$00.00"
           period="every 3 months"
           perMonth="$0.00 a month, billed every 3 months"
-          badge={{ label: 'Most popular', tone: 'neutral' }}
+          badge={{ label: 'Recommended', tone: 'neutral' }}
           selected={plan === 'quarterly'}
           onPress={() => setPlan('quarterly')}
         />

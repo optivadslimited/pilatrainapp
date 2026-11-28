@@ -57,7 +57,7 @@ export function ListRow({
     <Pressable
       onPress={onPress}
       accessibilityRole="button"
-      accessibilityLabel={label}
+      accessibilityLabel={value ? `${label}, ${value}` : label}
       testID={testID}
       style={({ pressed }) => pressed && styles.pressed}>
       {content}

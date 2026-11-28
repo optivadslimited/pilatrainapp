@@ -1,12 +1,10 @@
 import { useRouter } from 'expo-router';
-import { useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { Button, Screen, Text } from '@/components';
 import { afterSafetyCleared } from '@/features/onboarding/flow';
 import { useOnboardingStore } from '@/features/onboarding/store';
 import { useQuizNavigation } from '@/features/onboarding/useQuizNavigation';
-import { track } from '@/lib/analytics';
 import { t } from '@/strings';
 import { space } from '@/theme';
 
@@ -14,8 +12,9 @@ import { space } from '@/theme';
  * The safety gate. Shown when she picks "Pregnant or postpartum" or "Recent
  * injury or surgery". A full screen with one message and two honest choices.
  *
- * Which of the two answers brought her here is never sent to analytics: only
- * that the gate was shown, and which button she pressed.
+ * Nothing about this screen is sent to analytics: it only ever appears after an
+ * answer about pregnancy or injury, so even "the gate was shown" would say more
+ * than the single yes-or-no flag analytics is allowed.
  */
 export default function SafetyGate() {
   const router = useRouter();
@@ -23,19 +22,13 @@ export default function SafetyGate() {
   const clearGate = useOnboardingStore((state) => state.clearGate);
   const checkFirst = useOnboardingStore((state) => state.checkFirst);
 
-  useEffect(() => {
-    track('safety_gate_shown');
-  }, []);
-
   const onCleared = () => {
-    track('safety_gate_choice', { choice: 'cleared' });
     clearGate();
     // Replace, so going back from the next question skips this screen.
     go(afterSafetyCleared(), 'replace');
   };
 
   const onCheckFirst = () => {
-    track('safety_gate_choice', { choice: 'check_first' });
     checkFirst();
     router.replace('/holding');
   };

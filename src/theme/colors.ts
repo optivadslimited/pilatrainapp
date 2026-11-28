@@ -81,7 +81,7 @@ export const lightColors: Colors = {
   onAccent: palette.paper,
   error: palette.alert,
   scrimStart: rgba(palette.ink, 0),
-  scrimEnd: rgba(palette.ink, 0.4),
+  scrimEnd: rgba(palette.ink, 0.7),
   shadow: rgba(palette.ink, 0.08),
 };
 
@@ -107,7 +107,7 @@ export const darkColors: Colors = {
   onAccent: palette.ink,
   error: '#E58A80',
   scrimStart: rgba(palette.ink, 0),
-  scrimEnd: rgba(palette.ink, 0.4),
+  scrimEnd: rgba(palette.ink, 0.7),
   shadow: 'rgba(0, 0, 0, 0.24)',
 };
 

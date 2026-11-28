@@ -50,6 +50,8 @@ appId: ${APP_ID}
 - tapOn:
     id: disclaimer-checkbox
 - tapOn:
+    id: disclaimer-age
+- tapOn:
     id: disclaimer-build-plan
 
 - extendedWaitUntil:

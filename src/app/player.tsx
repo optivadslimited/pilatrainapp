@@ -34,6 +34,7 @@ import { usePlaybackSource, type VideoSourceInfo } from '@/features/player/sourc
 import { track } from '@/lib/analytics';
 import { formatClassMeta, formatClock } from '@/lib/format';
 import { useGoBack } from '@/lib/useGoBack';
+import { useScreenReader } from '@/lib/useScreenReader';
 import { t } from '@/strings';
 import { aspect, radius, screenMargin, size, softShadow, space, useTheme } from '@/theme';
 
@@ -251,6 +252,7 @@ function ClassPlayback({
   const [duration, setDuration] = useState(0);
   const [captionsOn, setCaptionsOn] = useState(true);
   const [showing, setShowing] = useState(true);
+  const screenReader = useScreenReader();
   const [touches, setTouches] = useState(0);
   const [card, setCard] = useState<'easier' | 'leave' | null>(null);
   /** She pressed pause, or is being asked whether to leave. Anything else that stops the video is buffering. */
@@ -294,11 +296,12 @@ function ClassPlayback({
   }, [availableSubtitleTracks, captionsOn, player]);
 
   // Controls fade 3 seconds after the last touch, while the class is playing.
+  // Not with VoiceOver on: it cannot find controls that keep disappearing.
   useEffect(() => {
-    if (!isPlaying) return;
+    if (!isPlaying || screenReader) return;
     const timer = setTimeout(() => setShowing(false), CONTROLS_IDLE_MS);
     return () => clearTimeout(timer);
-  }, [isPlaying, touches]);
+  }, [isPlaying, touches, screenReader]);
 
   const touch = () => {
     setShowing(true);

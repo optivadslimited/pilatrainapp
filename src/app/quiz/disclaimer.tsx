@@ -11,13 +11,27 @@ import { t } from '@/strings';
 import { space } from '@/theme';
 
 /**
- * The health disclaimer. Every user ticks it before her plan is built; the
- * time she did so is stored with her answers (`disclaimer_accepted_at`).
+ * The last step before her plan is built. Every user ticks two boxes: the
+ * health disclaimer, and that she is 18 or over. If she told us about
+ * anything to work around (pregnancy, injury, pain), a third box asks her
+ * explicit consent to keeping it, which UK and EU law require for health
+ * data. Nothing starts ticked, and the plan cannot be built until each box
+ * shown is ticked.
+ *
+ * Her answers stay on the phone until this point. The time she ticks the
+ * boxes is stored with them (`disclaimer_accepted_at`); with health answers,
+ * that is also the time of her consent.
  */
 export default function Disclaimer() {
   const { go } = useQuizNavigation();
   const acceptDisclaimer = useOnboardingStore((state) => state.acceptDisclaimer);
-  const [checked, setChecked] = useState(false);
+  const workAround = useOnboardingStore((state) => state.answers.workAround);
+  const askHealthConsent = (workAround ?? []).some((value) => value !== 'none');
+
+  const [understood, setUnderstood] = useState(false);
+  const [adult, setAdult] = useState(false);
+  const [healthConsent, setHealthConsent] = useState(false);
+  const ready = understood && adult && (!askHealthConsent || healthConsent);
 
   const onBuild = () => {
     acceptDisclaimer(new Date().toISOString());
@@ -32,7 +46,7 @@ export default function Disclaimer() {
         <Button
           label={t.disclaimer.primary}
           onPress={onBuild}
-          disabled={!checked}
+          disabled={!ready}
           testID="disclaimer-build-plan"
         />
       }>
@@ -44,8 +58,8 @@ export default function Disclaimer() {
       </View>
       <Checkbox
         label={t.disclaimer.checkbox}
-        checked={checked}
-        onChange={setChecked}
+        checked={understood}
+        onChange={setUnderstood}
         testID="disclaimer-checkbox"
       />
       <Button
@@ -54,6 +68,29 @@ export default function Disclaimer() {
         onPress={() => openLink(brand.urls.healthDisclaimer)}
         style={styles.link}
         testID="disclaimer-link"
+      />
+      <View style={styles.more}>
+        <Checkbox
+          label={t.disclaimer.age}
+          checked={adult}
+          onChange={setAdult}
+          testID="disclaimer-age"
+        />
+        {askHealthConsent ? (
+          <Checkbox
+            label={t.disclaimer.healthConsent}
+            checked={healthConsent}
+            onChange={setHealthConsent}
+            testID="disclaimer-health-consent"
+          />
+        ) : null}
+      </View>
+      <Button
+        label={t.disclaimer.privacyLink}
+        variant="text"
+        onPress={() => openLink(brand.urls.privacy)}
+        style={styles.link}
+        testID="disclaimer-privacy-link"
       />
     </Screen>
   );
@@ -64,6 +101,10 @@ const styles = StyleSheet.create({
     gap: space.xs,
     paddingTop: space.md,
     paddingBottom: space.lg,
+  },
+  more: {
+    gap: space.md,
+    marginTop: space.md,
   },
   link: {
     alignSelf: 'flex-start',

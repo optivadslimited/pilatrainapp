@@ -105,6 +105,7 @@ export const en = {
     line: 'A personal plan in 90 seconds.',
     primary: 'Build my plan',
     signIn: 'I already have an account',
+    privacy: 'Privacy policy',
     photoLabel: 'Instructor photo. Hero, 3:4, warm daylight, a real room.',
     /** What VoiceOver says about the stand-in photo. Rewrite it with the real photo. */
     photoAlt: 'A woman sits on a mat by a window in a quiet, daylit room.',
@@ -218,14 +219,17 @@ export const en = {
     reminderDenied: `Notifications are off for ${brand.name}. You can turn them on in Settings.`,
     reminderUnavailable: 'Reminders aren’t available on this device.',
     notificationTitle: 'Ready when you are',
-    notificationBody: `Your answers are saved. Open ${brand.name} once you’ve had the all-clear.`,
+    notificationBody: `Your answers are saved. Open ${brand.name} whenever you’re ready.`,
   },
 
   disclaimer: {
     title: 'One last thing.',
     body: 'Move at your own pace, and stop if anything doesn’t feel right.',
     checkbox: `I understand that ${brand.name} offers general movement classes and is not medical advice.`,
+    age: 'I’m 18 or over.',
+    healthConsent: `I agree that ${brand.name} keeps what I told it about my health, only to build my plan.`,
     link: 'Read the health disclaimer',
+    privacyLink: 'Read the privacy policy',
     primary: 'Build my plan',
   },
 
@@ -466,9 +470,16 @@ export const en = {
     contact: 'Email us',
     supportSubject: (version: string) => `${brand.name} help, version ${version}`,
     noMailApp: (email: string) => `Write to us at ${email}.`,
+    privacySection: 'Privacy',
+    usageData: 'Share usage data',
+    usageDataNote:
+      'Which screens and features you use, never your answers. It helps us make the app better.',
+    usageDataOn: 'Usage data is on.',
+    usageDataOff: 'Usage data is off.',
     legal: 'Legal',
     terms: 'Terms',
-    privacy: 'Privacy',
+    privacy: 'Privacy policy',
+    madeBy: `Made by ${brand.company.legalName}`,
     healthDisclaimer: 'Health disclaimer',
     version: (version: string) => `Version ${version}`,
     developer: 'Developer',
@@ -539,7 +550,7 @@ export const en = {
       adapts: 'A plan that adapts to your week',
       // TODO(owner): confirm the instructor's certification before launch.
       instructor: (name: string) => `Every class led by ${name}, certified`,
-      cancel: 'Cancel any time in two taps',
+      cancel: 'Cancel any time in Settings',
     },
     planName: {
       annual: 'Yearly',
@@ -558,7 +569,7 @@ export const en = {
       quarterly: (each: string) => `${each} a month, billed every 3 months`,
     },
     badge: {
-      popular: 'Most popular',
+      popular: 'Recommended',
       save: (percent: number) => `Save ${percent}%`,
     },
     timeline: {
@@ -600,6 +611,7 @@ export const en = {
     createBody: 'An account keeps your plan and your membership with you if you change phones.',
     signInTitle: 'Welcome back.',
     signInBody: 'Sign in to pick up your plan where you left it.',
+    legal: 'By continuing you agree to our terms and privacy policy.',
     apple: 'Continue with Apple',
     email: 'Continue with email',
     emailTitle: 'Your email',
@@ -645,7 +657,7 @@ export const en = {
 
   deleteAccount: {
     title: 'Delete your account?',
-    body: 'This removes your account, your answers, your plan and your history from our records. It can’t be undone.',
+    body: 'This removes your account, your answers, your plan and your history from our database. It can’t be undone.',
     subscriptionNote:
       'Deleting your account doesn’t cancel a subscription. Apple bills it, so cancel it first if you have one.',
     manage: 'Manage subscription',

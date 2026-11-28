@@ -16,8 +16,6 @@ export type AnalyticsEvents = {
   app_opened: undefined;
   onboarding_started: undefined;
   quiz_step_completed: { step: string; answer: string | number | boolean };
-  safety_gate_shown: undefined;
-  safety_gate_choice: { choice: 'cleared' | 'check_first' };
   plan_built: { days: number; minutes: number; goal: string };
   plan_preview_viewed: undefined;
 

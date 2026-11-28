@@ -18,7 +18,12 @@
 // The caller is identified by her own token. The service role is used only
 // for the deletion itself, for that one user.
 //
-// NOT YET DEPLOYED OR RUN. TODO(owner): `supabase functions deploy delete-account`.
+// Deployed and run on 21 November 2026.
+//
+// TODO(owner): Apple requires an app with Sign in with Apple to revoke the user's
+// Apple token when she deletes her account. That needs a Sign in with Apple key
+// (key ID, team ID, private key) as server secrets and a call to
+// https://appleid.apple.com/auth/revoke here. Not done yet.
 import { createClient } from '@supabase/supabase-js';
 
 import { deleteSubscriber } from '../_shared/billing/revenuecat-api.ts';

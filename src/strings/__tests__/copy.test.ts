@@ -48,6 +48,8 @@ const banned: [rule: string, pattern: RegExp][] = [
     'invented social proof',
     /\b(\d[\d,.]*\+? (members|women|users|people|reviews|ratings)|rated \d|\d(\.\d)? stars?|★)\b/i,
   ],
+  // No popularity claim without sales to back it, and no promise the app cannot keep.
+  ['unbacked claim', /\b(most popular|best[- ]selling|two taps)\b/i],
   // Prices come from StoreKit, never typed into the app.
   ['typed price', /[$£€]\s?\d/],
   // Nothing that looks like a game.

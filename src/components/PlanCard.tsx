@@ -21,7 +21,7 @@ export type PlanCardProps = {
   period: string;
   /** The smaller per-month figure, built from the StoreKit price. Optional. */
   perMonth?: string | null;
-  /** "Most popular" is a quiet Mist tag. A saving is the one place Clay is used. */
+  /** "Recommended" is a quiet Mist tag. A saving is the one place Clay is used. */
   badge?: { label: string; tone: 'neutral' | 'saving' };
   selected: boolean;
   onPress: () => void;

@@ -12,12 +12,12 @@ export type TextFieldProps = Omit<TextInputProps, 'style'> & {
   error?: string;
 };
 
-/** A single-line text input: 12-point corners, Sand fill, a Moss edge on focus. */
+/** A single-line text input: 12-point corners, Sand fill, a Slate edge (3:1 or more on Paper), Moss on focus. */
 export function TextField({ label, error, onFocus, onBlur, ...rest }: TextFieldProps) {
   const { colors } = useTheme();
   const [focused, setFocused] = useState(false);
 
-  const borderColor = error ? colors.error : focused ? colors.primary : colors.surface;
+  const borderColor = error ? colors.error : focused ? colors.primary : colors.textSecondary;
 
   return (
     <View style={styles.wrap}>

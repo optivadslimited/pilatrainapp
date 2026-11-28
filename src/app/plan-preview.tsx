@@ -30,8 +30,8 @@ export default function PlanPreview() {
   // Asked for here so the paywall opens with its prices already in hand.
   useProducts();
   const eligibility = useTrialEligibility([PRODUCT_IDS.quarterly]).data;
-  // "Free week" is only promised to someone who can have one.
-  const noTrial = eligibility?.[PRODUCT_IDS.quarterly] === false;
+  // "Free week" is only promised once the store has said she can have one.
+  const noTrial = eligibility?.[PRODUCT_IDS.quarterly] !== true;
 
   useEffect(() => {
     track('plan_preview_viewed');

@@ -10,8 +10,6 @@ const everyEvent: { [K in AnalyticsEventName]: AnalyticsEvents[K] } = {
   app_opened: undefined,
   onboarding_started: undefined,
   quiz_step_completed: { step: 'work_around', answer: true },
-  safety_gate_shown: undefined,
-  safety_gate_choice: { choice: 'cleared' },
   plan_built: { days: 3, minutes: 20, goal: 'posture' },
   plan_preview_viewed: undefined,
   paywall_viewed: { placement: 'plan_preview', variant: 'quarterly' },

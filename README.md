@@ -706,7 +706,13 @@ Step by step in [docs/services.md](docs/services.md).
 - [ ] The privacy labels, confirmed by whoever is responsible for privacy. ([docs/privacy-labels.md](docs/privacy-labels.md))
 - [ ] A demo account for App Review. ([docs/app-review.md](docs/app-review.md))
 - [ ] "Every class led by [NAME], certified" is on the paywall. The certification must be true before launch.
-- [ ] The Terms, Privacy and Health disclaimer pages must exist at the addresses in `src/config/brand.ts`. The paywall links to them.
+- [x] The Terms, Privacy and Health disclaimer pages exist at the addresses in `src/config/brand.ts` (the privacy policy covers the app since 28 November 2026). They still carry "Draft, pending legal review".
+- [ ] **Sign in with Apple token revocation on account deletion.** Apple requires it. It needs a Sign in with Apple key (key ID, team ID, private key) as server secrets; see the note in `supabase/functions/delete-account/index.ts`.
+- [ ] 18 as the minimum age (the disclaimer screen asks, and the website's terms and privacy policy say so), chosen on 28 November 2026.
+- [ ] Whether UK and EU analytics should be opt-in rather than on with an off switch (You → Privacy). A question for counsel.
+- [ ] Retention: how long an account that is never opened again is kept (anonymous accounts are never removed today), and PostHog and Sentry set to 12 months and 90 days as the privacy policy says.
+- [ ] Her health answers cannot be changed after onboarding (Adjust covers days, time and length only). A plan should change if she becomes pregnant.
+- [ ] An Acknowledgements screen with the open-source licences (Fraunces is under the SIL Open Font License, which asks for its notice to travel with the font).
 
 **Content** (`src/config/brand.ts` and elsewhere)
 
@@ -723,6 +729,18 @@ Step by step in [docs/services.md](docs/services.md).
 ## Assumptions made
 
 Where the brief left a detail open, the calmer, simpler option was chosen.
+
+- **Compliance pass, 28 November 2026.** Where the brief and its own privacy
+  rule disagreed, the rule won: the `safety_gate_shown` and
+  `safety_gate_choice` events are gone (the gate only appears after a
+  pregnancy or injury answer), Sentry drops tap and navigation breadcrumbs,
+  PostHog's GeoIP is off and You → Privacy turns it off altogether. The
+  disclaimer screen also asks her to confirm she is 18 or over and, if she named
+  anything to work around, for her explicit consent to keeping it. "Most
+  popular" became "Recommended" (there are no sales to back a popularity
+  claim) and "Cancel any time in two taps" became "Cancel any time in
+  Settings". Sign in with Apple no longer asks for her name, which was never
+  used.
 
 - **Stand-in photos, by the owner's decision on 19 November 2026.** The brief
   asks for neutral Sand blocks until the real photography arrives, and no

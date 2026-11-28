@@ -126,7 +126,6 @@ describe('with AppsFlyer switched on', () => {
     const { analytics } = start();
     analytics.track('app_opened');
     analytics.track('quiz_step_completed', { step: 'work_around', answer: true });
-    analytics.track('safety_gate_choice', { choice: 'cleared' });
     analytics.track('plan_built', { days: 3, minutes: 20, goal: 'posture' });
     analytics.track('paywall_viewed', { placement: 'plan_preview', variant: 'quarterly' });
     analytics.track('class_completed', { class: 'start-here' });

@@ -14,6 +14,7 @@ import { useCurrentPlan } from '@/features/plan/queries';
 import { useReminderStore } from '@/features/reminders/store';
 import { formatMoment, weekdayList } from '@/lib/format';
 import { openLink } from '@/lib/links';
+import { analyticsEnabled, setAnalyticsEnabled } from '@/lib/posthog';
 import { notificationPermission } from '@/lib/reminders';
 import { t } from '@/strings';
 import { space } from '@/theme';
@@ -44,11 +45,19 @@ export default function You() {
   const setReminders = useReminderStore((state) => state.setEnabled);
   const { isMember, status, entitlement } = useMembership();
   const [busy, setBusy] = useState(false);
+  const [usageData, setUsageData] = useState(analyticsEnabled);
   const version = Constants.expoConfig?.version ?? '';
 
   const weekdays = plan?.profile.weekdays ?? answers.weekdays ?? [];
   const timeOfDay = answers.timeOfDay ?? 'varies';
   const memberPlan = planOf(entitlement.productId);
+
+  const toggleUsageData = () => {
+    const next = !usageData;
+    setAnalyticsEnabled(next);
+    setUsageData(next);
+    toast.show(next ? t.you.usageDataOn : t.you.usageDataOff);
+  };
 
   const toggleReminders = async () => {
     if (reminders) {
@@ -220,6 +229,19 @@ export default function You() {
         />
       </Section>
 
+      <Section title={t.you.privacySection}>
+        <ListRow
+          label={t.you.usageData}
+          value={usageData ? t.you.on : t.you.off}
+          onPress={toggleUsageData}
+          testID="you-usage-data"
+          divider={false}
+        />
+        <Text variant="caption" color="textSecondary" style={styles.note}>
+          {t.you.usageDataNote}
+        </Text>
+      </Section>
+
       <Section title={t.you.legal}>
         <ListRow
           label={t.you.terms}
@@ -248,6 +270,8 @@ export default function You() {
         style={styles.version}
         testID="you-version">
         {brand.name} · {t.you.version(version)}
+        {'\n'}
+        {t.you.madeBy}
       </Text>
     </Screen>
   );
@@ -267,5 +291,6 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 const styles = StyleSheet.create({
   title: { paddingTop: space.md },
   section: { marginTop: space.xl },
+  note: { marginTop: space.xxs },
   version: { marginTop: space.xl, marginBottom: space.lg },
 });

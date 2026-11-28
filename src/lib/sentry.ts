@@ -20,6 +20,12 @@ export function startCrashReporting(): void {
     dsn: env.sentryDsn,
     environment: env.appEnv,
     sendDefaultPii: false,
+    // Taps and screen changes can carry what she chose on screen, including her
+    // health answers ("Pregnant or postpartum"). Neither is ever sent.
+    beforeBreadcrumb: (breadcrumb) =>
+      breadcrumb.category === 'touch' || breadcrumb.category === 'navigation' ? null : breadcrumb,
+    attachScreenshot: false,
+    attachViewHierarchy: false,
     // Errors only. Performance tracing can be switched on later if it is wanted.
     tracesSampleRate: 0,
   });

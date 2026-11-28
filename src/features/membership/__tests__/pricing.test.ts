@@ -107,9 +107,9 @@ describe('plan cards', () => {
     expect(card.perMonth).toBeNull();
   });
 
-  it('badges yearly with its saving and quarterly as most popular', () => {
+  it('badges yearly with its saving and quarterly as recommended', () => {
     expect(plan('annual').badge).toEqual({ label: 'Save 58%', tone: 'saving' });
-    expect(plan('quarterly').badge).toEqual({ label: 'Most popular', tone: 'neutral' });
+    expect(plan('quarterly').badge).toEqual({ label: 'Recommended', tone: 'neutral' });
     expect(plan('monthly').badge).toBeNull();
   });
 
@@ -133,9 +133,7 @@ describe('plan cards', () => {
   });
 
   it('shows only the plans the store returned', () => {
-    expect(paywallPlans([product('monthly')]).map((item) => item.name)).toEqual([
-      'Monthly',
-    ]);
+    expect(paywallPlans([product('monthly')]).map((item) => item.name)).toEqual(['Monthly']);
     expect(paywallPlans([])).toEqual([]);
   });
 
@@ -192,7 +190,7 @@ describe('the offer, with a free trial', () => {
     expect(paywallPoints()).toEqual([
       'A plan that adapts to your week',
       'Every class led by [NAME], certified',
-      'Cancel any time in two taps',
+      'Cancel any time in Settings',
     ]);
   });
 });

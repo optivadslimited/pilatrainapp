@@ -3,7 +3,9 @@ import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { Button, IconButton, Screen, Text, toast } from '@/components';
+import { brand } from '@/config/brand';
 import { useContinue } from '@/features/onboarding/useContinue';
+import { openLink } from '@/lib/links';
 import { useGoBack } from '@/lib/useGoBack';
 import { t } from '@/strings';
 import { size, space } from '@/theme';
@@ -135,6 +137,25 @@ export function AccountEntry({ intent, then }: { intent: AuthIntent; then?: stri
         <Text variant="body" color="textSecondary">
           {creating ? t.account.createBody : t.account.signInBody}
         </Text>
+        <Text variant="caption" color="textSecondary" style={styles.legal}>
+          {t.account.legal}
+        </Text>
+        <View style={styles.links}>
+          <Button
+            label={t.you.terms}
+            variant="text"
+            onPress={() => openLink(brand.urls.terms)}
+            style={styles.link}
+            testID="account-terms"
+          />
+          <Button
+            label={t.you.privacy}
+            variant="text"
+            onPress={() => openLink(brand.urls.privacy)}
+            style={styles.link}
+            testID="account-privacy"
+          />
+        </View>
       </View>
     </Screen>
   );
@@ -148,4 +169,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   copy: { gap: space.sm, paddingTop: space.lg },
+  legal: { marginTop: space.md },
+  links: { flexDirection: 'row', flexWrap: 'wrap', columnGap: space.md },
+  link: { paddingHorizontal: 0 },
 });

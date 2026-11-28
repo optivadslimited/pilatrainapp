@@ -7,7 +7,9 @@ import { standInPhotos } from '@/config/photos';
 import { accountsAvailable } from '@/features/account/account';
 import { QUESTIONS } from '@/features/onboarding/questions';
 import { useOnboardingStore } from '@/features/onboarding/store';
+import { brand } from '@/config/brand';
 import { track } from '@/lib/analytics';
+import { openLink } from '@/lib/links';
 import { t } from '@/strings';
 import { screenMargin, space, useTheme } from '@/theme';
 
@@ -57,6 +59,12 @@ export default function Welcome() {
               accountsAvailable ? router.push('/sign-in') : toast.show(t.account.unavailable)
             }
             testID="welcome-sign-in"
+          />
+          <Button
+            label={t.welcome.privacy}
+            variant="text"
+            onPress={() => openLink(brand.urls.privacy)}
+            testID="welcome-privacy"
           />
         </View>
       </View>

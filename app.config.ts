@@ -36,7 +36,7 @@ const attribution = Boolean(
 const ATTRIBUTION_REPORTS = 'https://appsflyer-skadnetwork.com/';
 
 /** The wording of Apple's tracking prompt. It has to be true. */
-const TRACKING_PROMPT = `This lets ${brand.name} see which adverts bring people to the app. Your answers and anything about your health are never shared.`;
+const TRACKING_PROMPT = `This lets ${brand.name} see which adverts bring people to the app. Your answers and anything about your health are never shared with advertisers.`;
 
 /** Sentry's build step (source maps) runs only when its project is known. */
 const sentry = Boolean(process.env.SENTRY_ORG && process.env.SENTRY_PROJECT);
@@ -51,6 +51,7 @@ type CollectedData = {
 const FUNCTIONALITY = 'NSPrivacyCollectedDataTypePurposeAppFunctionality';
 const ANALYTICS = 'NSPrivacyCollectedDataTypePurposeAnalytics';
 const ADVERTISING = 'NSPrivacyCollectedDataTypePurposeDeveloperAdvertising';
+const THIRD_PARTY_ADVERTISING = 'NSPrivacyCollectedDataTypePurposeThirdPartyAdvertising';
 
 const collected = (
   type: string,
@@ -70,7 +71,9 @@ const collected = (
  * docs/privacy-labels.md. Change one, change the other.
  *
  * Health answers (pregnancy, injury, pain) are collected to build her plan
- * and go to our own database only: never analytics, never an ad platform.
+ * and go to our own database only: never an ad platform. Analytics gets one
+ * yes-or-no flag ("anything to work around?"), so Health lists Analytics too.
+ * Pregnancy is "sensitive info" in Apple's terms, so that is declared as well.
  */
 const privacyManifest = {
   NSPrivacyTracking: attribution,
@@ -80,8 +83,9 @@ const privacyManifest = {
   NSPrivacyCollectedDataTypes: [
     collected('EmailAddress', [FUNCTIONALITY]),
     collected('Name', [FUNCTIONALITY]),
-    collected('UserID', [FUNCTIONALITY, ANALYTICS]),
-    collected('Health', [FUNCTIONALITY]),
+    collected('UserID', [FUNCTIONALITY, ANALYTICS], attribution),
+    collected('Health', [FUNCTIONALITY, ANALYTICS]),
+    collected('SensitiveInfo', [FUNCTIONALITY]),
     collected('Fitness', [FUNCTIONALITY, ANALYTICS]),
     collected(
       'PurchaseHistory',
@@ -90,7 +94,15 @@ const privacyManifest = {
     ),
     collected('ProductInteraction', [ANALYTICS]),
     collected('CrashData', [FUNCTIONALITY]),
-    ...(attribution ? [collected('DeviceID', [ADVERTISING], true)] : []),
+    // Sentry's device context alongside a crash.
+    collected('OtherDiagnosticData', [FUNCTIONALITY]),
+    // RevenueCat keeps device identifiers with the subscription; AppsFlyer, when
+    // on, uses them (and the advertising ID, if she allows it) for attribution.
+    collected(
+      'DeviceID',
+      attribution ? [FUNCTIONALITY, ADVERTISING, THIRD_PARTY_ADVERTISING] : [FUNCTIONALITY],
+      attribution,
+    ),
   ],
   // Required-reason APIs used by the app and React Native themselves.
   NSPrivacyAccessedAPITypes: [

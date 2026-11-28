@@ -71,10 +71,7 @@ export function createSupabaseAuth(client: SupabaseClient): AuthProvider {
       let token: string | null;
       try {
         const credential = await AppleAuthentication.signInAsync({
-          requestedScopes: [
-            AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
-            AppleAuthentication.AppleAuthenticationScope.EMAIL,
-          ],
+          requestedScopes: [AppleAuthentication.AppleAuthenticationScope.EMAIL],
         });
         token = credential.identityToken;
       } catch (error) {

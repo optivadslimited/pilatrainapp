@@ -8,6 +8,7 @@ import { useReminderStore } from '@/features/reminders/store';
 import { track } from '@/lib/analytics';
 import { setDevDayOffset } from '@/lib/clock';
 import { queryClient } from '@/lib/queryClient';
+import { cancelHoldingReminder } from '@/lib/reminders';
 import { identify } from '@/lib/services';
 import { zustandStorage } from '@/lib/storage';
 import { supabase } from '@/lib/supabase';
@@ -79,6 +80,8 @@ function clearDevice(): void {
   clearLocalPlan();
   setDevDayOffset(0);
   queryClient.clear();
+  // The "come back when you're ready" reminder belongs to the person who left.
+  cancelHoldingReminder().catch(() => {});
 }
 
 /**
@@ -119,6 +122,8 @@ export async function deleteAccount(): Promise<boolean> {
   track('account_deleted');
   useAccountStore.getState().setAccount(null);
   clearDevice();
+  // Reset first, so analytics starts a new, unconnected identity for the new user.
+  identify(null);
   identify(userId);
   await switchMembershipUser(userId);
   return true;

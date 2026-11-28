@@ -28,15 +28,18 @@ Tests hold each of these: `src/lib/__tests__/analytics.test.ts` and
 
 ### Onboarding
 
-| Event                 | Properties                           | Sent when                                                         |
-| --------------------- | ------------------------------------ | ----------------------------------------------------------------- |
-| `app_opened`          |                                      | The app starts.                                                   |
-| `onboarding_started`  |                                      | She taps "Build my plan".                                         |
-| `quiz_step_completed` | `step`, `answer`                     | She answers a quiz step. `answer` follows the privacy rule above. |
-| `safety_gate_shown`   |                                      | The safety message appears.                                       |
-| `safety_gate_choice`  | `choice`: `cleared` or `check_first` | She answers it.                                                   |
-| `plan_built`          | `days`, `minutes`, `goal`            | Her plan is built.                                                |
-| `plan_preview_viewed` |                                      | The plan preview appears.                                         |
+The brief also lists `safety_gate_shown` and `safety_gate_choice`. They were
+removed on 28 November 2026: the safety gate only ever appears after an answer
+about pregnancy or recent injury, so either event would tell analytics more
+than the single yes-or-no flag the privacy rule allows.
+
+| Event                 | Properties                | Sent when                                                         |
+| --------------------- | ------------------------- | ----------------------------------------------------------------- |
+| `app_opened`          |                           | The app starts.                                                   |
+| `onboarding_started`  |                           | She taps "Build my plan".                                         |
+| `quiz_step_completed` | `step`, `answer`          | She answers a quiz step. `answer` follows the privacy rule above. |
+| `plan_built`          | `days`, `minutes`, `goal` | Her plan is built.                                                |
+| `plan_preview_viewed` |                           | The plan preview appears.                                         |
 
 ### Money
 

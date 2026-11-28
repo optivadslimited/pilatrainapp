@@ -68,6 +68,9 @@ export function watchReminders(): void {
 
   useReminderStore.subscribe(() => {
     syncSessionReminders().catch(() => {});
+    // Turning reminders on is when notifications are first allowed: the
+    // trial notice ("Day 5: we remind you") must be scheduled then too.
+    syncTrialReminder().catch(() => {});
   });
   useMembershipStore.subscribe(() => {
     syncTrialReminder().catch(() => {});

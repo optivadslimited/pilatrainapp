@@ -21,11 +21,28 @@ import { storage } from './storage';
  */
 let client: PostHog | null = null;
 
+/** Her choice under You → Privacy. Usage data is shared unless she turns it off. */
+const OPTED_OUT_KEY = 'analytics.optedOut';
+
+export function analyticsEnabled(): boolean {
+  return storage.getBoolean(OPTED_OUT_KEY) !== true;
+}
+
+/** Turns usage data on or off. Stored on the phone, so it holds from the next launch on. */
+export function setAnalyticsEnabled(enabled: boolean): void {
+  storage.set(OPTED_OUT_KEY, !enabled);
+  if (!client) return;
+  void (enabled ? client.optIn() : client.optOut()).catch(() => {});
+}
+
 export function startAnalytics(): void {
   if (client || !env.posthogKey) return;
 
   client = new PostHog(env.posthogKey, {
     host: env.posthogHost || 'https://eu.i.posthog.com',
+    defaultOptIn: analyticsEnabled(),
+    // No location is worked out from her IP address.
+    disableGeoip: true,
     // "Application Installed" is the first step of the install-to-paid funnel.
     captureAppLifecycleEvents: true,
     enableSessionReplay: false,
@@ -35,6 +52,8 @@ export function startAnalytics(): void {
       setItem: (key, value) => storage.set(`posthog.${key}`, value),
     },
   });
+
+  if (!analyticsEnabled() && !client.optedOut) void client.optOut().catch(() => {});
 
   addAnalyticsSink((name, properties) => {
     client?.capture(name, properties);
