@@ -371,8 +371,13 @@ three products, and Billing Grace Period.
 **Uploading:**
 
 ```bash
-npx eas-cli submit --profile production --platform ios --latest
+npm run submit:ios
 ```
+
+(`APP_ENV=production` must be set, or the upload reads the development bundle
+ID. The script sets it.) Apple does not let the first app record be created
+from the command line: create it once in App Store Connect, then put its
+numeric Apple ID in `eas.json` as `ascAppId`.
 
 The first time, let it create an App Store Connect API key, so later uploads
 need no sign-in. Then put the app's numeric Apple ID in `eas.json` as
